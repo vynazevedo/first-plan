@@ -31,8 +31,19 @@ pub enum SymbolKind {
     Method,
 }
 
-/// Languages we know how to extract from. Detection is by extension only.
+/// Languages we know how to extract from. Detection is by extension or filename.
 pub fn language_from_path(path: &Path) -> Option<&'static str> {
+    // First check special filenames (dotfiles without extension)
+    if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+        if matches!(
+            name,
+            ".bashrc" | ".zshrc" | ".bash_profile" | ".profile" | ".bash_aliases"
+        ) {
+            return Some("bash");
+        }
+    }
+
+    // Then check extensions
     let ext = path.extension()?.to_str()?;
     match ext {
         "go" => Some("go"),
@@ -46,16 +57,37 @@ pub fn language_from_path(path: &Path) -> Option<&'static str> {
         "kt" | "kts" => Some("kotlin"),
         "swift" => Some("swift"),
         "ex" | "exs" => Some("elixir"),
+        "sh" | "bash" | "zsh" => Some("bash"),
         _ => None,
     }
 }
 
 /// Extract symbols from a source file. Returns empty Vec for unsupported langs.
+///
+/// When the `tree-sitter` feature is enabled, AST-based extraction is preferred
+/// for supported languages (Rust, Go, Python, TypeScript, JavaScript, Bash).
+/// Falls back to regex extraction otherwise.
 pub fn extract_symbols(path: &Path, source: &str) -> Result<Vec<Symbol>> {
     let lang = match language_from_path(path) {
         Some(l) => l,
         None => return Ok(Vec::new()),
     };
+
+    // Try AST-based extraction first (no-op if tree-sitter feature disabled)
+    if cfg!(feature = "tree-sitter") {
+        let mut ast_symbols = crate::ast::extract_symbols_ast(path, source, lang)?;
+        if !ast_symbols.is_empty() {
+            // Enrich with doc extraction (tree-sitter gives us position; reuse the
+            // line-based doc extractor for comments above the definition).
+            for sym in ast_symbols.iter_mut() {
+                if sym.doc.is_none() {
+                    let line_idx = sym.line.saturating_sub(1) as usize;
+                    sym.doc = extract_doc_above(source, line_idx);
+                }
+            }
+            return Ok(ast_symbols);
+        }
+    }
 
     let path_str = path.to_string_lossy().into_owned();
     let mut symbols = Vec::new();
@@ -83,7 +115,16 @@ pub fn extract_symbols(path: &Path, source: &str) -> Result<Vec<Symbol>> {
 /// Returns (kind, name, signature) on hit.
 fn match_line<'a>(lang: &str, line: &'a str) -> Option<(SymbolKind, &'a str, &'a str)> {
     let trimmed = line.trim();
-    if trimmed.is_empty() || trimmed.starts_with("//") || trimmed.starts_with('#') {
+    // Bash uses `#` for comments AND for shebang/function declarations sometimes,
+    // so we cannot skip `#` lines for bash.
+    if trimmed.is_empty() {
+        return None;
+    }
+    if trimmed.starts_with("//") {
+        return None;
+    }
+    // Skip pure comments for non-bash languages
+    if lang != "bash" && trimmed.starts_with('#') && !trimmed.starts_with("#!") {
         return None;
     }
 
@@ -93,6 +134,7 @@ fn match_line<'a>(lang: &str, line: &'a str) -> Option<(SymbolKind, &'a str, &'a
         "typescript" | "javascript" => match_ts(line),
         "python" => match_python(line),
         "php" => match_php(line),
+        "bash" => match_bash(line),
         _ => None,
     }
 }
@@ -301,6 +343,27 @@ fn match_php(line: &str) -> Option<(SymbolKind, &str, &str)> {
     None
 }
 
+fn match_bash(line: &str) -> Option<(SymbolKind, &str, &str)> {
+    static FUNC_KEYWORD: OnceLock<Regex> = OnceLock::new();
+    static FUNC_PARENS: OnceLock<Regex> = OnceLock::new();
+
+    // Form 1: `function name() { ... }` or `function name { ... }`
+    let func_kw_re = cached_regex!(
+        FUNC_KEYWORD,
+        r"^\s*function\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?:\(\))?\s*\{?"
+    );
+    // Form 2: `name() { ... }` (POSIX-style)
+    let func_p_re = cached_regex!(FUNC_PARENS, r"^\s*([A-Za-z_][A-Za-z0-9_]*)\s*\(\)\s*\{?");
+
+    if let Some(c) = func_kw_re.captures(line) {
+        return Some((SymbolKind::Function, c.get(1)?.as_str(), line.trim()));
+    }
+    if let Some(c) = func_p_re.captures(line) {
+        return Some((SymbolKind::Function, c.get(1)?.as_str(), line.trim()));
+    }
+    None
+}
+
 /// Extract docstring/comment immediately above a definition line.
 /// Looks at the previous lines for `///`, `//`, `#`, `/** */`, `"""..."""`.
 fn extract_doc_above(source: &str, def_line_idx: usize) -> Option<String> {
@@ -384,5 +447,41 @@ mod tests {
     fn skips_unsupported_languages() {
         let syms = extract_symbols(&PathBuf::from("foo.unknownext"), "anything").unwrap();
         assert!(syms.is_empty());
+    }
+
+    #[test]
+    fn extracts_bash_function_keyword_form() {
+        let src = "# Detects the Linux distribution\nfunction detect_distro() {\n  cat /etc/os-release\n}\n";
+        let syms = extract_symbols(&PathBuf::from("install.sh"), src).unwrap();
+        assert_eq!(syms.len(), 1);
+        assert_eq!(syms[0].name, "detect_distro");
+        assert_eq!(syms[0].kind, SymbolKind::Function);
+        assert_eq!(syms[0].language, "bash");
+    }
+
+    #[test]
+    fn extracts_bash_function_posix_form() {
+        let src = "install_node() {\n  curl -fsSL ...\n}\n";
+        let syms = extract_symbols(&PathBuf::from("setup.sh"), src).unwrap();
+        assert_eq!(syms.len(), 1);
+        assert_eq!(syms[0].name, "install_node");
+    }
+
+    #[test]
+    fn extracts_bash_multiple_functions() {
+        let src = "function check_deps() { ... }\nbackup_config() { ... }\nfunction restore_config { ... }\n";
+        let syms = extract_symbols(&PathBuf::from("dotfiles.sh"), src).unwrap();
+        assert_eq!(syms.len(), 3);
+        let names: Vec<&str> = syms.iter().map(|s| s.name.as_str()).collect();
+        assert!(names.contains(&"check_deps"));
+        assert!(names.contains(&"backup_config"));
+        assert!(names.contains(&"restore_config"));
+    }
+
+    #[test]
+    fn detects_bash_via_dotfile_name() {
+        // Files like .bashrc/.zshrc have no extension but should be detected as bash
+        assert_eq!(language_from_path(&PathBuf::from(".bashrc")), Some("bash"));
+        assert_eq!(language_from_path(&PathBuf::from(".zshrc")), Some("bash"));
     }
 }

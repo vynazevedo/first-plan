@@ -21,6 +21,7 @@ serde_json.workspace = true
 [features]
 default = []
 ml = ["first-plan-core/ml"]
+tree-sitter = ["first-plan-core/tree-sitter"]
 
 [dev-dependencies]
 assert_cmd = "2"

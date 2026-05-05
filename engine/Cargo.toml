@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/core", "crates/cli"]
 
 [workspace.package]
-version = "0.4.1"
+version = "0.5.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/vynazevedo/first-plan"
@@ -24,6 +24,14 @@ regex = "1"
 fastembed = "4"
 half = "2"
 dirs = "5"
+# Tree-sitter and grammars (optional, behind tree-sitter feature flag)
+tree-sitter = "0.24"
+tree-sitter-rust = "0.23"
+tree-sitter-go = "0.23"
+tree-sitter-python = "0.23"
+tree-sitter-typescript = "0.23"
+tree-sitter-bash = "0.23"
+streaming-iterator = "0.1"
 
 [profile.release]
 opt-level = 3

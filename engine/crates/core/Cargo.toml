@@ -24,10 +24,27 @@ dirs.workspace = true
 fastembed = { workspace = true, optional = true }
 # Force vendored OpenSSL so ml builds work in distro-agnostic environments
 openssl = { version = "0.10", optional = true, features = ["vendored"] }
+# Tree-sitter for AST-based extraction (opt-in via tree-sitter feature)
+tree-sitter = { workspace = true, optional = true }
+tree-sitter-rust = { workspace = true, optional = true }
+tree-sitter-go = { workspace = true, optional = true }
+tree-sitter-python = { workspace = true, optional = true }
+tree-sitter-typescript = { workspace = true, optional = true }
+tree-sitter-bash = { workspace = true, optional = true }
+streaming-iterator = { workspace = true, optional = true }
 
 [features]
 default = []
 ml = ["dep:fastembed", "dep:openssl"]
+tree-sitter = [
+    "dep:tree-sitter",
+    "dep:tree-sitter-rust",
+    "dep:tree-sitter-go",
+    "dep:tree-sitter-python",
+    "dep:tree-sitter-typescript",
+    "dep:tree-sitter-bash",
+    "dep:streaming-iterator",
+]
 
 [dev-dependencies]
 tempfile = "3"

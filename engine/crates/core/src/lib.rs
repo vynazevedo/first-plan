@@ -7,6 +7,7 @@
 //! - symbol extraction and BM25-based semantic search (v0.4.0+)
 //! - JSON serialization with versioned schemas
 
+pub mod ast;
 pub mod cochange;
 pub mod embeddings;
 pub mod git;
@@ -19,5 +20,8 @@ pub mod tokenize;
 
 /// Whether this binary was built with the `ml` feature enabled.
 pub const ML_ENABLED: bool = cfg!(feature = "ml");
+
+/// Whether this binary was built with the `tree-sitter` feature enabled.
+pub const AST_ENABLED: bool = cfg!(feature = "tree-sitter");
 
 pub const ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");

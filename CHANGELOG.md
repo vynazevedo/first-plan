@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-05-05
+
+### Added
+
+- **Bash extractor** (regex-based) - dotfiles e shell scripts agora indexaveis
+  - Detecta `function name() { ... }` e `name() { ... }` (POSIX-style)
+  - Suporta `.sh`, `.bash`, `.zsh` extensions + dotfiles (`.bashrc`, `.zshrc`, etc)
+  - 4 unit tests cobrindo edge cases
+- **Tree-sitter AST extraction** (opt-in via `--features=tree-sitter`)
+  - Extracao precisa via parsing real (vs regex aproximado)
+  - 5 linguagens: Rust, Go, Python, TypeScript, Bash
+  - Detecta methods automaticamente (function dentro de class/impl/struct)
+  - Enriquece com docstrings via fallback para regex doc extractor
+  - Em projeto Rust real: 184 simbolos vs 129 com regex (+43% precisao)
+  - Latencia ~10ms por arquivo, ~2s pra projeto medio
+- **Wikilinks Obsidian-compatible** entre arquivos do `.first-plan/`
+  - Sintaxe `[[secao/arquivo]]` (sem extensao .md, sem path prefix)
+  - Templates atualizados (INDEX.md tem 30+ wikilinks)
+  - Skill protocol documenta a convencao
+  - Habilita navegacao como graph no Obsidian/Logseq
+- Novo `core::ast` modulo com tree-sitter queries por linguagem
+
+### Changed
+
+- `extract_symbols` agora prefere AST quando feature `tree-sitter` ativada
+  - Fallback automatico para regex se AST retorna empty
+  - Mantem 100% backward compat (default build = regex apenas)
+- Release workflow: novo target `x86_64-unknown-linux-musl-ast` (~10MB)
+  - 3 builds default (~1MB cada)
+  - 1 build ml (~50MB)
+  - 1 build tree-sitter (~10MB)
+
+### Performance
+
+- Bash extraction: 39 simbolos do dotfiles em <300ms
+- Tree-sitter Rust extraction: 184 simbolos em 1854ms (vs 696ms regex, mas +43% accuracy)
+
 ## [0.4.1] - 2026-05-05
 
 ### Added

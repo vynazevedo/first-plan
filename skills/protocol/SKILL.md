@@ -129,6 +129,29 @@ Tudo persiste em arquivos:
 
 Ao reabrir o Claude Code, o entry point é `STATE.md`. Claude lê `phase` e age conforme.
 
+## Convenção de wikilinks (v0.5.0+)
+
+Cross-references entre arquivos do `.first-plan/` usam sintaxe Obsidian-compatible:
+
+```markdown
+Veja [[02-conventions/errors]] para padrões de error handling.
+Detalhes em [[08-meta/questions]].
+```
+
+Formato: `[[secao/arquivo]]` (sem extensão `.md`, sem prefixo de path).
+
+Razão: permite navegação como graph no Obsidian/Logseq. No GitHub web os wikilinks aparecem como texto plano (limitação aceita).
+
+Quando referenciar:
+- **Cross-section sempre** - se um finding em `02-conventions/errors.md` exemplifica ou conflita com `06-rationale/dont.md`, usar wikilink
+- **Cross-feature em 09-features** - features relacionadas linkam entre si
+- **Reuse Index** - cada item linka pra arquivo onde está catalogado
+
+Quando NÃO usar:
+- Links externos (GitHub URLs, docs externos) - usar markdown padrão `[label](url)`
+- Path arquivos do projeto-alvo (não do `.first-plan/`) - usar `path:line`
+- File system paths (`/etc/...`, comandos) - texto direto
+
 ## Detecção de invalidação durante execução
 
 Se durante `/first-plan:execute` Claude perceber que:

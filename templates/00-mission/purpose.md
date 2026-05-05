@@ -32,4 +32,4 @@ PLACEHOLDER_NON_GOALS
 
 Inferido de: README, CHANGELOG, package.json/go.mod descrição, primeiras linhas do entry point.
 
-Se confidence < 0.7, ver pergunta em `08-meta/questions.md`.
+Se confidence < 0.7, ver pergunta em [[08-meta/questions]].

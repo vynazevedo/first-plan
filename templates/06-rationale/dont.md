@@ -18,7 +18,7 @@ Detectado por:
 
 - **Resumo:** PLACEHOLDER (e.g., "nao usar singleton global pra DB connection")
 - **Por que (inferido):** PLACEHOLDER
-- **O que fazer em vez:** PLACEHOLDER (link pra `06-rationale/do.md` ou `03-reuse/`)
+- **O que fazer em vez:** PLACEHOLDER (link pra [[06-rationale/do]] ou [[03-reuse/INDEX]])
 - **Evidência da regra:** PLACEHOLDER (commit message, comentário, ausência consistente)
 - **Confidence:** 0.0
 
