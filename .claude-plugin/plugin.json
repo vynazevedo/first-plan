@@ -1,0 +1,20 @@
+{
+  "name": "first-plan",
+  "description": "Camada compilada de contexto multi-layer para Claude Code. Compila projetos desconhecidos em uma estrutura .first-plan/ com discovery por stack, reuse index invertido, reconciliação spec-código, git intelligence e estado vivo. Resolve re-implementação cega, phantom features, drift e cross-session amnesia em projetos complexos.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Vinicius Azevedo",
+    "email": "viniciusdiazevedo@gmail.com"
+  },
+  "homepage": "https://github.com/vynazevedo/first-plan",
+  "keywords": [
+    "context",
+    "discovery",
+    "patterns",
+    "multi-stack",
+    "spec-code-reconciliation",
+    "git-intelligence",
+    "living-context"
+  ],
+  "license": "MIT"
+}

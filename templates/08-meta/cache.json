@@ -1,0 +1,10 @@
+{
+  "$schema": "first-plan-cache-v1",
+  "generated_at": "PLACEHOLDER_TIMESTAMP",
+  "first_plan_version": "0.1.0",
+  "project_root": "PLACEHOLDER_ROOT",
+  "files": {},
+  "stale_paths": [],
+  "last_full_init": "PLACEHOLDER_TIMESTAMP",
+  "last_refresh": "PLACEHOLDER_TIMESTAMP"
+}

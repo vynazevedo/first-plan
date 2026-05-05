@@ -1,0 +1,16 @@
+{
+  "description": "Living Layer hook do first-plan. Marca seções de .first-plan/ como stale quando arquivos relevantes do projeto sao modificados via Edit, Write, MultiEdit. Não regenera automaticamente - apenas sinaliza.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/invalidate-cache.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}
