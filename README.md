@@ -6,14 +6,18 @@
   <br>
 </h1>
 
-<h4 align="center">Camada compilada de contexto para <a href="https://claude.com/claude-code" target="_blank">Claude Code</a> em projetos complexos.</h4>
+<h4 align="center">Compiled context layer for <a href="https://claude.com/claude-code" target="_blank">Claude Code</a> on complex projects.</h4>
+
+<p align="center">
+  <a href="docs/i18n/README.pt-BR.md">Portugues (BR)</a>
+</p>
 
 <p align="center">
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.4.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.4.1-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -50,53 +54,53 @@
 </p>
 
 <p align="center">
-  first-plan compila projetos complexos em uma camada estruturada de contexto (<code>.first-plan/</code>), permitindo que o Claude Code opere com aderência absoluta aos padrões existentes do projeto. Resolve re-implementação cega, phantom features, drift de specs, cross-session amnesia e duplicação de trabalho em flight - sem inventar regras nem impor best practices externas.
+  first-plan compiles complex projects into a structured context layer (<code>.first-plan/</code>) that lets Claude Code operate with absolute adherence to existing project patterns. It solves blind re-implementation, phantom features, spec drift, cross-session amnesia, and duplicated in-flight work - without inventing rules or imposing external best practices.
 </p>
 
 ---
 
 ## Quick Start
 
-Instale via marketplace plugin do Claude Code:
+Install via the Claude Code plugin marketplace:
 
 ```bash
 /plugin marketplace add vynazevedo/first-plan
 /plugin install first-plan
 ```
 
-Para uso local em desenvolvimento:
+For local development:
 
 ```bash
-/plugin marketplace add /caminho/local/first-plan
+/plugin marketplace add /local/path/to/first-plan
 /plugin install first-plan@first-plan
 ```
 
-No projeto-alvo, na primeira vez:
+Inside the target project, first run:
 
 ```bash
 /first-plan:init
 ```
 
-Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo com discovery, conventions, reuse index, spec-code reconciliation e git intelligence.
+In ~3-8 minutes (depending on project size) it generates a complete `.first-plan/` with discovery, conventions, reuse index, spec-code reconciliation and git intelligence.
 
-### Capacidades principais
+### Core capabilities
 
 <table>
 <tr>
 <td><img src="https://img.shields.io/badge/-CORE-blue?style=flat-square" /></td>
-<td><strong>Context Compilation</strong> - camada IR multi-layer estruturada para IA</td>
+<td><strong>Context Compilation</strong> - structured multi-layer IR optimized for AI consumption</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-ENGINE-orange?style=flat-square" /></td>
-<td><strong>Stack Lens Engine</strong> - detecção e análise plugavel por stack (Go, TS, PHP, Python, Rust, Terraform, Mobile)</td>
+<td><strong>Stack Lens Engine</strong> - pluggable detection and analysis per stack (Go, TS, PHP, Python, Rust, Terraform, Mobile)</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-INDEX-green?style=flat-square" /></td>
-<td><strong>Reuse Index invertido</strong> - "preciso de X, use Y em Z"</td>
+<td><strong>Inverted Reuse Index</strong> - "I need X, use Y at Z"</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-MATRIX-purple?style=flat-square" /></td>
-<td><strong>Spec-Code Reconciliation</strong> - matriz feature x status x evidência</td>
+<td><strong>Spec-Code Reconciliation</strong> - feature x status x evidence matrix</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-GIT-black?style=flat-square" /></td>
@@ -104,43 +108,47 @@ Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-LIVING-brightgreen?style=flat-square" /></td>
-<td><strong>Living Layer</strong> - hook PostToolUse marca seções stale automaticamente</td>
+<td><strong>Living Layer</strong> - PostToolUse hook automatically marks sections as stale on edits</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-PROTOCOL-red?style=flat-square" /></td>
-<td><strong>Plan-First Protocol</strong> - gate humano explícito antes de executar</td>
+<td><strong>Plan-First Protocol</strong> - explicit human gate before execution</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-SCORING-yellow?style=flat-square" /></td>
-<td><strong>Confidence-Graded Knowledge</strong> - threshold 0.7, dúvidas viram perguntas</td>
+<td><strong>Confidence-Graded Knowledge</strong> - threshold 0.7, low-confidence findings become open questions</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-STATE-cyan?style=flat-square" /></td>
-<td><strong>Cross-Session State</strong> - sessão de hoje sabe o que sessão de ontem fez</td>
+<td><strong>Cross-Session State</strong> - today's session knows what yesterday's did</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-UNIVERSAL-lightgrey?style=flat-square" /></td>
-<td><strong>Stack-Agnostic</strong> - fallback genérico para qualquer linguagem</td>
+<td><strong>Stack-Agnostic</strong> - generic fallback for any language</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-PROVENANCE-darkgreen?style=flat-square" /></td>
-<td><strong>Provenance Tracking</strong> (v0.2.0) - cada finding tem source/SHA/TTL/decay - audita de onde veio</td>
+<td><strong>Provenance Tracking</strong> (v0.2.0) - every finding has source/SHA/TTL/decay - audit where it came from</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-COCHANGE-darkblue?style=flat-square" /></td>
-<td><strong>Co-change Graph</strong> (v0.2.0) - "quando X muda, Y também" - previne PRs incompletos</td>
+<td><strong>Co-change Graph</strong> (v0.2.0) - "when X changes, Y also changes" - prevents incomplete PRs</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-VERIFY-magenta?style=flat-square" /></td>
-<td><strong>Verification Loop</strong> (v0.2.0) - lint/typecheck/tests automaticos pos-execute + rollback safety net</td>
+<td><strong>Verification Loop</strong> (v0.2.0) - automatic lint/typecheck/tests post-execute + rollback safety net</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-NATIVE-darkred?style=flat-square" /></td>
-<td><strong>Rust Engine</strong> (v0.3.0) - binario nativo first-plan-engine. Co-change graph 50k commits em &lt;2s vs 5min via shell. Hash 10k arquivos paralelo. Zero token Claude pra heavy lifting.</td>
+<td><strong>Rust Engine</strong> (v0.3.0) - native binary first-plan-engine. Co-change graph for 50k commits in &lt;2s vs 5min via shell. Parallel hashing of 10k files. Zero Claude tokens for heavy lifting.</td>
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-SEMANTIC-purple?style=flat-square" /></td>
-<td><strong>Semantic Search BM25</strong> (v0.4.0) - "preciso de validacao de email" encontra `validateEmailRFC` mesmo sem nome exato. Indice SQLite local, &lt;10ms por query, 6 linguagens suportadas.</td>
+<td><strong>BM25 Semantic Search</strong> (v0.4.0) - "I need email validation" finds <code>validateEmailRFC</code> even without an exact name match. Local SQLite index, &lt;10ms per query, 6 supported languages.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-EMBEDDINGS-teal?style=flat-square" /></td>
+<td><strong>ML Embeddings (Hybrid)</strong> (v0.4.1) - opt-in build with BGE-small (ONNX). Hybrid search combines BM25 + cosine similarity for true semantic matches.</td>
 </tr>
 </table>
 
@@ -148,77 +156,79 @@ Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo
 
 ## Native Engine (v0.3.0+)
 
-A partir da v0.3.0, o plugin inclui um **binário nativo Rust** (`first-plan-engine`) que faz heavy lifting fora do Claude. Operações que levavam minutos via shell+tokens agora rodam em segundos.
+Starting with v0.3.0, the plugin ships a **native Rust binary** (`first-plan-engine`) that performs the heavy lifting outside of Claude. Operations that took minutes via shell+tokens now run in seconds.
 
 ### Performance
 
-| Operação | Shell + Claude | Engine nativo |
-|----------|----------------|---------------|
+| Operation | Shell + Claude | Native engine |
+|-----------|----------------|---------------|
 | Co-change graph (50k commits) | ~5 min | <2 s |
-| Hash 10k arquivos (xxh3) | ~30 s | <500 ms |
-| Custo em tokens Claude | ~30k | ~0 |
+| Hash 10k files (xxh3) | ~30 s | <500 ms |
+| Claude token cost | ~30k | ~0 |
 
-### Instalação do engine
+### Engine installation
 
-**Auto (recomendado):** Na primeira invocação de `/first-plan:cochange` ou `/first-plan:refresh`, o plugin oferece download automatico:
+**Auto (recommended):** On the first invocation of `/first-plan:cochange` or `/first-plan:refresh`, the plugin offers an automatic download:
 
 ```
-Engine nativo nao detectado. Baixar? (~5MB, melhora 10-100x)
-A) Sim B) Nao C) Manual
+Native engine not detected. Download? (~5MB, 10-100x speedup)
+A) Yes B) No C) Manual
 ```
 
-**Manual:** Download em [Releases](https://github.com/vynazevedo/first-plan/releases) o binário matching seu OS/arch. Extraia e coloque em `${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine` (ou no `$PATH`).
+**Manual:** Download from [Releases](https://github.com/vynazevedo/first-plan/releases) the binary matching your OS/arch. Extract and place in `${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine` (or anywhere in your `$PATH`).
 
-**Plataformas suportadas (v0.3.0):**
+**Supported platforms (v0.4.1):**
 - Linux x86_64 (musl, fully static)
 - Linux aarch64 (musl, fully static)
 - Windows x86_64
+- Linux x86_64 GNU **with ML build** (`-ml` suffix, ~50MB, embeddings via fastembed)
 
-> macOS (x86_64 + aarch64) sera reativado em v0.4.0. Por enquanto, usuarios macOS podem buildar from source via `cargo install --path engine/crates/cli`.
+> macOS (x86_64 + aarch64) coming back in v0.5.0. macOS users can build from source via `cargo install --path engine/crates/cli` for now.
 
 **From source:**
 ```bash
 git clone https://github.com/vynazevedo/first-plan
 cd first-plan/engine
-cargo install --path crates/cli
+cargo install --path crates/cli                       # default lean build
+cargo install --path crates/cli --features=ml         # ML-enabled (embeddings)
 ```
 
 ### Graceful fallback
 
-Se o engine não estiver disponível (sem rede, ambiente restrito, opt-out), todas as operações **continuam funcionando** via fallback markdown. Engine é optimization, não requirement.
+If the engine is unavailable (no network, restricted environment, opt-out), all operations **continue working** via markdown fallback. The engine is an optimization, not a requirement.
 
 ---
 
 ## Real-World Example
 
-Output do `/first-plan:init` rodado num repositorio Bash de dotfiles (~50 scripts):
+Output of `/first-plan:init` on a Bash dotfiles repo (~50 scripts):
 
 ```
-Stacks detectadas: Bash (puro)
-Reuse Index: 8 padroes idiomaticos identificados
-Features classificadas: 21
+Detected stacks: Bash (pure)
+Reuse Index: 8 idiomatic patterns identified
+Classified features: 21
   IMPLEMENTED: 17
-  DRIFTED: 4   (alerta!)
+  DRIFTED: 4   (alert!)
   PHANTOM: 1   (alarm!)
   IN_PROGRESS: 0
   SPEC_ONLY: 0
 
-Confidence media: 0.94
-Perguntas abertas: 8 (em 08-meta/questions.md)
+Average confidence: 0.94
+Open questions: 8 (in 08-meta/questions.md)
 
-Proximas acoes sugeridas:
-1. Revisar phantom feature: F03 (README claim "200+ aliases", real: 54)
-2. Drift tecnico: F07 (`air` instalado 2x em golang.sh)
-3. Responder questions Q2-Q8 com /first-plan:ask
+Suggested next actions:
+1. Review phantom feature: F03 (README claims "200+ aliases", actually: 54)
+2. Technical drift: F07 (`air` installed twice in golang.sh)
+3. Answer questions Q2-Q8 with /first-plan:ask
 ```
 
-### Exemplos do Reuse Index gerado
+### Reuse Index examples
 
 ```bash
-$ /first-plan:reuse "preciso detectar a distro Linux"
+$ /first-plan:reuse "I need to detect the Linux distro"
 ```
 
-Retorna:
+Returns:
 
 ```yaml
 distro_detection (confidence 0.99):
@@ -227,46 +237,46 @@ distro_detection (confidence 0.99):
       . /etc/os-release
       DISTRO_ID="${ID}"
     fi
-  visto_em:
+  seen_in:
     - zsh.sh:14-23
     - neovim.sh:12-18
     - docker.sh:12-18
     - pentest.sh:13-17
-  inconsistencia: "neovim.sh usa 'unknown' como fallback ao inves de exit 1"
+  inconsistency: "neovim.sh uses 'unknown' as fallback instead of exit 1"
 ```
 
-### Exemplo de Spec-Code Reconciliation
+### Spec-Code Reconciliation example
 
 ```bash
-$ /first-plan:check "endpoint de export CSV"
+$ /first-plan:check "CSV export endpoint"
 ```
 
-Retorna:
+Returns:
 
 ```
-Match encontrado: F12 - "CSV Export Endpoint"
+Match found: F12 - "CSV Export Endpoint"
 Status: IMPLEMENTED (confidence 0.91)
 
-Evidencia:
-- internal/handler/export.go:45 (handler completo)
+Evidence:
+- internal/handler/export.go:45 (full handler)
 - internal/handler/export_test.go (8 test cases)
 
-Recomendacao: Feature ja existe. Nao duplicar.
+Recommendation: Feature already exists. Do not duplicate.
 ```
 
-### Living Layer em acao
+### Living Layer in action
 
-Apos editar `README.md` no projeto, o hook PostToolUse marca automaticamente:
+After editing `README.md` in the project, the PostToolUse hook automatically marks:
 
 ```
 .first-plan/cache/.stale:
 README.md
 
-.first-plan/08-meta/coverage.md (entry adicionado):
-- README.md (modificado em 2026-05-04T22:02) - afeta: 09-features
+.first-plan/08-meta/coverage.md (entry added):
+- README.md (modified at 2026-05-04T22:02) - affects: 09-features
 ```
 
-Voce nao precisa fazer nada - o hook detectou. Quando rodar `/first-plan:refresh`, so essas secoes sao re-analisadas.
+You don't need to do anything - the hook detected it. When you run `/first-plan:refresh`, only those sections get re-analyzed.
 
 ---
 
@@ -274,134 +284,134 @@ Voce nao precisa fazer nada - o hook detectou. Quando rodar `/first-plan:refresh
 
 ### Getting Started
 
-- **[Quick Start](#quick-start)** - Instalação e primeiro init
-- **[Commands](#commands)** - Todos os slash commands disponíveis
-- **[Estrutura `.first-plan/`](#estrutura-criada-no-projeto-alvo)** - O que é gerado no projeto-alvo
+- **[Quick Start](#quick-start)** - Installation and first init
+- **[Commands](#commands)** - All available slash commands
+- **[`.first-plan/` structure](#generated-structure)** - What gets generated in the target project
 
 ### Architecture
 
-- **[How It Works](#how-it-works)** - Componentes principais
-- **[Stack Lenses](#stack-lenses)** - Como cada stack é analisada
-- **[Living Layer](#living-layer)** - Hook de invalidação automática
-- **[Spec-Code Reconciliation](#spec-code-reconciliation)** - Matriz de features
+- **[How It Works](#how-it-works)** - Main components
+- **[Stack Lenses](#stack-lenses)** - How each stack is analyzed
+- **[Living Layer](#living-layer)** - Automatic invalidation hook
+- **[Spec-Code Reconciliation](#spec-code-reconciliation)** - Feature matrix
 
 ### Best Practices
 
-- **[Philosophy](#philosophy)** - 7 regras invioláveis
+- **[Philosophy](#philosophy)** - 7 inviolable rules
 - **[Plan-First Workflow](#plan-first-workflow)** - Discovery -> Plan -> Approval -> Execution -> Report
-- **[Confidence Scoring](#confidence-scoring)** - Quando o plugin pergunta em vez de inventar
+- **[Confidence Scoring](#confidence-scoring)** - When the plugin asks instead of guessing
 
 ### Configuration & Development
 
-- **[Configuration](#configuration)** - Settings e customização
-- **[Development](#development)** - Build, contribute, adicionar nova stack lens
-- **[Troubleshooting](#troubleshooting)** - Problemas comuns
+- **[Configuration](#configuration)** - Settings and customization
+- **[Development](#development)** - Build, contribute, add a new stack lens
+- **[Troubleshooting](#troubleshooting)** - Common issues
 
 ---
 
 ## How It Works
 
-**Componentes principais:**
+**Main components:**
 
-1. **Stack Lens Engine** - detecta manifestos (`go.mod`, `package.json`, `composer.json`, etc), infere papel (API/worker/lib/CLI/UI/infra) e roteia para `skills/lens-<stack>/SKILL.md` correspondente
-2. **Discovery Subagent** (`discovery-analyst`) - read-only, executa Fase 1 inteira em contexto isolado, retorna findings estruturados
-3. **Pattern Archeologist** (`pattern-archeologist`) - extrai convenções com confidence scoring + exemplos concretos do código
-4. **Reconciliation Auditor** (`reconciliation-auditor`) - cruza intenções (docs, JIRA, GitHub issues via MCP) com evidência no código
-5. **Git Intelligence** - inline, comandos git read-only para activity heatmap, ownership, in-flight (branches+PRs)
-6. **Living Layer Hook** - `PostToolUse` monitora edits e marca seções afetadas como stale (não regenera - usuário decide quando refreshar)
-7. **State Machine** - persistência em `.first-plan/07-state/STATE.md` atravessa sessões
+1. **Stack Lens Engine** - detects manifests (`go.mod`, `package.json`, `composer.json`, etc), infers role (API/worker/lib/CLI/UI/infra) and routes to the matching `skills/lens-<stack>/SKILL.md`
+2. **Discovery Subagent** (`discovery-analyst`) - read-only, runs Phase 1 in isolation, returns structured findings
+3. **Pattern Archeologist** (`pattern-archeologist`) - extracts conventions with confidence scoring + concrete code examples
+4. **Reconciliation Auditor** (`reconciliation-auditor`) - cross-references intent (docs, JIRA, GitHub issues via MCP) with evidence in code
+5. **Git Intelligence** - inline read-only git commands for activity heatmap, ownership, in-flight (branches+PRs)
+6. **Living Layer Hook** - `PostToolUse` watches edits and marks affected sections stale (does not regenerate - the user decides when to refresh)
+7. **State Machine** - persisted in `.first-plan/07-state/STATE.md`, survives across sessions
 
 ---
 
 ## Commands
 
-### Comandos essenciais
+### Essential commands
 
 <p>
 <img src="https://img.shields.io/badge/-CORE-blue?style=flat-square" />
 </p>
 
-| Comando | Função |
-|---------|--------|
-| `/first-plan:init` | Compilação completa - cria `.first-plan/` |
-| `/first-plan:refresh [section]` | Atualização incremental |
-| `/first-plan:status [--verbose]` | Estado atual da camada |
+| Command | Purpose |
+|---------|---------|
+| `/first-plan:init` | Full compilation - creates `.first-plan/` |
+| `/first-plan:refresh [section]` | Incremental refresh |
+| `/first-plan:status [--verbose]` | Current layer state |
 
-### Workflow Plan-First
+### Plan-First workflow
 
 <p>
 <img src="https://img.shields.io/badge/-PROTOCOL-red?style=flat-square" />
 </p>
 
-| Comando | Função |
-|---------|--------|
-| `/first-plan:plan <feature>` | Gera plano (Fase 2), pausa para aprovação |
-| `/first-plan:execute [--dry-run]` | Executa plano aprovado (Fase 3), gera report |
+| Command | Purpose |
+|---------|---------|
+| `/first-plan:plan <feature>` | Generate plan (Phase 2), pause for approval |
+| `/first-plan:execute [--dry-run]` | Execute approved plan (Phase 3), generate report |
 
-### Comandos de query
+### Query commands
 
 <p>
 <img src="https://img.shields.io/badge/-QUERY-purple?style=flat-square" />
 </p>
 
-| Comando | Função |
-|---------|--------|
-| `/first-plan:why <símbolo\|path>` | "Por que X existe?" |
-| `/first-plan:reuse <intenção>` | "O que reusar pra X?" |
-| `/first-plan:risk <path>` | Riscos catalogados |
-| `/first-plan:ask` | Perguntas abertas para o humano |
-| `/first-plan:features [filter]` | Matriz Spec-Code Reconciliation |
-| `/first-plan:check <feature>` | "Isto já existe?" |
-| `/first-plan:in-flight [--all\|--mine]` | Branches/PRs ativos |
-| `/first-plan:hot [--days N]` | Áreas mais ativas |
-| `/first-plan:owner <path>` | Quem domina esse arquivo |
-| `/first-plan:cochange <path>` | (v0.2.0) Arquivos que mudam junto com este |
-| `/first-plan:provenance <id>` | (v0.2.0) Cadeia de proveniência de um finding |
-| `/first-plan:rollback [--snapshot]` | (v0.2.0) Reverte último execute |
+| Command | Purpose |
+|---------|---------|
+| `/first-plan:why <symbol\|path>` | "Why does X exist?" |
+| `/first-plan:reuse <intent>` | "What should I reuse for X?" |
+| `/first-plan:risk <path>` | Catalogued risks |
+| `/first-plan:ask` | Open questions for the human |
+| `/first-plan:features [filter]` | Spec-Code Reconciliation matrix |
+| `/first-plan:check <feature>` | "Does this already exist?" |
+| `/first-plan:in-flight [--all\|--mine]` | Active branches/PRs |
+| `/first-plan:hot [--days N]` | Most active areas |
+| `/first-plan:owner <path>` | Who owns this file |
+| `/first-plan:cochange <path>` | (v0.2.0) Files that change together with this one |
+| `/first-plan:provenance <id>` | (v0.2.0) Provenance chain of a finding |
+| `/first-plan:rollback [--snapshot]` | (v0.2.0) Revert last execute |
 
 ---
 
-## Estrutura criada no projeto-alvo
+## Generated Structure
 
 ```
 .first-plan/
-├── INDEX.md                       entry point - Claude le primeiro
-├── 00-mission/                    propósito + stakeholders inferidos
-├── 01-topology/                   stacks + arquitetura + boundaries
+├── INDEX.md                       entry point - Claude reads first
+├── 00-mission/                    inferred purpose + stakeholders
+├── 01-topology/                   stacks + architecture + boundaries
 │   ├── stacks.md
 │   ├── architecture.md
 │   ├── boundaries.md
 │   ├── deployments.md
 │   ├── activity.md                heatmap (git)
-│   └── ownership.md               por path (git)
-├── 02-conventions/                convenções extraídas com exemplos reais
+│   └── ownership.md               per path (git)
+├── 02-conventions/                extracted conventions with real examples
 │   ├── naming.md
 │   ├── errors.md
 │   ├── testing.md
 │   ├── logging.md
 │   ├── di.md
 │   └── security.md
-├── 03-reuse/                      Reuse Index invertido
+├── 03-reuse/                      Inverted Reuse Index
 │   ├── INDEX.md
 │   ├── components.md
 │   ├── utils.md
 │   ├── types.md
 │   ├── hooks.md
 │   └── search.json                machine-readable lookup
-├── 04-domain/                     glossário + entidades + flows críticos
+├── 04-domain/                     glossary + entities + critical flows
 ├── 05-risks/                      fragile + untested + magic + debt
-├── 06-rationale/                  do + dont + why (decisões inferidas)
-├── 07-state/                      State machine + planos + reports
+├── 06-rationale/                  do + dont + why (inferred decisions)
+├── 07-state/                      State machine + plans + reports
 │   ├── STATE.md
 │   ├── in-flight.md
-│   ├── sessions/                  efêmero (gitignored)
-│   ├── plans/                     planos ativos (Fase 2)
-│   └── reports/                   reports de execução (Fase 5)
+│   ├── sessions/                  ephemeral (gitignored)
+│   ├── plans/                     active plans (Phase 2)
+│   └── reports/                   execution reports (Phase 5)
 ├── 08-meta/                       coverage + confidence + questions + cache
 └── 09-features/                   Spec-Code Reconciliation matrix
 ```
 
-E modifica `.gitignore` do projeto-alvo adicionando:
+The plugin also appends to the target project's `.gitignore`:
 
 ```
 .first-plan/cache/
@@ -412,7 +422,7 @@ E modifica `.gitignore` do projeto-alvo adicionando:
 
 ## Stack Lenses
 
-V1 com lenses dedicadas:
+V1 ships dedicated lenses for:
 
 <p>
 <img src="https://img.shields.io/badge/Go-supported-00ADD8?style=flat-square" alt="Go">
@@ -425,28 +435,28 @@ V1 com lenses dedicadas:
 <img src="https://img.shields.io/badge/Generic-fallback-grey?style=flat-square" alt="Generic">
 </p>
 
-| Stack | Lens | Detecta |
+| Stack | Lens | Detects |
 |-------|------|---------|
 | Go | `lens-go` | cmd/internal/pkg, error wrapping, context.Context, concurrency, code generation |
 | TypeScript/Node | `lens-typescript` | Next.js, NestJS, Vite, Express, Astro, Remix, monorepos pnpm/turbo/nx |
 | PHP | `lens-php` | Laravel, Symfony, Slim, Hyperf, PSR compliance |
-| Python | `lens-python` | FastAPI, Django, Flask, Litestar, Celery, packaging src/flat |
-| Rust | `lens-rust` | axum, actix-web, tokio, error handling com thiserror/anyhow |
-| Terraform | `lens-terraform` | módulos, state backend, environments, providers, naming/tagging |
+| Python | `lens-python` | FastAPI, Django, Flask, Litestar, Celery, src/flat packaging |
+| Rust | `lens-rust` | axum, actix-web, tokio, error handling with thiserror/anyhow |
+| Terraform | `lens-terraform` | modules, state backend, environments, providers, naming/tagging |
 | Mobile | `lens-mobile` | RN, Flutter, iOS Swift, Android Kotlin |
-| Outras | `lens-generic` | Fallback heurístico (Elixir, OCaml, Haskell, Zig, etc) |
+| Other | `lens-generic` | Heuristic fallback (Elixir, OCaml, Haskell, Zig, etc) |
 
-### Adicionar suporte a nova stack
+### Add support for a new stack
 
-Crie `skills/lens-<stack>/SKILL.md` seguindo o contrato comum em `skills/lens-engine/SKILL.md`. Não há outras mudanças necessárias - o engine descobre via filesystem.
+Create `skills/lens-<stack>/SKILL.md` following the common contract in `skills/lens-engine/SKILL.md`. No other change is required - the engine discovers it via filesystem.
 
 ---
 
 ## Spec-Code Reconciliation
 
-Matriz contínua entre artefatos de intenção (docs, specs, JIRA, GitHub issues, README sections) e implementação (código, testes, PRs).
+Continuous matrix between intent artifacts (docs, specs, JIRA, GitHub issues, README sections) and implementation (code, tests, PRs).
 
-### Statuses possíveis
+### Possible statuses
 
 <p>
 <img src="https://img.shields.io/badge/NOT__STARTED-lightgrey?style=flat-square" alt="NOT_STARTED">
@@ -457,24 +467,24 @@ Matriz contínua entre artefatos de intenção (docs, specs, JIRA, GitHub issues
 <img src="https://img.shields.io/badge/ABANDONED-red?style=flat-square" alt="ABANDONED">
 </p>
 
-| Status | Significado |
-|--------|-------------|
-| `NOT_STARTED` | Intenção existe mas nenhum código relacionado |
-| `SPEC_ONLY` | Documentação completa, zero implementação |
-| `IN_PROGRESS` | Implementação parcial, branch ativa, ou TODOs visíveis |
-| `IMPLEMENTED` | Código completo, com testes |
-| `DRIFTED` | Código existe mas divergiu da spec |
-| `ABANDONED` | Branch obsoleta + implementação parcial |
+| Status | Meaning |
+|--------|---------|
+| `NOT_STARTED` | Intent exists but no related code |
+| `SPEC_ONLY` | Documentation complete, zero implementation |
+| `IN_PROGRESS` | Partial implementation, active branch, or visible TODOs |
+| `IMPLEMENTED` | Code complete, with tests |
+| `DRIFTED` | Code exists but diverged from spec |
+| `ABANDONED` | Stale branch + partial implementation |
 
 ### Phantom Features
 
 <p>
-<img src="https://img.shields.io/badge/alerta-phantom%20features-red?style=flat-square" alt="Phantom Alert">
+<img src="https://img.shields.io/badge/alert-phantom%20features-red?style=flat-square" alt="Phantom Alert">
 </p>
 
-Features marcadas IMPLEMENTED no código mas que ainda aparecem como Open em issue tracker - alta chance de trabalho duplicado iminente. Detectadas e sinalizadas em `.first-plan/09-features/INDEX.md`.
+Features marked IMPLEMENTED in code but still showing as Open in the issue tracker - high chance of imminent duplicated work. Detected and surfaced in `.first-plan/09-features/INDEX.md`.
 
-### Fontes consultadas
+### Sources consulted
 
 <p>
 <img src="https://img.shields.io/badge/local-docs%2Fspecs-blue?style=flat-square" alt="Local docs">
@@ -483,11 +493,11 @@ Features marcadas IMPLEMENTED no código mas que ainda aparecem como Open em iss
 <img src="https://img.shields.io/badge/git-history-darkgreen?style=flat-square" alt="Git history">
 </p>
 
-- Documentação local (`docs/`, `specs/`, `requirements/`, `rfcs/`, README sections)
-- JIRA (via MCP `jira-mm` se disponível)
-- GitHub Issues e PRs (via MCP `github-work` se disponível)
+- Local documentation (`docs/`, `specs/`, `requirements/`, `rfcs/`, README sections)
+- JIRA (via MCP `jira-mm` if available)
+- GitHub Issues and PRs (via MCP `github-work` if available)
 - Git history (branches, commit messages)
-- Comentários no código (`TODO: implement`, `PLANNED:`, `FIXME`)
+- Code comments (`TODO: implement`, `PLANNED:`, `FIXME`)
 
 ---
 
@@ -495,21 +505,21 @@ Features marcadas IMPLEMENTED no código mas que ainda aparecem como Open em iss
 
 <p>
 <img src="https://img.shields.io/badge/hook-PostToolUse-brightgreen?style=flat-square" alt="Hook">
-<img src="https://img.shields.io/badge/regenera-no-red?style=flat-square" alt="No regen">
-<img src="https://img.shields.io/badge/sinaliza-yes-blue?style=flat-square" alt="Signal only">
+<img src="https://img.shields.io/badge/regenerates-no-red?style=flat-square" alt="No regen">
+<img src="https://img.shields.io/badge/signals-yes-blue?style=flat-square" alt="Signal only">
 </p>
 
-O hook `PostToolUse` monitora edits via Edit/Write/MultiEdit e marca seções afetadas do `.first-plan/` como stale automaticamente. **Não regenera** - apenas sinaliza. O usuário decide quando rodar `/first-plan:refresh`.
+The `PostToolUse` hook watches edits via Edit/Write/MultiEdit and automatically marks affected `.first-plan/` sections as stale. **It does not regenerate** - it only signals. The user decides when to run `/first-plan:refresh`.
 
-Mapeamento arquivo modificado -> seções afetadas:
+Modified file -> affected sections mapping:
 
-| Arquivo modificado | Seções marcadas stale |
-|--------------------|----------------------|
-| Manifesto (go.mod, package.json) | `01-topology/stacks` |
+| Modified file | Sections marked stale |
+|---------------|----------------------|
+| Manifest (go.mod, package.json) | `01-topology/stacks` |
 | `cmd/`, entry points | `01-topology/architecture` |
 | Handlers / routers | `01-topology/boundaries` |
 | Dockerfile, CI configs | `01-topology/deployments` |
-| Source code (>= 5 arquivos) | `01-topology/activity`, `02-conventions/*` |
+| Source code (>= 5 files) | `01-topology/activity`, `02-conventions/*` |
 | `pkg/`, `lib/`, `utils/` | `03-reuse/*` |
 | Tests | `02-conventions/testing`, `05-risks/untested` |
 | docs/, specs/ | `09-features/*` |
@@ -520,81 +530,81 @@ Mapeamento arquivo modificado -> seções afetadas:
 
 <p>
 <img src="https://img.shields.io/badge/protocol-plan--first-red?style=flat-square" alt="Plan-First">
-<img src="https://img.shields.io/badge/gate-humano-yellow?style=flat-square" alt="Human gate">
-<img src="https://img.shields.io/badge/fases-5-blue?style=flat-square" alt="5 phases">
+<img src="https://img.shields.io/badge/gate-human-yellow?style=flat-square" alt="Human gate">
+<img src="https://img.shields.io/badge/phases-5-blue?style=flat-square" alt="5 phases">
 </p>
 
-Protocolo obrigatório com gate humano explícito:
+Mandatory protocol with explicit human gate:
 
 ```
 Discovery -> Plan -> Approval -> Execution -> Report
 ```
 
-### Fase 1 - Discovery
+### Phase 1 - Discovery
 
 ```bash
 /first-plan:init
 ```
 
-Resultado: `.first-plan/` populado. Subagents read-only executam discovery em contexto isolado, retornam findings estruturados que são escritos no projeto-alvo.
+Result: `.first-plan/` populated. Read-only subagents run discovery in isolation and return structured findings, which are written into the target project.
 
-### Fase 2 - Plan
+### Phase 2 - Plan
 
 ```bash
-/first-plan:plan <descrição da feature>
+/first-plan:plan <feature description>
 ```
 
-Resultado: `.first-plan/07-state/plans/<slug>.md` com:
+Result: `.first-plan/07-state/plans/<slug>.md` containing:
 
-1. Verificação de duplicidade (consulta `09-features/`)
-2. Mapeamento de reuse aplicável (`03-reuse/`)
-3. Arquivos a criar/modificar com diff conceitual
-4. Aderência aos padrões (`02-conventions/`)
-5. Riscos e perguntas abertas
-6. Critério de "feito" + out-of-scope explícito
+1. Duplication check (queries `09-features/`)
+2. Applicable reuse mapping (`03-reuse/`)
+3. Files to create/modify with conceptual diff
+4. Convention adherence (`02-conventions/`)
+5. Risks and open questions
+6. "Done" criteria + explicit out-of-scope
 
-**Pausa pedindo aprovação humana.**
+**Pauses for human approval.**
 
-### Fase 3 - Approval
+### Phase 3 - Approval
 
-Estado: `awaiting_approval` em `STATE.md`. Não executa nada. Usuário aprova com `/first-plan:execute` ou pede ajustes.
+State: `awaiting_approval` in `STATE.md`. Nothing executes. The user approves with `/first-plan:execute` or asks for adjustments.
 
-### Fase 4 - Execution
+### Phase 4 - Execution
 
 ```bash
 /first-plan:execute
 ```
 
-Segue o plano à risca. Para se algo invalidar premissa - **não improvisa**. Atualiza STATE a cada passo.
+Follows the plan precisely. Stops if any premise becomes invalid - **does not improvise**. Updates STATE every step.
 
-### Fase 5 - Report
+### Phase 5 - Report
 
-Gerado automaticamente em `.first-plan/07-state/reports/<slug>.md` com:
+Generated automatically at `.first-plan/07-state/reports/<slug>.md` with:
 
-- O que foi feito
-- O que foi reusado vs criado do zero (com justificativa)
-- Desvios do plano (se houver)
-- Riscos remanescentes
-- Sugestões fora do escopo
+- What was done
+- What was reused vs created from scratch (with justification)
+- Plan deviations (if any)
+- Remaining risks
+- Out-of-scope suggestions
 
 ---
 
 ## Philosophy
 
 <p>
-<img src="https://img.shields.io/badge/regras-7-red?style=flat-square" alt="7 rules">
-<img src="https://img.shields.io/badge/inviolaveis-yes-darkred?style=flat-square" alt="Inviolable">
+<img src="https://img.shields.io/badge/rules-7-red?style=flat-square" alt="7 rules">
+<img src="https://img.shields.io/badge/inviolable-yes-darkred?style=flat-square" alt="Inviolable">
 </p>
 
-### 7 Regras invioláveis
+### 7 Inviolable Rules
 
-1. **Reuse first** - Antes de criar, verificar `.first-plan/03-reuse/INDEX.md`. Criação do zero exige justificativa explícita
-2. **A verdade do projeto está no projeto** - Sem importar best practices externas. Se o projeto faz feio mas consistente, seguir o feio
-3. **Sem dependências novas** - Usar apenas o que já existe em manifestos. Adicionar lib exige aprovação separada
-4. **Consistência > elegância** - Refatoração não está no escopo a menos que solicitada. Sugestões vão para "fora do escopo" do report
-5. **Criação do zero é exceção** - Permitida apenas quando não há precedente. Sempre justificar
-6. **Acentuação completa em PT** - Comentários, docs, commits - tudo com acentuação correta
-7. **Tipagem forte** - Respeitar nível de tipagem do projeto. Nada de `any`/`interface{}` se o projeto é estrito
+1. **Reuse first** - Before creating, check `.first-plan/03-reuse/INDEX.md`. Creating from scratch requires explicit justification
+2. **The project's truth lives in the project** - Do not import external best practices. If the project does it ugly but consistent, follow the ugly
+3. **No new dependencies** - Use only what already exists in manifests. Adding a library requires separate approval
+4. **Consistency > elegance** - Refactoring is out of scope unless requested. Suggestions go in the report's "out of scope" section
+5. **Creating from scratch is the exception** - Allowed only when there is no precedent. Always justify
+6. **Faithful representation** - Comments, docs, commits - all faithful to the project's writing style
+7. **Strong typing** - Respect the project's type strictness. No `any`/`interface{}` if the project is strict
 
 ### Confidence Scoring
 
@@ -603,16 +613,16 @@ Gerado automaticamente em `.first-plan/07-state/reports/<slug>.md` com:
 <img src="https://img.shields.io/badge/range-0.0--1.0-blue?style=flat-square" alt="Range">
 </p>
 
-Cada finding tem `confidence: 0.0-1.0`. Threshold default: 0.7.
+Every finding has `confidence: 0.0-1.0`. Default threshold: 0.7.
 
-| Range | Significado |
-|-------|-------------|
-| `>= 0.9` | alta confiança, múltiplos sinais convergentes |
-| `0.7-0.9` | boa confiança, sinal claro |
-| `0.5-0.7` | confiança média, evidência circunstancial |
-| `< 0.5` | baixa confiança, vira pergunta em `08-meta/questions.md` |
+| Range | Meaning |
+|-------|---------|
+| `>= 0.9` | high confidence, multiple converging signals |
+| `0.7-0.9` | good confidence, clear signal |
+| `0.5-0.7` | medium confidence, circumstantial evidence |
+| `< 0.5` | low confidence, becomes a question in `08-meta/questions.md` |
 
-**O plugin não inventa - pergunta.** Quando confidence baixa, você é consultado via `/first-plan:ask`.
+**The plugin does not invent - it asks.** When confidence is low, you are consulted via `/first-plan:ask`.
 
 ---
 
@@ -625,38 +635,38 @@ Cada finding tem `confidence: 0.0-1.0`. Threshold default: 0.7.
 <img src="https://img.shields.io/badge/MCPs-optional-lightgrey?style=flat-square" alt="MCPs">
 </p>
 
-- **Claude Code**: versão recente com plugin support
-- **Git**: para Git Intelligence (opcional - se ausente, seções correlatas ficam vazias com nota)
-- **bash**: hooks usam bash (Linux/macOS/WSL2)
-- **MCPs opcionais** (melhoram cobertura):
-  - `jira-mm` - reconciliation contra issues do JIRA
-  - `github-work` - reconciliation contra issues/PRs do GitHub
+- **Claude Code**: recent version with plugin support
+- **Git**: for Git Intelligence (optional - if absent, related sections stay empty with a note)
+- **bash**: hooks use bash (Linux/macOS/WSL2)
+- **Optional MCPs** (improve coverage):
+  - `jira-mm` - reconciliation against JIRA issues
+  - `github-work` - reconciliation against GitHub issues/PRs
 
-Stack-agnostic - **não requer** runtimes específicos das stacks analisadas. O plugin lê código mas não executa.
+Stack-agnostic - **does not require** specific runtimes for the analyzed stacks. The plugin reads code, it does not execute it.
 
 ---
 
 ## Configuration
 
-O plugin não requer configuração inicial - convenções são descobertas no `init`. Customizações opcionais:
+The plugin requires no initial configuration - conventions are discovered during `init`. Optional customizations:
 
-### Threshold de confidence
+### Confidence threshold
 
-Edite o frontmatter de `.first-plan/08-meta/confidence.md`:
+Edit the frontmatter of `.first-plan/08-meta/confidence.md`:
 
 ```yaml
 ---
-threshold: 0.7    # ajustar para 0.6 (mais permissivo) ou 0.8 (mais rigoroso)
+threshold: 0.7    # tune to 0.6 (more permissive) or 0.8 (stricter)
 ---
 ```
 
-### Excluir paths do hook
+### Exclude paths from the hook
 
-Para evitar que mudanças em paths específicos disparem invalidação, edite `hooks/invalidate-cache.sh` ou adicione regra no `.gitignore` do projeto.
+To prevent changes to specific paths from triggering invalidation, edit `hooks/invalidate-cache.sh` or add a rule to the project's `.gitignore`.
 
 ### Cache TTL
 
-Por padrão git intelligence cacheada por 24h em `08-meta/cache.json`. Para forçar atualização:
+Git intelligence is cached for 24h by default in `08-meta/cache.json`. To force a refresh:
 
 ```bash
 /first-plan:refresh --all
@@ -666,88 +676,101 @@ Por padrão git intelligence cacheada por 24h em `08-meta/cache.json`. Para for�
 
 ## Development
 
-### Estrutura do plugin
+### Plugin structure
 
 ```
 first-plan/
-├── .claude-plugin/plugin.json       manifesto
+├── .claude-plugin/plugin.json       manifest
 ├── commands/                        14 slash commands
-├── skills/                          15 skills (1 protocol + 1 lens-engine + 8 lenses + 5 advanced)
-├── agents/                          3 subagents (discovery, reconciliation, pattern)
+├── skills/                          17 skills (1 protocol + 1 lens-engine + 8 lenses + 7 advanced)
+├── agents/                          4 subagents (discovery, reconciliation, pattern, verification)
 ├── hooks/                           hooks.json + invalidate-cache.sh
-├── templates/                       41 templates copiados pro .first-plan/ no init
+├── templates/                       41 templates copied to .first-plan/ on init
+├── meta-templates/                  internal plugin templates (plan, report, feature)
+├── engine/                          Rust workspace (core lib + cli binary)
 └── README.md
 ```
 
-### Adicionar nova stack lens
+### Add a new stack lens
 
-1. Criar `skills/lens-<stack>/SKILL.md` seguindo contrato em `skills/lens-engine/SKILL.md`
-2. Adicionar entrada na tabela de detecção em `skills/lens-engine/SKILL.md`
-3. Sem outras mudanças necessárias
+1. Create `skills/lens-<stack>/SKILL.md` following the common contract in `skills/lens-engine/SKILL.md`
+2. Add an entry in the detection table at `skills/lens-engine/SKILL.md`
+3. No other changes required
 
-### Testar localmente
+### Test locally
 
 ```bash
-/plugin marketplace add /caminho/local/first-plan
+/plugin marketplace add /local/path/to/first-plan
 /plugin install first-plan@first-plan
-cd /algum/projeto
+cd /some/project
 /first-plan:init
 ```
 
-Para iterar, edite os arquivos do plugin e rode `/plugin reload` (ou reinicie Claude Code).
+To iterate, edit plugin files and run `/plugin reload` (or restart Claude Code).
+
+### Build the engine
+
+```bash
+cd engine
+cargo build --release                           # default lean build
+cargo build --release --features=ml             # ML build (with embeddings)
+cargo test --workspace
+cargo clippy --all-targets --workspace -- -D warnings
+cargo fmt --all -- --check
+```
 
 ---
 
 ## Troubleshooting
 
-### `.first-plan/` não foi criado após `/first-plan:init`
+### `.first-plan/` not created after `/first-plan:init`
 
-- Verifique se o diretório atual é um projeto válido (tem manifesto)
-- Verifique se o plugin está instalado: `/plugin list`
-- Veja log do subagent na saída do init para erros de discovery
+- Check that the current directory is a valid project (has a manifest)
+- Check that the plugin is installed: `/plugin list`
+- Look at the subagent log in the init output for discovery errors
 
-### Hook não invalida seções após edits
+### Hook does not invalidate sections after edits
 
-- Verifique permissões: `chmod +x hooks/invalidate-cache.sh`
-- Verifique log: `tail -f ~/.first-plan-hook.log`
-- Verifique que `.first-plan/` existe no diretório do projeto
+- Check permissions: `chmod +x hooks/invalidate-cache.sh`
+- Check log: `tail -f ~/.first-plan-hook.log`
+- Check that `.first-plan/` exists in the project directory
 
-### Discovery muito lento em monorepo grande
+### Discovery very slow on a large monorepo
 
-- Discovery aplica amostragem automática para projetos > 1000 arquivos
-- Use `/first-plan:refresh <seção>` para refreshar apenas uma seção
-- Aumente `time_budget_minutes` no `init` se necessário
+- Discovery applies automatic sampling for projects > 1000 files
+- Use `/first-plan:refresh <section>` to refresh a single section
+- Increase `time_budget_minutes` in `init` if needed
 
-### Falsos positivos em DRIFTED
+### False positives in DRIFTED
 
-- Edite `.first-plan/09-features/<slug>.md` manualmente para corrigir status
-- O plugin respeita edições manuais até o próximo refresh dessa feature
+- Edit `.first-plan/09-features/<slug>.md` manually to fix the status
+- The plugin respects manual edits until the next refresh of that feature
 
-### Confidence média baixa
+### Low average confidence
 
-- Indica projeto com padrões inconsistentes ou em transição
-- Veja `08-meta/questions.md` - responda perguntas e refresh
-- Considere documentar convenções em CLAUDE.md para próximos discoveries
+- Indicates a project with inconsistent or transitioning patterns
+- Check `08-meta/questions.md` - answer the questions and refresh
+- Consider documenting conventions in CLAUDE.md for future discoveries
 
 ---
 
 ## Contributing
 
-Contribuições são bem-vindas. Áreas de impacto:
+Contributions welcome. Areas of impact:
 
-- **Novas stack lenses** - Elixir, OCaml, Haskell, Scala, Clojure, Zig
-- **Melhorias nos subagents** - especialmente reconciliation-auditor
-- **Otimizações de performance** em monorepos
-- **Integração com mais MCPs** (Linear, Asana, Notion)
-- **v2 features** - co-change graph, migration tracker, decision archeology
+- **New stack lenses** - Elixir, OCaml, Haskell, Scala, Clojure, Zig
+- **Subagent improvements** - especially reconciliation-auditor
+- **Performance optimizations** for monorepos
+- **More MCP integrations** (Linear, Asana, Notion)
+- **Roadmap features** - tree-sitter AST, LSP integration, multi-repo, decision archeology
 
 Workflow:
 
-1. Fork o repositório
-2. Crie branch de feature
-3. Implemente seguindo as próprias convenções do plugin (veja `skills/protocol/SKILL.md`)
-4. Atualize documentação
-5. Submeta Pull Request
+1. Fork the repository
+2. Create a feature branch
+3. Implement following the plugin's own conventions (see `skills/protocol/SKILL.md`)
+4. Update documentation
+5. Submit a Pull Request
 
 ---
 
@@ -763,83 +786,83 @@ Workflow:
 
 #### v0.1.0 - Initial release
 
-- Discovery Layer completa (00-09)
-- Spec-Code Reconciliation com phantom features detection
-- Living Layer via hook PostToolUse
+- Complete Discovery Layer (00-09)
+- Spec-Code Reconciliation with phantom features detection
+- Living Layer via PostToolUse hook
 - 14 slash commands, 8 stack lenses, 3 read-only subagents
 
 #### v0.2.0 - Cognitive Compiler Phase A+B
 
-- **Provenance & Freshness Tracking** - schema com source/SHA/TTL/decay
-- **Co-change Graph** - dependência de mudança via git history
+- **Provenance & Freshness Tracking** - source/SHA/TTL/decay schema
+- **Co-change Graph** - change dependency from git history
 - **Verification Loop** - lint/typecheck/tests post-execute
-- **Rollback / Time Travel** - snapshots pre-execute
+- **Rollback / Time Travel** - pre-execute snapshots
 
 #### v0.3.0 - Native Rust Engine
 
-- Binário `first-plan-engine` em Rust workspace
-- Subcommands `cochange` e `hash` (10-100x speedup)
+- `first-plan-engine` binary in a Rust workspace
+- `cochange` and `hash` subcommands (10-100x speedup)
 - Cross-platform pre-built binaries (linux x86_64+arm64, windows)
 - GitHub Actions CI/CD (lint, test, release)
 
-#### v0.4.0 - Semantic Search via BM25
+#### v0.4.0 - BM25 Semantic Search
 
 - Engine `index` + `search` subcommands
-- Tokenização identifier-aware (snake_case + camelCase + UPPER_CASE)
-- BM25 ranking sobre símbolos extraídos de Go/Rust/TS/Python/PHP
-- Skill `semantic-reuse` com graceful fallback
-- Latência <10ms, zero token Claude
+- Identifier-aware tokenization (snake_case + camelCase + UPPER_CASE)
+- BM25 ranking over symbols extracted from Go/Rust/TS/Python/PHP
+- `semantic-reuse` skill with graceful fallback
+- <10ms latency, zero Claude tokens
 
 #### v0.4.1 - ML Embeddings (current)
 
-- Feature flag `--features=ml` opt-in
-- `core::embeddings` com FastEmbedProvider (BGE-small, ONNX)
-- Hybrid search combinando BM25 + cosine similarity
+- Opt-in `--features=ml` feature flag
+- `core::embeddings` with FastEmbedProvider (BGE-small, ONNX)
+- Hybrid search combining BM25 + cosine similarity
 - CLI `--mode bm25|embed|hybrid` + `--alpha` tuning
-- Auto-download de modelos em `~/.cache/first-plan/models/`
+- Auto-download of models in `~/.cache/first-plan/models/`
 
-### Planejado
+### Planned
 
 #### v0.5.0 - Tree-sitter AST + Bash support
 
-- Substituir regex extraction por tree-sitter (parsing exato)
-- Suporte a Bash, Ruby, Java, Kotlin, Swift, Elixir
-- Engine subcommand `ast` (assinatura/scope/refs)
-- ML build cross-platform (linux musl + macOS + windows)
+- Replace regex extraction with tree-sitter (exact parsing)
+- Support for Bash, Ruby, Java, Kotlin, Swift, Elixir
+- Engine `ast` subcommand (signature/scope/refs)
+- Cross-platform ML build (linux musl + macOS + windows)
 
 #### v0.6.0 - LSP Integration
 
-- Engine fala com gopls/pyright/typescript-language-server/rust-analyzer
-- Tipos reais via `textDocument/references` (vs heurística)
-- Substitui grep por symbol-level navigation
+- Engine talks to gopls/pyright/typescript-language-server/rust-analyzer
+- Real types via `textDocument/references` (vs heuristic)
+- Replaces grep with symbol-level navigation
 
 #### v0.7.0 - Multi-Repo Awareness (microservices)
 
-- Skill `cross-repo-mapping`
-- Detecção de calls cross-repo (OpenAPI, gRPC, schemas)
-- Comando `/first-plan:blast-radius <símbolo>` cross-service
-- Config `~/.first-plan/repos.yaml` registry de sister repos
+- `cross-repo-mapping` skill
+- Detect cross-repo calls (OpenAPI, gRPC, schemas)
+- `/first-plan:blast-radius <symbol>` cross-service command
+- `~/.first-plan/repos.yaml` config registry of sister repos
 
 #### v0.8.0 - CI/CD + Production State
 
-- Lê `.github/workflows/`, `.gitlab-ci.yml` (sabe checks que rodam)
-- Detecta flaky tests do histórico
+- Reads `.github/workflows/`, `.gitlab-ci.yml` (knows which checks run)
+- Detects flaky tests from history
 - Tags/releases comparison: "merged but not shipped"
 
 ### Long-term Vision (v1.0)
 
-Cognitive Infrastructure completa:
+Complete Cognitive Infrastructure:
 
-- **Bug Recurrence DB** - "este bug apareceu antes em #234, fixed em abc123"
-- **Decision Archeology** - extrai why/because de commits/PRs/comments
-- **Migration Tracker** - "47% migrado de logrus → slog"
+- **Bug Recurrence DB** - "this bug appeared before in #234, fixed in abc123"
+- **Decision Archeology** - extracts why/because from commits/PRs/comments
+- **Migration Tracker** - "47% migrated from logrus → slog"
 - **Doc-Code Sync auditor**
 - **Test-Code Drift detector**
 - **Investigation Mode** - bug-hunt subagent
-- **Onboarding Path Generator** (por papel)
+- **Onboarding Path Generator** (per role)
 - **Team Awareness** (Slack/Linear sync)
 - **Schema-Aware Operations** (OpenAPI/GraphQL/Protobuf breaking change detection)
-- **Multi-Tool AI Sync** (Cursor + Cody + Copilot consomem `.first-plan/`)
+- **Multi-Tool AI Sync** (Cursor + Cody + Copilot consume `.first-plan/`)
 
 ---
 
@@ -849,7 +872,7 @@ Cognitive Infrastructure completa:
 <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT">
 </p>
 
-MIT License - veja [LICENSE](./LICENSE) para detalhes completos.
+MIT License - see [LICENSE](./LICENSE) for full details.
 
 Copyright (c) 2026 Vinicius Azevedo
 
