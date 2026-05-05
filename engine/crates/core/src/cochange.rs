@@ -238,7 +238,7 @@ pub fn detect_clusters(pairs: &[Pair], threshold: f32) -> Vec<Cluster> {
         })
         .collect();
 
-    clusters.sort_by(|a, b| b.files.len().cmp(&a.files.len()));
+    clusters.sort_by_key(|c| std::cmp::Reverse(c.files.len()));
     clusters
 }
 
