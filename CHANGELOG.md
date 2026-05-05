@@ -201,7 +201,10 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/vynazevedo/first-plan/compare/v0.4.1...v0.5.0
+[0.4.1]: https://github.com/vynazevedo/first-plan/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/vynazevedo/first-plan/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/vynazevedo/first-plan/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/vynazevedo/first-plan/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/vynazevedo/first-plan/compare/v0.1.0...v0.1.1
