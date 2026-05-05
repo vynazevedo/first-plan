@@ -1,6 +1,8 @@
 <h1 align="center">
   <br>
-  first-plan
+  <a href="https://github.com/vynazevedo/first-plan">
+    <img src="https://raw.githubusercontent.com/vynazevedo/first-plan/main/logo.png" alt="First Plan" width="500">
+  </a>
   <br>
 </h1>
 
