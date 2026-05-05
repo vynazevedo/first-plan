@@ -754,44 +754,92 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v1.0-current-brightgreen?style=flat-square" alt="v1.0 current">
-<img src="https://img.shields.io/badge/v2.0-planned-blue?style=flat-square" alt="v2.0 planned">
+<img src="https://img.shields.io/badge/v0.4.1-current-brightgreen?style=flat-square" alt="v0.4.1 current">
+<img src="https://img.shields.io/badge/v0.5.0-next-blue?style=flat-square" alt="v0.5.0 next">
+<img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
 
-### v1.0 (atual)
+### Shipped
 
-- Discovery Layer completa (00-08)
-- Spec-Code Reconciliation (09)
-- Git Intelligence básico
-- Living Layer via hook
-- Plan/Execute workflow
-- 8 stack lenses (Go, TS, PHP, Python, Rust, Terraform, Mobile, Generic)
+#### v0.1.0 - Initial release
 
-### v0.2.0 (atual - "Cognitive Compiler Phase A+B")
+- Discovery Layer completa (00-09)
+- Spec-Code Reconciliation com phantom features detection
+- Living Layer via hook PostToolUse
+- 14 slash commands, 8 stack lenses, 3 read-only subagents
 
-Pilares foundational implementados:
+#### v0.2.0 - Cognitive Compiler Phase A+B
 
-- **Provenance & Freshness Tracking** - schema com source/SHA/TTL/decay, command `/first-plan:provenance`
-- **Co-change Graph** - dependência de mudança via git history, command `/first-plan:cochange`, integrado ao `/first-plan:plan`
-- **Verification Loop** - subagent `verification-runner` roda lint/typecheck/tests pos-execute
-- **Rollback / Time Travel** - snapshots pre-execute + command `/first-plan:rollback`
+- **Provenance & Freshness Tracking** - schema com source/SHA/TTL/decay
+- **Co-change Graph** - dependência de mudança via git history
+- **Verification Loop** - lint/typecheck/tests post-execute
+- **Rollback / Time Travel** - snapshots pre-execute
 
-### v0.3.0 (planejado - "Cognitive Compiler Phase C")
+#### v0.3.0 - Native Rust Engine
 
-- CI/CD + Production State Awareness
-- Cross-Repo Awareness (poly-repo / microservices)
-- Knowledge Graph + Semantic Search via embeddings
+- Binário `first-plan-engine` em Rust workspace
+- Subcommands `cochange` e `hash` (10-100x speedup)
+- Cross-platform pre-built binaries (linux x86_64+arm64, windows)
+- GitHub Actions CI/CD (lint, test, release)
 
-### v1.0.0 (long-term - "Cognitive Infrastructure")
+#### v0.4.0 - Semantic Search via BM25
 
-- LSP Integration (real types, not heuristics)
-- Schema-Aware Operations (OpenAPI/GraphQL/Protobuf validation)
-- Bug Recurrence DB
-- Decision Archeology
-- Migration Tracker
-- Investigation Mode
-- Team Awareness
-- Multi-Tool AI Sync
+- Engine `index` + `search` subcommands
+- Tokenização identifier-aware (snake_case + camelCase + UPPER_CASE)
+- BM25 ranking sobre símbolos extraídos de Go/Rust/TS/Python/PHP
+- Skill `semantic-reuse` com graceful fallback
+- Latência <10ms, zero token Claude
+
+#### v0.4.1 - ML Embeddings (current)
+
+- Feature flag `--features=ml` opt-in
+- `core::embeddings` com FastEmbedProvider (BGE-small, ONNX)
+- Hybrid search combinando BM25 + cosine similarity
+- CLI `--mode bm25|embed|hybrid` + `--alpha` tuning
+- Auto-download de modelos em `~/.cache/first-plan/models/`
+
+### Planejado
+
+#### v0.5.0 - Tree-sitter AST + Bash support
+
+- Substituir regex extraction por tree-sitter (parsing exato)
+- Suporte a Bash, Ruby, Java, Kotlin, Swift, Elixir
+- Engine subcommand `ast` (assinatura/scope/refs)
+- ML build cross-platform (linux musl + macOS + windows)
+
+#### v0.6.0 - LSP Integration
+
+- Engine fala com gopls/pyright/typescript-language-server/rust-analyzer
+- Tipos reais via `textDocument/references` (vs heurística)
+- Substitui grep por symbol-level navigation
+
+#### v0.7.0 - Multi-Repo Awareness (microservices)
+
+- Skill `cross-repo-mapping`
+- Detecção de calls cross-repo (OpenAPI, gRPC, schemas)
+- Comando `/first-plan:blast-radius <símbolo>` cross-service
+- Config `~/.first-plan/repos.yaml` registry de sister repos
+
+#### v0.8.0 - CI/CD + Production State
+
+- Lê `.github/workflows/`, `.gitlab-ci.yml` (sabe checks que rodam)
+- Detecta flaky tests do histórico
+- Tags/releases comparison: "merged but not shipped"
+
+### Long-term Vision (v1.0)
+
+Cognitive Infrastructure completa:
+
+- **Bug Recurrence DB** - "este bug apareceu antes em #234, fixed em abc123"
+- **Decision Archeology** - extrai why/because de commits/PRs/comments
+- **Migration Tracker** - "47% migrado de logrus → slog"
+- **Doc-Code Sync auditor**
+- **Test-Code Drift detector**
+- **Investigation Mode** - bug-hunt subagent
+- **Onboarding Path Generator** (por papel)
+- **Team Awareness** (Slack/Linear sync)
+- **Schema-Aware Operations** (OpenAPI/GraphQL/Protobuf breaking change detection)
+- **Multi-Tool AI Sync** (Cursor + Cody + Copilot consomem `.first-plan/`)
 
 ---
 
