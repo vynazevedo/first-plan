@@ -1,0 +1,20 @@
+{
+  "name": "first-plan",
+  "owner": {
+    "name": "Vinicius Azevedo"
+  },
+  "metadata": {
+    "description": "Camada compilada de contexto para Claude Code em projetos complexos",
+    "homepage": "https://github.com/vynazevedo/first-plan"
+  },
+  "plugins": [
+    {
+      "name": "first-plan",
+      "version": "0.1.0",
+      "source": "./",
+      "description": "Camada compilada de contexto multi-layer para Claude Code. Compila projetos desconhecidos em uma estrutura .first-plan/ com discovery por stack, reuse index invertido, reconciliacao spec-codigo, git intelligence e estado vivo. Resolve re-implementacao cega, phantom features, drift e cross-session amnesia em projetos complexos.",
+      "category": "development",
+      "homepage": "https://github.com/vynazevedo/first-plan"
+    }
+  ]
+}
