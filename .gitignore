@@ -11,3 +11,4 @@ node_modules/
 
 # Rust engine build artifacts (commit Cargo.lock for binaries - reproducibility)
 engine/target/
+
