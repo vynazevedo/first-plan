@@ -30,7 +30,7 @@ Criar a estrutura `.first-plan/` copiando templates do plugin:
 mkdir -p .first-plan/{00-mission,01-topology,02-conventions,03-reuse,04-domain,05-risks,06-rationale,07-state/{plans,reports,sessions},08-meta,09-features}
 ```
 
-Copiar templates de `${CLAUDE_PLUGIN_ROOT}/templates/` para `.first-plan/`. Substituir placeholders básicos:
+Copiar templates de `${CLAUDE_PLUGIN_ROOT}/templates/` para `.first-plan/` no projeto-alvo. **Não copiar `${CLAUDE_PLUGIN_ROOT}/meta-templates/`** - esses sao internos do plugin (usados por /first-plan:plan e /first-plan:execute para gerar plans/reports/features individuais; nao devem ir pro .first-plan/ do projeto). Substituir placeholders básicos:
 - `PLACEHOLDER_TIMESTAMP` -> ISO 8601 atual
 - `PLACEHOLDER_ROOT` -> caminho absoluto do projeto
 - `PLACEHOLDER_NAME` -> nome do projeto (de package.json/go.mod/etc, ou nome da pasta)

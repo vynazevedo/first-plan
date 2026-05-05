@@ -1,6 +1,6 @@
 ---
 name: first-plan-plan-emission
-description: Skill que define como o comando /first-plan:plan emite um plano detalhado para uma feature. Use quando precisar gerar plano que respeite a camada compilada, verifique duplicidade contra 09-features, identifique reuse e siga template plan.md.template. Sempre pausa pedindo aprovação ao final.
+description: Skill que define como o comando /first-plan:plan emite um plano detalhado para uma feature. Use quando precisar gerar plano que respeite a camada compilada, verifique duplicidade contra 09-features, identifique reuse e siga template em meta-templates/plan.md. Sempre pausa pedindo aprovação ao final.
 version: 0.1.0
 ---
 
@@ -89,7 +89,7 @@ Listar coisas que apareceram durante o planejamento mas estão fora desta featur
 
 ### Passo 9 - Escrever plano
 
-Usar `templates/plan.md.template` como base. Salvar em:
+Usar `${CLAUDE_PLUGIN_ROOT}/meta-templates/plan.md` como base. Salvar em:
 ```
 .first-plan/07-state/plans/<slug>.md
 ```

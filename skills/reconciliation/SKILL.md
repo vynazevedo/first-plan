@@ -117,7 +117,7 @@ Se confidence < 0.7: marcar como "?" no INDEX e adicionar pergunta em `08-meta/q
 
 ## Output
 
-Para cada feature, criar `09-features/<slug>.md` baseado no template `feature-template.md`. Atualizar `09-features/INDEX.md` com a matriz consolidada.
+Para cada feature, criar `.first-plan/09-features/<slug>.md` baseado no template `${CLAUDE_PLUGIN_ROOT}/meta-templates/feature.md`. Atualizar `.first-plan/09-features/INDEX.md` com a matriz consolidada.
 
 ## Casos especiais
 

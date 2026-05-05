@@ -99,7 +99,7 @@ Se algo invalidar plano:
 ### Passo 6 - Após sucesso, gerar report
 
 Quando todos os passos completam:
-1. Spawnar geração do report usando `templates/report.md.template`
+1. Spawnar geração do report usando `${CLAUDE_PLUGIN_ROOT}/meta-templates/report.md`
 2. Salvar em `.first-plan/07-state/reports/<slug>.md`
 3. Atualizar `09-features/<slug>.md` se a feature ja estava lá (mudar status para IMPLEMENTED) ou criar nova entry
 

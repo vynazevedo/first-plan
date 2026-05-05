@@ -111,7 +111,7 @@ Listar:
 ### Passo 9 - Escrever plano
 
 1. Determinar slug em kebab-case da descrição
-2. Carregar `${CLAUDE_PLUGIN_ROOT}/templates/plan.md.template`
+2. Carregar `${CLAUDE_PLUGIN_ROOT}/meta-templates/plan.md`
 3. Substituir placeholders
 4. Salvar em `.first-plan/07-state/plans/<slug>.md`
 

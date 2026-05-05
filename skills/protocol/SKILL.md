@@ -45,7 +45,7 @@ Antes de escrever o plano:
 2. Consultar `.first-plan/07-state/in-flight.md` - **alguém ja esta fazendo?**
 3. Consultar `.first-plan/03-reuse/INDEX.md` - **o que reusar?**
 
-O plano deve seguir o template em `templates/plan.md.template`. **Pausa pedindo aprovação humana** ao final.
+O plano deve seguir o template em `${CLAUDE_PLUGIN_ROOT}/meta-templates/plan.md`. **Pausa pedindo aprovação humana** ao final.
 
 ### Fase 3 - Approval (gate humano)
 
