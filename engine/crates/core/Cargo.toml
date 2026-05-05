@@ -18,6 +18,16 @@ xxhash-rust.workspace = true
 rusqlite.workspace = true
 walkdir.workspace = true
 regex.workspace = true
+dirs.workspace = true
+
+# Optional ML deps - included only with --features=ml
+fastembed = { workspace = true, optional = true }
+# Force vendored OpenSSL so ml builds work in distro-agnostic environments
+openssl = { version = "0.10", optional = true, features = ["vendored"] }
+
+[features]
+default = []
+ml = ["dep:fastembed", "dep:openssl"]
 
 [dev-dependencies]
 tempfile = "3"

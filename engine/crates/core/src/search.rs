@@ -8,7 +8,7 @@
 use crate::symbols::{Symbol, SymbolKind};
 use crate::tokenize::tokenize;
 use anyhow::{Context, Result};
-use rusqlite::{params, Connection};
+use rusqlite::{params, Connection, OptionalExtension};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
@@ -160,6 +160,152 @@ fn load_symbol(conn: &Connection, id: i64) -> Result<Symbol> {
         signature,
         doc,
     })
+}
+
+/// Search modes available.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SearchMode {
+    /// Pure BM25 over tokenized identifiers.
+    Bm25,
+    /// Pure cosine similarity over embeddings (requires --features=ml index).
+    Embed,
+    /// Hybrid: alpha * BM25_normalized + (1-alpha) * cosine_normalized.
+    Hybrid,
+}
+
+/// Hybrid search combining BM25 and cosine similarity.
+///
+/// `alpha` controls the BM25 weight; `1.0 - alpha` is the embedding weight.
+/// Default 0.3 favors embeddings (semantic) when available, but keeps BM25
+/// signal for exact matches.
+///
+/// Returns top-K hits ranked by the combined score.
+pub fn search_hybrid(
+    db_path: &Path,
+    query: &str,
+    query_embedding: &[f32],
+    limit: usize,
+    alpha: f32,
+) -> Result<Vec<SearchHit>> {
+    let conn = Connection::open(db_path).with_context(|| format!("open {}", db_path.display()))?;
+
+    // Step 1: BM25 hits with raw scores (we'll normalize)
+    let bm25_hits = search(db_path, query, 200)?; // grab more to mix
+    let max_bm25 = bm25_hits
+        .iter()
+        .map(|h| h.score)
+        .fold(0.0_f64, f64::max)
+        .max(1e-9);
+
+    // Step 2: cosine similarity over all symbols with embedding
+    let mut stmt = conn.prepare("SELECT id, embedding FROM symbols WHERE embedding IS NOT NULL")?;
+    let mut combined: HashMap<i64, (f64, Vec<String>)> = HashMap::new();
+
+    // Seed with BM25 scores normalized to [0, 1]
+    for hit in &bm25_hits {
+        if let Some(symbol_id) = symbol_id_for_path_line(&conn, &hit.symbol.path, hit.symbol.line)?
+        {
+            let normalized = (hit.score / max_bm25).min(1.0);
+            combined.insert(
+                symbol_id,
+                (alpha as f64 * normalized, hit.matched_tokens.clone()),
+            );
+        }
+    }
+
+    let rows = stmt.query_map([], |row| {
+        let id: i64 = row.get(0)?;
+        let bytes: Vec<u8> = row.get(1)?;
+        Ok((id, bytes))
+    })?;
+
+    for row in rows.flatten() {
+        let (symbol_id, bytes) = row;
+        let symbol_emb = crate::embeddings::bytes_to_f32_vec(&bytes);
+        if symbol_emb.len() != query_embedding.len() {
+            continue;
+        }
+        let cosine = crate::embeddings::cosine_similarity(query_embedding, &symbol_emb);
+        // Map cosine [-1, 1] to [0, 1]
+        let normalized = ((cosine + 1.0) / 2.0).clamp(0.0, 1.0) as f64;
+        let weight = (1.0 - alpha) as f64;
+        let entry = combined
+            .entry(symbol_id)
+            .or_insert_with(|| (0.0, Vec::new()));
+        entry.0 += weight * normalized;
+    }
+
+    // Top-K by combined score
+    let mut ranked: Vec<(i64, f64, Vec<String>)> = combined
+        .into_iter()
+        .map(|(id, (score, matched))| (id, score, matched))
+        .collect();
+    ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+    ranked.truncate(limit);
+
+    let mut hits = Vec::with_capacity(ranked.len());
+    for (symbol_id, score, matched) in ranked {
+        let symbol = load_symbol(&conn, symbol_id)?;
+        hits.push(SearchHit {
+            symbol,
+            score,
+            matched_tokens: matched,
+        });
+    }
+    Ok(hits)
+}
+
+fn symbol_id_for_path_line(conn: &Connection, path: &str, line: u32) -> Result<Option<i64>> {
+    let id: Option<i64> = conn
+        .query_row(
+            "SELECT id FROM symbols WHERE path = ?1 AND line = ?2 LIMIT 1",
+            params![path, line as i64],
+            |r| r.get(0),
+        )
+        .optional()?;
+    Ok(id)
+}
+
+/// Pure embedding search (cosine similarity only, no BM25).
+pub fn search_embed(
+    db_path: &Path,
+    query_embedding: &[f32],
+    limit: usize,
+) -> Result<Vec<SearchHit>> {
+    let conn = Connection::open(db_path).with_context(|| format!("open {}", db_path.display()))?;
+
+    let mut stmt = conn.prepare("SELECT id, embedding FROM symbols WHERE embedding IS NOT NULL")?;
+    let rows = stmt.query_map([], |row| {
+        let id: i64 = row.get(0)?;
+        let bytes: Vec<u8> = row.get(1)?;
+        Ok((id, bytes))
+    })?;
+
+    let mut scored: Vec<(i64, f64)> = rows
+        .flatten()
+        .filter_map(|(id, bytes)| {
+            let emb = crate::embeddings::bytes_to_f32_vec(&bytes);
+            if emb.len() != query_embedding.len() {
+                return None;
+            }
+            let cosine = crate::embeddings::cosine_similarity(query_embedding, &emb);
+            Some((id, cosine as f64))
+        })
+        .collect();
+
+    scored.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+    scored.truncate(limit);
+
+    let mut hits = Vec::with_capacity(scored.len());
+    for (id, score) in scored {
+        let symbol = load_symbol(&conn, id)?;
+        hits.push(SearchHit {
+            symbol,
+            score,
+            matched_tokens: Vec::new(),
+        });
+    }
+    Ok(hits)
 }
 
 #[cfg(test)]

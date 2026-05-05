@@ -99,7 +99,44 @@ Para `/first-plan:plan` (verificacao automatica de reuse), filtrar score >= 5.0 
 - **Index pode estar stale** - se passou de 24h ou foram feitos muitos commits, sugerir re-indexar antes de query critica.
 - **Linguagens suportadas (v0.4.0)**: Go, Rust, TypeScript/JavaScript, Python, PHP. Outras caem no fallback grep.
 
-## Ate onde BM25 chega vs embeddings ML (v0.4.1+)
+## Modos disponiveis (v0.4.1+)
+
+A partir da v0.4.1, o engine suporta tres modos via `--mode`:
+
+| Mode | Como funciona | Quando usar |
+|------|---------------|-------------|
+| `bm25` (default) | Tokenizacao identifier-aware + BM25 ranking | Sempre disponivel. Bom para 80% dos casos |
+| `embed` | Cosine similarity sobre embeddings BGE-small | Sinonimos puros, conceitos abstratos |
+| `hybrid` | Combinacao linear: alpha*BM25 + (1-alpha)*cosine | Best-of-both. Default alpha=0.3 |
+
+Embeddings exigem build com `--features=ml` (binario com sufixo `-ml` nos releases). Sem ele, modes embed/hybrid retornam erro.
+
+### Detectar capability
+
+Build ML pode ser identificado pela presenca do binario `-ml`:
+
+```bash
+ENGINE_PATH=""
+HAS_ML=false
+for c in "${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine" "${HOME}/.local/bin/first-plan-engine" "$(command -v first-plan-engine 2>/dev/null)"; do
+  [ -x "$c" ] && ENGINE_PATH="$c" && break
+done
+
+# Tentar mode hybrid - se erro, fallback bm25
+if [ -n "$ENGINE_PATH" ]; then
+  if "$ENGINE_PATH" search --db-path "$DB" --query "test" --mode hybrid --limit 1 --output-json - 2>/dev/null > /tmp/cap.json; then
+    HAS_ML=true
+  fi
+fi
+```
+
+### Quando preferir cada mode
+
+- **bm25 puro:** queries com termos tecnicos overlap claro com nomes ("validate email", "render terminal")
+- **embed puro:** queries conceituais sem overlap ("dependency injection patterns", "circuit breaker logic")
+- **hybrid (recomendado):** sempre. Usa BM25 pra exact matches, embeddings pra semantica. Robusto.
+
+### Limitacao do BM25 puro (resolvido com embeddings)
 
 BM25 acerta quando:
 - Query e codigo compartilham vocabulario (validate, email, format, retry, modal)
@@ -109,4 +146,4 @@ BM25 falha quando:
 - Sinonimos puros sem overlap (query "user" mas codigo so usa "person")
 - Conceitos abstratos sem palavras tecnicas comuns
 
-Para o segundo caso, embeddings ML (v0.4.1) acertam, mas v0.4.0 ja resolve 80% dos casos com latencia <50ms e binario de 1MB.
+Para o segundo caso, **embeddings (v0.4.1+)** resolvem via similaridade vetorial.

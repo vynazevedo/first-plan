@@ -18,6 +18,10 @@ clap = { version = "4", features = ["derive"] }
 anyhow.workspace = true
 serde_json.workspace = true
 
+[features]
+default = []
+ml = ["first-plan-core/ml"]
+
 [dev-dependencies]
 assert_cmd = "2"
 predicates = "3"

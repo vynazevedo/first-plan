@@ -8,6 +8,7 @@
 //! - JSON serialization with versioned schemas
 
 pub mod cochange;
+pub mod embeddings;
 pub mod git;
 pub mod hash;
 pub mod index;
@@ -15,5 +16,8 @@ pub mod output;
 pub mod search;
 pub mod symbols;
 pub mod tokenize;
+
+/// Whether this binary was built with the `ml` feature enabled.
+pub const ML_ENABLED: bool = cfg!(feature = "ml");
 
 pub const ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");

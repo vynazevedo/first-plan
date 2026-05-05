@@ -68,7 +68,46 @@ pub fn collect_symbols(root: &Path) -> Result<Vec<Symbol>> {
 }
 
 /// Build a fresh SQLite index from a list of symbols.
+///
+/// Use `build_index_with_embeddings` to also persist semantic embeddings.
 pub fn build_index(db_path: &Path, symbols: &[Symbol]) -> Result<IndexStats> {
+    build_index_inner(db_path, symbols, None)
+}
+
+/// Build the index and additionally generate embeddings for each symbol.
+///
+/// Only available with `--features=ml`. The embedding text is the concatenation
+/// of name, signature and doc, providing rich context for the model.
+#[cfg(feature = "ml")]
+pub fn build_index_with_embeddings(
+    db_path: &Path,
+    symbols: &[Symbol],
+    provider: &dyn crate::embeddings::EmbeddingProvider,
+) -> Result<IndexStats> {
+    let texts: Vec<String> = symbols
+        .iter()
+        .map(|s| {
+            let mut buf = String::new();
+            buf.push_str(&s.name);
+            buf.push('\n');
+            buf.push_str(&s.signature);
+            if let Some(doc) = &s.doc {
+                buf.push('\n');
+                buf.push_str(doc);
+            }
+            buf
+        })
+        .collect();
+
+    let embeddings = provider.embed_batch(&texts)?;
+    build_index_inner(db_path, symbols, Some(&embeddings))
+}
+
+fn build_index_inner(
+    db_path: &Path,
+    symbols: &[Symbol],
+    embeddings: Option<&[Vec<f32>]>,
+) -> Result<IndexStats> {
     if let Some(parent) = db_path.parent() {
         std::fs::create_dir_all(parent).ok();
     }
@@ -94,7 +133,8 @@ pub fn build_index(db_path: &Path, symbols: &[Symbol]) -> Result<IndexStats> {
                 line INTEGER NOT NULL,
                 signature TEXT NOT NULL,
                 doc TEXT,
-                doc_length INTEGER NOT NULL
+                doc_length INTEGER NOT NULL,
+                embedding BLOB
             );
             CREATE TABLE tokens (
                 token TEXT NOT NULL,
@@ -119,8 +159,8 @@ pub fn build_index(db_path: &Path, symbols: &[Symbol]) -> Result<IndexStats> {
         let tx = conn.transaction()?;
         {
             let mut insert_symbol = tx.prepare(
-                "INSERT INTO symbols (id, name, kind, language, path, line, signature, doc, doc_length)
-                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)",
+                "INSERT INTO symbols (id, name, kind, language, path, line, signature, doc, doc_length, embedding)
+                 VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
             )?;
             let mut insert_token = tx.prepare(
                 "INSERT INTO tokens (token, symbol_id, tf) VALUES (?1, ?2, ?3)
@@ -140,6 +180,11 @@ pub fn build_index(db_path: &Path, symbols: &[Symbol]) -> Result<IndexStats> {
                 let doc_length = tokens.len() as u64;
                 total_doc_length += doc_length;
 
+                let embedding_blob = embeddings.and_then(|all| {
+                    all.get(idx)
+                        .map(|v| crate::embeddings::f32_slice_to_bytes(v))
+                });
+
                 insert_symbol.execute(params![
                     id,
                     sym.name,
@@ -150,6 +195,7 @@ pub fn build_index(db_path: &Path, symbols: &[Symbol]) -> Result<IndexStats> {
                     sym.signature,
                     sym.doc,
                     doc_length as i64,
+                    embedding_blob,
                 ])?;
 
                 let mut tf_map: std::collections::HashMap<String, u32> =
@@ -172,6 +218,7 @@ pub fn build_index(db_path: &Path, symbols: &[Symbol]) -> Result<IndexStats> {
         0.0
     };
 
+    let has_embeddings = embeddings.is_some();
     {
         let conn = conn.lock().unwrap();
         conn.execute(
@@ -182,12 +229,23 @@ pub fn build_index(db_path: &Path, symbols: &[Symbol]) -> Result<IndexStats> {
             "INSERT INTO meta (key, value) VALUES ('avg_doc_length', ?1)",
             params![avg_doc_length.to_string()],
         )?;
+        conn.execute(
+            "INSERT INTO meta (key, value) VALUES ('has_embeddings', ?1)",
+            params![if has_embeddings { "1" } else { "0" }],
+        )?;
+        if has_embeddings {
+            conn.execute(
+                "INSERT INTO meta (key, value) VALUES ('embedding_dim', ?1)",
+                params![crate::embeddings::EMBEDDING_DIM.to_string()],
+            )?;
+        }
     }
 
     Ok(IndexStats {
         total_symbols: total_docs as u32,
         total_doc_length: total_doc_length as u32,
         avg_doc_length,
+        has_embeddings,
     })
 }
 
@@ -196,6 +254,7 @@ pub struct IndexStats {
     pub total_symbols: u32,
     pub total_doc_length: u32,
     pub avg_doc_length: f64,
+    pub has_embeddings: bool,
 }
 
 #[cfg(test)]

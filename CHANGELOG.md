@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-05-05
+
+### Added
+
+- **Embeddings ML opt-in** (Pillar 5 do v2.0 roadmap, completo)
+  - Feature flag `--features=ml` em core e cli (default build continua lean ~1MB)
+  - Modulo `core::embeddings` com `EmbeddingProvider` trait + `FastEmbedProvider`
+    via fastembed-rs (BGE-small-en-v1.5, 384 dims, ONNX backend)
+  - Cosine similarity helper + utilities para serializar f32 vectors em SQLite BLOB
+  - Modelos auto-baixados em `~/.cache/first-plan/models/` (gerenciado por fastembed)
+- **Hybrid search** combinando BM25 + cosine similarity
+  - Funcao `search::search_hybrid(db, query, q_emb, limit, alpha)`
+  - Funcao `search::search_embed(db, q_emb, limit)` para cosine puro
+  - Alpha tuning: 0.3 default (favorece embeddings com fallback BM25)
+  - Normalizacao linear: BM25/max_score + (cosine+1)/2, ambos em [0,1]
+- CLI `search` agora aceita `--mode bm25|embed|hybrid` e `--alpha 0.3`
+- CLI `index` agora aceita `--embed` para gerar embeddings ao indexar
+- Schema do indice tem coluna `embedding BLOB` (NULL quando nao gerada)
+- Meta-table guarda `has_embeddings` e `embedding_dim`
+- Skill `semantic-reuse` atualizado com tabela de modes e capability detection
+
+### Build
+
+- Crate `openssl` com feature `vendored` adicionada quando `--features=ml`
+  (necessaria pra fastembed/hf-hub baixar modelos via HTTPS)
+- Release workflow: nova entrada `x86_64-unknown-linux-gnu-ml` na matrix
+- ML builds tem sufixo `-ml` no nome do artefato
+
+### Limitacoes conhecidas
+
+- ML build apenas para `x86_64-unknown-linux-gnu` em v0.4.1
+  (musl + ONNX + openssl-vendored e fragil; aarch64 + windows + macOS planejados v0.5.0)
+- ML binario significativamente maior (~50MB vs 1MB do default)
+- Cold start ~1-3s para carregar modelo BGE
+- Latencia query: ~50-100ms (embedding generation) vs <10ms BM25
+
 ## [0.4.0] - 2026-05-05
 
 ### Added

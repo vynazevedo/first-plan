@@ -15,23 +15,29 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Default builds (lean, ~1MB, no ML)
           - target: x86_64-unknown-linux-musl
             runner: ubuntu-latest
             cross: true
+            features: ""
+            suffix: ""
           - target: aarch64-unknown-linux-musl
             runner: ubuntu-latest
             cross: true
+            features: ""
+            suffix: ""
           - target: x86_64-pc-windows-msvc
             runner: windows-latest
             cross: false
-          # macOS targets temporariamente desabilitados (runner queue lenta).
-          # Reativar quando GitHub melhorar SLA dos macos runners.
-          # - target: x86_64-apple-darwin
-          #   runner: macos-13
-          #   cross: false
-          # - target: aarch64-apple-darwin
-          #   runner: macos-latest
-          #   cross: false
+            features: ""
+            suffix: ""
+          # ML build (with embeddings, ~50MB, opt-in)
+          # Linux x86_64 GNU only - musl + ONNX is fragile, postpone to v0.4.2.
+          - target: x86_64-unknown-linux-gnu
+            runner: ubuntu-latest
+            cross: false
+            features: "--features=ml"
+            suffix: "-ml"
     steps:
       - uses: actions/checkout@v4
 
@@ -51,33 +57,33 @@ jobs:
       - name: build (cross)
         if: matrix.cross
         working-directory: engine
-        run: cross build --release --target ${{ matrix.target }} --bin first-plan-engine
+        run: cross build --release --target ${{ matrix.target }} --bin first-plan-engine ${{ matrix.features }}
 
       - name: build (cargo)
         if: ${{ !matrix.cross }}
         working-directory: engine
-        run: cargo build --release --target ${{ matrix.target }} --bin first-plan-engine
+        run: cargo build --release --target ${{ matrix.target }} --bin first-plan-engine ${{ matrix.features }}
 
       - name: package (unix)
         if: ${{ !contains(matrix.target, 'windows') }}
         shell: bash
         working-directory: engine/target/${{ matrix.target }}/release
         run: |
-          tar czf "../../../../first-plan-engine-${{ matrix.target }}.tar.gz" first-plan-engine
+          tar czf "../../../../first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.tar.gz" first-plan-engine
 
       - name: package (windows)
         if: contains(matrix.target, 'windows')
         shell: pwsh
         working-directory: engine/target/${{ matrix.target }}/release
         run: |
-          Compress-Archive -Path first-plan-engine.exe -DestinationPath ../../../../first-plan-engine-${{ matrix.target }}.zip
+          Compress-Archive -Path first-plan-engine.exe -DestinationPath ../../../../first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.zip
 
       - uses: actions/upload-artifact@v4
         with:
-          name: artifact-${{ matrix.target }}
+          name: artifact-${{ matrix.target }}${{ matrix.suffix }}
           path: |
-            first-plan-engine-${{ matrix.target }}.tar.gz
-            first-plan-engine-${{ matrix.target }}.zip
+            first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.tar.gz
+            first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.zip
           if-no-files-found: ignore
 
   release:
