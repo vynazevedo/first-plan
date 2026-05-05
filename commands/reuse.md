@@ -1,5 +1,5 @@
 ---
-description: Consulta o Reuse Index invertido. Pergunta "preciso fazer X, o que ja existe?" e recebe lista priorizada com paths e signatures.
+description: Consulta o Reuse Index invertido. Pergunta "preciso fazer X, o que ja existe?" e recebe lista priorizada com paths e signatures. v0.4.0+ usa BM25 search via engine nativo quando disponivel (semantic matching).
 argument-hint: <intenção em texto livre>
 allowed-tools: [Read, Grep, Bash]
 ---
@@ -18,7 +18,32 @@ Query do Reuse Index invertido.
 
 ## Workflow
 
-### Passo 1 - Pre-flight
+### Passo 0 - BM25 engine path (v0.4.0+)
+
+Se `first-plan-engine` esta disponivel (ver skill `first-plan-engine-bootstrap`), preferir busca BM25 sobre o indice de simbolos via skill `first-plan-semantic-reuse`:
+
+```bash
+ENGINE=""
+for c in "${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine" "${HOME}/.local/bin/first-plan-engine" "$(command -v first-plan-engine 2>/dev/null)"; do
+  [ -x "$c" ] && ENGINE="$c" && break
+done
+
+if [ -n "$ENGINE" ]; then
+  DB=".first-plan/cache/search.db"
+  # Re-indexar se ausente ou >= 24h velho
+  if [ ! -f "$DB" ] || [ $(find "$DB" -mmin +1440 2>/dev/null | wc -l) -gt 0 ]; then
+    "$ENGINE" index --repo . --db-path "$DB" --output-json /tmp/idx.json > /dev/null
+  fi
+
+  "$ENGINE" search --db-path "$DB" --query "$ARGUMENTS" --limit 10 --output-json /tmp/search.json
+  # Renderizar JSON como tabela markdown
+  # Veja skill semantic-reuse para detalhes
+fi
+```
+
+Se sem engine OU search retornou 0 hits com score >= 3.0, fallback markdown abaixo.
+
+### Passo 1 - Pre-flight (fallback)
 
 Verificar `.first-plan/03-reuse/INDEX.md` existe.
 

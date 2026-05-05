@@ -4,11 +4,16 @@
 //! - git log parsing (lightweight wrapper over the git CLI)
 //! - co-change matrix and cluster detection
 //! - parallel xxh3 hashing for cache invalidation
+//! - symbol extraction and BM25-based semantic search (v0.4.0+)
 //! - JSON serialization with versioned schemas
 
 pub mod cochange;
 pub mod git;
 pub mod hash;
+pub mod index;
 pub mod output;
+pub mod search;
+pub mod symbols;
+pub mod tokenize;
 
 pub const ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");

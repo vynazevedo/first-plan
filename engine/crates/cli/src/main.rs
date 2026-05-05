@@ -20,6 +20,10 @@ enum Command {
     Cochange(commands::cochange::Args),
     /// Hash files in parallel using xxh3.
     Hash(commands::hash::Args),
+    /// Build a BM25 search index of code symbols.
+    Index(commands::index::Args),
+    /// Query the BM25 index with a natural-language string.
+    Search(commands::search::Args),
 }
 
 fn main() -> Result<()> {
@@ -27,5 +31,7 @@ fn main() -> Result<()> {
     match cli.command {
         Command::Cochange(args) => commands::cochange::run(args),
         Command::Hash(args) => commands::hash::run(args),
+        Command::Index(args) => commands::index::run(args),
+        Command::Search(args) => commands::search::run(args),
     }
 }

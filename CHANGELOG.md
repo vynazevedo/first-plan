@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-05
+
+### Added
+
+- **Semantic Search via BM25** (Pillar 5 do v2.0 roadmap, parcial)
+  - Engine subcommand `index`: extrai simbolos de Go/Rust/TS/JS/Python/PHP via regex,
+    constroi indice BM25 em SQLite com tokenizacao identifier-aware (snake_case +
+    camelCase + PascalCase + UPPER_CASE + letter/digit boundaries)
+  - Engine subcommand `search`: query natural-language ranqueada por BM25 (k1=1.5, b=0.75)
+  - Stop words filtradas, tokens curtos descartados (exceto digitos)
+  - Storage: SQLite com indices em `tokens` e `symbols`, sqlite bundled (zero deps externas)
+- Novo skill `semantic-reuse` - usa engine BM25 quando disponivel, fallback markdown
+- `/first-plan:reuse` atualizado com Passo 0 (BM25 path) antes do fallback
+- Schemas `first-plan-index-v1` e `first-plan-search-v1` adicionados ao output
+
+### Performance
+
+- 129 simbolos do source Rust indexados em 696ms
+- Query "parse git log" retorna `parse_log_output` como top hit (score 10.83)
+- Query "cluster detection" -> `detect_clusters` (score 7.57, matches 100%)
+- Query "BM25 search index" -> funcao `search` (score 11.09)
+- Latencia query: <10ms tipico
+
+### Linguagens suportadas (extracao de simbolos)
+
+- Go: func, type, const, var, methods (detectado por receiver)
+- Rust: fn, struct, enum, trait, const, static
+- TypeScript/JavaScript: function, arrow function, class, interface, type, const
+- Python: def, async def, class, methods (detectado por indentacao)
+- PHP: function, class, interface, methods
+
+Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
+
+### Limitacoes conhecidas (v0.4.0)
+
+- Bash/shell: nao tem extractor; dotfiles puros nao geram simbolos. Fallback grep
+  continua funcionando para co-change e outras analises.
+- Embeddings ML: planejado para v0.4.1 como build opt-in (`--features=ml`).
+  Mantem binario lean por enquanto.
+
 ## [0.3.0] - 2026-05-05
 
 ### Added

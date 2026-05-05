@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.3.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.4.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -135,6 +135,10 @@ Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo
 <tr>
 <td><img src="https://img.shields.io/badge/-NATIVE-darkred?style=flat-square" /></td>
 <td><strong>Rust Engine</strong> (v0.3.0) - binario nativo first-plan-engine. Co-change graph 50k commits em &lt;2s vs 5min via shell. Hash 10k arquivos paralelo. Zero token Claude pra heavy lifting.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-SEMANTIC-purple?style=flat-square" /></td>
+<td><strong>Semantic Search BM25</strong> (v0.4.0) - "preciso de validacao de email" encontra `validateEmailRFC` mesmo sem nome exato. Indice SQLite local, &lt;10ms por query, 6 linguagens suportadas.</td>
 </tr>
 </table>
 
