@@ -804,31 +804,43 @@ Workflow:
 
 ### Planejado
 
-#### v0.5.0 - Tree-sitter AST + Bash support
+#### v0.5.0 - Tree-sitter AST + Bash + Wikilinks
 
 - Substituir regex extraction por tree-sitter (parsing exato)
 - Suporte a Bash, Ruby, Java, Kotlin, Swift, Elixir
 - Engine subcommand `ast` (assinatura/scope/refs)
 - ML build cross-platform (linux musl + macOS + windows)
+- **Wikilinks `[[secao]]` Obsidian-compatible** entre arquivos do `.first-plan/`
+  - Inspirado em OpenKB - transforma a camada em graph navegavel
 
-#### v0.6.0 - LSP Integration
+#### v0.6.0 - LSP Integration + Watch mode
 
 - Engine fala com gopls/pyright/typescript-language-server/rust-analyzer
 - Tipos reais via `textDocument/references` (vs heurística)
 - Substitui grep por symbol-level navigation
+- **Engine subcommand `watch`** - refresh incremental contínuo
+  - Inspirado em OpenKB - filesystem monitoring com auto-refresh debounced
+  - Vai alem do hook PostToolUse atual (que so sinaliza)
 
-#### v0.7.0 - Multi-Repo Awareness (microservices)
+#### v0.7.0 - Multi-Repo Awareness + Multi-format docs
 
 - Skill `cross-repo-mapping`
 - Detecção de calls cross-repo (OpenAPI, gRPC, schemas)
 - Comando `/first-plan:blast-radius <símbolo>` cross-service
 - Config `~/.first-plan/repos.yaml` registry de sister repos
+- **Ingestao de documentos multi-formato** no reconciliation
+  - Inspirado em OpenKB - markitdown integration para ler PDF/Word/PowerPoint specs
+  - Critico em ambientes corp onde specs nao sao markdown
 
-#### v0.8.0 - CI/CD + Production State
+#### v0.8.0 - CI/CD State + Contradiction detection
 
 - Lê `.github/workflows/`, `.gitlab-ci.yml` (sabe checks que rodam)
 - Detecta flaky tests do histórico
 - Tags/releases comparison: "merged but not shipped"
+- **Deteccao de contradicoes cross-section**
+  - Inspirado em OpenKB - flagging automatico de findings conflitantes
+  - Exemplo: `02-conventions/naming.md` diz snake_case mas `06-rationale/dont.md` lista snake_case como anti-pattern
+  - Novo comando `/first-plan:contradictions`
 
 ### Long-term Vision (v1.0)
 
