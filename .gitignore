@@ -8,3 +8,6 @@ node_modules/
 .vscode/
 *.swp
 *.swo
+
+# Rust engine build artifacts (commit Cargo.lock for binaries - reproducibility)
+engine/target/

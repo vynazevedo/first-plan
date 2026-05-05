@@ -11,7 +11,16 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.2.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.3.0-green.svg" alt="Version">
+  </a>
+  <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
+    <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
+  </a>
+  <a href="https://github.com/vynazevedo/first-plan/actions/workflows/test.yml">
+    <img src="https://github.com/vynazevedo/first-plan/actions/workflows/test.yml/badge.svg" alt="Test">
+  </a>
+  <a href="https://github.com/vynazevedo/first-plan/releases/latest">
+    <img src="https://img.shields.io/badge/engine-rust%20native-darkred?logo=rust" alt="Rust Engine">
   </a>
   <a href="https://github.com/vynazevedo/first-plan">
     <img src="https://img.shields.io/badge/plugin-claude%20code-orange.svg" alt="Claude Code Plugin">
@@ -123,7 +132,47 @@ Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo
 <td><img src="https://img.shields.io/badge/-VERIFY-magenta?style=flat-square" /></td>
 <td><strong>Verification Loop</strong> (v0.2.0) - lint/typecheck/tests automaticos pos-execute + rollback safety net</td>
 </tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-NATIVE-darkred?style=flat-square" /></td>
+<td><strong>Rust Engine</strong> (v0.3.0) - binario nativo first-plan-engine. Co-change graph 50k commits em &lt;2s vs 5min via shell. Hash 10k arquivos paralelo. Zero token Claude pra heavy lifting.</td>
+</tr>
 </table>
+
+---
+
+## Native Engine (v0.3.0+)
+
+A partir da v0.3.0, o plugin inclui um **binário nativo Rust** (`first-plan-engine`) que faz heavy lifting fora do Claude. Operações que levavam minutos via shell+tokens agora rodam em segundos.
+
+### Performance
+
+| Operação | Shell + Claude | Engine nativo |
+|----------|----------------|---------------|
+| Co-change graph (50k commits) | ~5 min | <2 s |
+| Hash 10k arquivos (xxh3) | ~30 s | <500 ms |
+| Custo em tokens Claude | ~30k | ~0 |
+
+### Instalação do engine
+
+**Auto (recomendado):** Na primeira invocação de `/first-plan:cochange` ou `/first-plan:refresh`, o plugin oferece download automatico:
+
+```
+Engine nativo nao detectado. Baixar? (~5MB, melhora 10-100x)
+A) Sim B) Nao C) Manual
+```
+
+**Manual:** Download em [Releases](https://github.com/vynazevedo/first-plan/releases) o binário matching seu OS/arch. Extraia e coloque em `${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine` (ou no `$PATH`).
+
+**From source:**
+```bash
+git clone https://github.com/vynazevedo/first-plan
+cd first-plan/engine
+cargo install --path crates/cli
+```
+
+### Graceful fallback
+
+Se o engine não estiver disponível (sem rede, ambiente restrito, opt-out), todas as operações **continuam funcionando** via fallback markdown. Engine é optimization, não requirement.
 
 ---
 

@@ -1,0 +1,115 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: build ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-latest
+            cross: true
+          - target: aarch64-unknown-linux-musl
+            runner: ubuntu-latest
+            cross: true
+          - target: x86_64-apple-darwin
+            runner: macos-13
+            cross: false
+          - target: aarch64-apple-darwin
+            runner: macos-latest
+            cross: false
+          - target: x86_64-pc-windows-msvc
+            runner: windows-latest
+            cross: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: engine -> target
+          key: ${{ matrix.target }}
+
+      - name: install cross (linux musl)
+        if: matrix.cross
+        run: cargo install cross --git https://github.com/cross-rs/cross --rev 99b8069c
+
+      - name: build (cross)
+        if: matrix.cross
+        working-directory: engine
+        run: cross build --release --target ${{ matrix.target }} --bin first-plan-engine
+
+      - name: build (cargo)
+        if: ${{ !matrix.cross }}
+        working-directory: engine
+        run: cargo build --release --target ${{ matrix.target }} --bin first-plan-engine
+
+      - name: package (unix)
+        if: ${{ !contains(matrix.target, 'windows') }}
+        shell: bash
+        working-directory: engine/target/${{ matrix.target }}/release
+        run: |
+          tar czf "../../../../first-plan-engine-${{ matrix.target }}.tar.gz" first-plan-engine
+
+      - name: package (windows)
+        if: contains(matrix.target, 'windows')
+        shell: pwsh
+        working-directory: engine/target/${{ matrix.target }}/release
+        run: |
+          Compress-Archive -Path first-plan-engine.exe -DestinationPath ../../../../first-plan-engine-${{ matrix.target }}.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifact-${{ matrix.target }}
+          path: |
+            first-plan-engine-${{ matrix.target }}.tar.gz
+            first-plan-engine-${{ matrix.target }}.zip
+          if-no-files-found: ignore
+
+  release:
+    name: publish release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: dist
+      - name: list artifacts
+        run: ls -la dist/
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/first-plan-engine-*.tar.gz
+            dist/first-plan-engine-*.zip
+          generate_release_notes: true
+          body: |
+            ## first-plan-engine ${{ github.ref_name }}
+
+            Native engine binary for the first-plan Claude Code plugin.
+
+            ### Installation
+
+            Download the binary for your platform, extract, and place in
+            `${CLAUDE_PLUGIN_ROOT}/engine/bin/` or anywhere in your `$PATH`.
+
+            ### Verify
+
+            ```
+            first-plan-engine --version
+            ```
+
+            See [README](https://github.com/vynazevedo/first-plan) for plugin integration.

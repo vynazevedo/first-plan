@@ -1,12 +1,50 @@
 ---
 name: first-plan-co-change-analysis
-description: Skill que constrói o Co-change Graph - "quando arquivo X muda, qual outro arquivo geralmente muda junto?". Use durante Discovery e em /first-plan:cochange. Baseado em git history. Detecta arquivos co-dependentes que devem ser editados juntos para evitar PRs incompletos.
-version: 0.2.0
+description: Skill que constrói o Co-change Graph - "quando arquivo X muda, qual outro arquivo geralmente muda junto?". Use durante Discovery e em /first-plan:cochange. Baseado em git history. Detecta arquivos co-dependentes que devem ser editados juntos para evitar PRs incompletos. v0.3.0+ usa engine nativo Rust quando disponível (10-100x mais rápido).
+version: 0.3.0
 ---
 
 # Co-change Graph
 
 Mapeia dependências de mudança baseadas em git history. Resolve o problema "esqueci de atualizar o consumer" - causa #1 de PRs incompletos em projetos grandes.
+
+## Engine acceleration (v0.3.0+)
+
+Se o binário nativo `first-plan-engine` está disponível (ver skill `first-plan-engine-bootstrap`), invocar direto e parsear o JSON. **10-100x mais rápido** vs git log via shell + agregação em Claude.
+
+```bash
+# Detectar engine
+ENGINE=""
+for c in "${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine" "${HOME}/.local/bin/first-plan-engine" "$(command -v first-plan-engine 2>/dev/null)"; do
+  [ -x "$c" ] && ENGINE="$c" && break
+done
+
+if [ -n "$ENGINE" ]; then
+  # Engine path - rapido e exato
+  "$ENGINE" cochange \
+    --repo "$PWD" \
+    --since 180 \
+    --min-occurrences 5 \
+    --min-ratio 0.5 \
+    --output-json /tmp/cochange-${SESSION_ID}.json
+
+  # Parsear /tmp/cochange-*.json (schema first-plan-cochange-v1)
+  # Renderizar como markdown padrão em .first-plan/02-conventions/co-change.md
+else
+  # Fallback markdown (algoritmo abaixo)
+fi
+```
+
+JSON output schema (`first-plan-cochange-v1`):
+- `pairs[].file_a`, `file_b`, `co_change_ratio`, `shared_commits`, `total_a`, `total_b`, `strength`
+- `clusters[].id`, `files`, `internal_cohesion`
+- Meta: `engine_version`, `generated_at`, `repo_root`, `window_days`, `total_commits_analyzed`, `total_files_analyzed`, `elapsed_ms`
+
+Se engine ausente, oferecer instalação via skill `first-plan-engine-bootstrap` antes de cair no fallback.
+
+---
+
+## Fallback markdown (sem engine)
 
 ## Conceito
 

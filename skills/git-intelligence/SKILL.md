@@ -8,7 +8,29 @@ version: 0.1.0
 
 Extração de sinal do git que humanos veem mas IA tipicamente ignora.
 
-## Pré-requisito
+## Engine acceleration (v0.3.0+)
+
+Para hashing de arquivos do cache (`08-meta/cache.json`), preferir o binário `first-plan-engine` se disponível:
+
+```bash
+# Detectar engine (igual co-change-analysis)
+ENGINE=""
+for c in "${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine" "${HOME}/.local/bin/first-plan-engine" "$(command -v first-plan-engine 2>/dev/null)"; do
+  [ -x "$c" ] && ENGINE="$c" && break
+done
+
+if [ -n "$ENGINE" ]; then
+  # xxh3 paralelo via rayon - 10x mais rapido que sha256 + bash loop
+  find . -type f -not -path "./.git/*" -not -path "./node_modules/*" | \
+    "$ENGINE" hash --paths-from-stdin --output-json .first-plan/cache/files.json
+fi
+```
+
+JSON schema `first-plan-hash-v1` em `08-meta/cache.json` (ou similar).
+
+---
+
+## Pré-requisito (fallback)
 
 Projeto deve ser git repo. Se nao for, todas as seções correlatas em `.first-plan/01-topology/activity.md`, `01-topology/ownership.md`, `07-state/in-flight.md` ficam vazias com nota explicativa.
 

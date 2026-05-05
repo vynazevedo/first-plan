@@ -1,0 +1,24 @@
+[package]
+name = "first-plan-engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+description = "first-plan engine - native binary for performance-critical operations"
+default-run = "first-plan-engine"
+
+[[bin]]
+name = "first-plan-engine"
+path = "src/main.rs"
+
+[dependencies]
+first-plan-core = { path = "../core" }
+clap = { version = "4", features = ["derive"] }
+anyhow.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+assert_cmd = "2"
+predicates = "3"
+tempfile = "3"

@@ -1,0 +1,53 @@
+# first-plan project configuration (commit este arquivo)
+#
+# Project-level settings override user-level (~/.config/first-plan/config.toml).
+# Both are optional - plugin works with sensible defaults if neither exists.
+
+[engine]
+# Detecta automaticamente o binario nativo first-plan-engine.
+# Se ausente e auto_install=true, oferece download na primeira invocacao.
+auto_install = true
+
+# Se true, prefere engine quando disponivel. Se false, sempre usa fallback markdown.
+prefer_engine = true
+
+[cochange]
+# Janela de git history para analise de co-change graph
+window_days = 180
+
+# Numero minimo de commits que um arquivo precisa ter para entrar no grafo
+min_occurrences = 5
+
+# Ratio minimo (0.0..1.0) para considerar dois arquivos como co-changers
+min_ratio = 0.5
+
+# Patterns extras a excluir (alem dos defaults: lockfiles, generated, vendored)
+exclude_patterns = [
+  # "fixtures/**",
+  # "*.snapshot",
+]
+
+[confidence]
+# Threshold abaixo do qual findings viram perguntas em 08-meta/questions.md
+threshold = 0.7
+
+# Curve de decay com idade: linear | step | none
+decay_curve = "linear"
+
+[living_layer]
+# Hook PostToolUse marca secoes stale automaticamente
+enabled = true
+
+# Local do log do hook (debug)
+log_path = "~/.first-plan-hook.log"
+
+[telemetry]
+# Opt-in (default false). Se true, envia metricas anonimas de uso.
+enabled = false
+
+[discovery]
+# Tempo budget em minutos para subagents (discovery, pattern, reconciliation)
+time_budget_minutes = 8
+
+# Em projetos com > N arquivos, aplicar amostragem
+max_files_full_scan = 1000

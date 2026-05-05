@@ -1,0 +1,48 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  rust:
+    name: cargo fmt + clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: engine -> target
+      - name: cargo fmt
+        run: cargo fmt --all -- --check
+        working-directory: engine
+      - name: cargo clippy
+        run: cargo clippy --all-targets --workspace -- -D warnings
+        working-directory: engine
+
+  json:
+    name: validate JSON files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: validate
+        run: |
+          set -e
+          for f in $(find . -name "*.json" -not -path "./engine/target/*" -not -path "./.git/*"); do
+            python3 -c "import json,sys; json.load(open('$f'))" || { echo "invalid: $f"; exit 1; }
+          done
+          echo "all JSON files valid"
+
+  hooks:
+    name: bash hooks shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: install shellcheck
+        run: sudo apt-get install -y shellcheck
+      - name: shellcheck
+        run: find hooks -name "*.sh" -exec shellcheck {} +
