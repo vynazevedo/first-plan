@@ -75,23 +75,46 @@ Para cada finding, aplicar regras da skill `pattern-extraction`. Não inventar -
 
 ## Output esperado
 
-Markdown estruturado dividido por seção do `.first-plan/`. Exemplo:
+Markdown estruturado dividido por seção do `.first-plan/`. **A partir da v0.2.0**, todo finding deve incluir schema de proveniência completo (ver skill `provenance-tracker`).
+
+Exemplo:
 
 ```markdown
 # Discovery Findings
 
 ## stacks (-> 01-topology/stacks.md)
-- name: Go
-  manifesto: /path/go.mod
-  version: 1.22
-  role: HTTP API
-  framework: chi
-  lens_applied: lens-go
-  confidence: 0.92
-  related_dirs:
-    - cmd/api
-    - internal/handler
-    - internal/service
+- finding_id: F-stack-go-001
+  type: fact
+  source:
+    type: code
+    location: /path/go.mod
+    commit_sha: <git rev-parse HEAD output>
+    extracted_from:
+      - go.mod
+      - cmd/api/main.go
+  extracted_at: <ISO timestamp>
+  extracted_by: discovery-analyst
+  confidence:
+    initial: 0.92
+    signals_used:
+      - "go.mod presente em raiz"
+      - "imports de chi v5 confirmam framework"
+      - "cmd/api/main.go usa chi.NewRouter()"
+  ttl:
+    days: 30
+  lifecycle:
+    status: active
+  data:
+    name: Go
+    manifesto: /path/go.mod
+    version: 1.22
+    role: HTTP API
+    framework: chi
+    lens_applied: lens-go
+    related_dirs:
+      - cmd/api
+      - internal/handler
+      - internal/service
 
 ## architecture (-> 01-topology/architecture.md)
 style: Hexagonal-ish (handler -> service -> repository)
@@ -140,6 +163,19 @@ items:
     - C: "Convenção é por tipo de arquivo (handler vs service)"
   impact: "afeta nomeação de novos arquivos"
 ```
+
+## Schema de proveniência obrigatório (v0.2.0+)
+
+Cada finding emitido DEVE incluir:
+- `finding_id`: identificador único e estável (formato `F-<categoria>-<sequencia>`)
+- `source`: type/location/commit_sha (use `git rev-parse HEAD` para SHA)
+- `extracted_at`: timestamp ISO 8601 atual
+- `extracted_by`: "discovery-analyst"
+- `confidence.initial` + `confidence.signals_used`
+- `ttl.days` baseado no type (ver provenance-tracker)
+- `lifecycle.status: active`
+
+Findings sem schema completo serão rejeitados pelo agente principal.
 
 ## Estratégia para projetos grandes
 

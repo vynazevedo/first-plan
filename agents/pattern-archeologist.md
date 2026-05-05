@@ -93,26 +93,46 @@ Aplicar regras de confidence da skill `pattern-extraction`:
 
 Se confidence final < 0.7: criar pergunta em vez de afirmar padrão.
 
-### Passo 4 - Output estruturado
+### Passo 4 - Output estruturado (v0.2.0 com schema de proveniência)
 
-Para cada padrão extraído:
+Para cada padrão extraído, schema completo da skill `provenance-tracker`:
 
 ```yaml
-- pattern_id: P1
-  category: naming
-  rule: "Arquivos em snake_case, funções em camelCase exportadas iniciam maiúscula"
-  example:
-    code: |
-      // arquivo: internal/user_service.go
-      func GetUser(ctx context.Context, id string) (*User, error) { ... }
-      func sanitizeName(name string) string { ... }
-    paths:
-      - internal/user_service.go:1
-      - internal/user_service.go:12
-      - internal/user_service.go:34
-  confidence: 0.91
-  variants_observed:
-    - "Alguns arquivos antigos em camelCase (ex: legacyHandler.go) - assumir migração antiga"
+- finding_id: F-naming-001
+  type: pattern
+  section: 02-conventions/naming
+  source:
+    type: code
+    location: internal/user_service.go:1
+    commit_sha: <git rev-parse HEAD>
+    extracted_from:
+      - internal/user_service.go
+      - internal/order_service.go
+      - internal/payment_service.go
+  extracted_at: <ISO timestamp>
+  extracted_by: pattern-archeologist
+  confidence:
+    initial: 0.91
+    signals_used:
+      - "5+ ocorrências consistentes"
+      - "documentado em CLAUDE.md"
+      - "padrão recente nos últimos 30 dias"
+  ttl:
+    days: 30
+  lifecycle:
+    status: active
+  data:
+    rule: "Arquivos em snake_case, funções em camelCase exportadas iniciam maiúscula"
+    example:
+      code: |
+        // arquivo: internal/user_service.go
+        func GetUser(ctx context.Context, id string) (*User, error) { ... }
+        func sanitizeName(name string) string { ... }
+      paths:
+        - internal/user_service.go:1
+        - internal/user_service.go:12
+    variants_observed:
+      - "Alguns arquivos antigos em camelCase (ex: legacyHandler.go) - assumir migração antiga"
 ```
 
 Para anti-padrões (`dont`):

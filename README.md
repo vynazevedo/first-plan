@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.1.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.2.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan">
     <img src="https://img.shields.io/badge/plugin-claude%20code-orange.svg" alt="Claude Code Plugin">
@@ -111,7 +111,100 @@ Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo
 <td><img src="https://img.shields.io/badge/-UNIVERSAL-lightgrey?style=flat-square" /></td>
 <td><strong>Stack-Agnostic</strong> - fallback genérico para qualquer linguagem</td>
 </tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-PROVENANCE-darkgreen?style=flat-square" /></td>
+<td><strong>Provenance Tracking</strong> (v0.2.0) - cada finding tem source/SHA/TTL/decay - audita de onde veio</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-COCHANGE-darkblue?style=flat-square" /></td>
+<td><strong>Co-change Graph</strong> (v0.2.0) - "quando X muda, Y também" - previne PRs incompletos</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-VERIFY-magenta?style=flat-square" /></td>
+<td><strong>Verification Loop</strong> (v0.2.0) - lint/typecheck/tests automaticos pos-execute + rollback safety net</td>
+</tr>
 </table>
+
+---
+
+## Real-World Example
+
+Output do `/first-plan:init` rodado num repositorio Bash de dotfiles (~50 scripts):
+
+```
+Stacks detectadas: Bash (puro)
+Reuse Index: 8 padroes idiomaticos identificados
+Features classificadas: 21
+  IMPLEMENTED: 17
+  DRIFTED: 4   (alerta!)
+  PHANTOM: 1   (alarm!)
+  IN_PROGRESS: 0
+  SPEC_ONLY: 0
+
+Confidence media: 0.94
+Perguntas abertas: 8 (em 08-meta/questions.md)
+
+Proximas acoes sugeridas:
+1. Revisar phantom feature: F03 (README claim "200+ aliases", real: 54)
+2. Drift tecnico: F07 (`air` instalado 2x em golang.sh)
+3. Responder questions Q2-Q8 com /first-plan:ask
+```
+
+### Exemplos do Reuse Index gerado
+
+```bash
+$ /first-plan:reuse "preciso detectar a distro Linux"
+```
+
+Retorna:
+
+```yaml
+distro_detection (confidence 0.99):
+  idiom: |
+    if [ -f /etc/os-release ]; then
+      . /etc/os-release
+      DISTRO_ID="${ID}"
+    fi
+  visto_em:
+    - zsh.sh:14-23
+    - neovim.sh:12-18
+    - docker.sh:12-18
+    - pentest.sh:13-17
+  inconsistencia: "neovim.sh usa 'unknown' como fallback ao inves de exit 1"
+```
+
+### Exemplo de Spec-Code Reconciliation
+
+```bash
+$ /first-plan:check "endpoint de export CSV"
+```
+
+Retorna:
+
+```
+Match encontrado: F12 - "CSV Export Endpoint"
+Status: IMPLEMENTED (confidence 0.91)
+
+Evidencia:
+- internal/handler/export.go:45 (handler completo)
+- internal/handler/export_test.go (8 test cases)
+
+Recomendacao: Feature ja existe. Nao duplicar.
+```
+
+### Living Layer em acao
+
+Apos editar `README.md` no projeto, o hook PostToolUse marca automaticamente:
+
+```
+.first-plan/cache/.stale:
+README.md
+
+.first-plan/08-meta/coverage.md (entry adicionado):
+- README.md (modificado em 2026-05-04T22:02) - afeta: 09-features
+```
+
+Voce nao precisa fazer nada - o hook detectou. Quando rodar `/first-plan:refresh`, so essas secoes sao re-analisadas.
 
 ---
 
@@ -200,6 +293,9 @@ Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo
 | `/first-plan:in-flight [--all\|--mine]` | Branches/PRs ativos |
 | `/first-plan:hot [--days N]` | Áreas mais ativas |
 | `/first-plan:owner <path>` | Quem domina esse arquivo |
+| `/first-plan:cochange <path>` | (v0.2.0) Arquivos que mudam junto com este |
+| `/first-plan:provenance <id>` | (v0.2.0) Cadeia de proveniência de um finding |
+| `/first-plan:rollback [--snapshot]` | (v0.2.0) Reverte último execute |
 
 ---
 
@@ -609,15 +705,31 @@ Workflow:
 - Plan/Execute workflow
 - 8 stack lenses (Go, TS, PHP, Python, Rust, Terraform, Mobile, Generic)
 
-### v2.0 (planejado)
+### v0.2.0 (atual - "Cognitive Compiler Phase A+B")
 
-- Co-change graph - "quando X muda, Y também"
-- Migration Tracker - progresso de migrações em curso
-- Decision Archeology - extrai decisões + porquês de commits/PRs
-- Doc-Code Sync auditor
-- Test-Code Drift detector
-- Onboarding Path Generator (por papel)
-- Multi-Repo Awareness (poly-repo / microservices)
+Pilares foundational implementados:
+
+- **Provenance & Freshness Tracking** - schema com source/SHA/TTL/decay, command `/first-plan:provenance`
+- **Co-change Graph** - dependência de mudança via git history, command `/first-plan:cochange`, integrado ao `/first-plan:plan`
+- **Verification Loop** - subagent `verification-runner` roda lint/typecheck/tests pos-execute
+- **Rollback / Time Travel** - snapshots pre-execute + command `/first-plan:rollback`
+
+### v0.3.0 (planejado - "Cognitive Compiler Phase C")
+
+- CI/CD + Production State Awareness
+- Cross-Repo Awareness (poly-repo / microservices)
+- Knowledge Graph + Semantic Search via embeddings
+
+### v1.0.0 (long-term - "Cognitive Infrastructure")
+
+- LSP Integration (real types, not heuristics)
+- Schema-Aware Operations (OpenAPI/GraphQL/Protobuf validation)
+- Bug Recurrence DB
+- Decision Archeology
+- Migration Tracker
+- Investigation Mode
+- Team Awareness
+- Multi-Tool AI Sync
 
 ---
 

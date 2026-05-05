@@ -94,17 +94,39 @@ Features marcadas IMPLEMENTED no código mas que ainda aparecem como Open em iss
 
 Sinalizar prominentemente - **isto é alto valor**: significa trabalho duplicado iminente.
 
-## Output esperado
+## Output esperado (v0.2.0 com schema de proveniência)
+
+Cada feature emit segue schema da skill `provenance-tracker`:
 
 ```markdown
 # Reconciliation Findings
 
 ## features
-- id: F1
-  slug: user-authentication-jwt
-  title: "User Authentication via JWT"
-  status: IMPLEMENTED
-  confidence: 0.91
+- finding_id: F-feature-user-auth-jwt
+  type: feature
+  section: 09-features
+  source:
+    type: doc
+    location: docs/auth.md#jwt-flow
+    commit_sha: <git rev-parse HEAD>
+    extracted_from:
+      - docs/auth.md
+      - internal/auth/jwt.go
+  extracted_at: <ISO timestamp>
+  extracted_by: reconciliation-auditor
+  confidence:
+    initial: 0.91
+    signals_used:
+      - "Spec em doc + impl + tests presentes"
+      - "Multiple endpoints chamam Auth middleware"
+  ttl:
+    days: 7
+  lifecycle:
+    status: active
+  data:
+    slug: user-authentication-jwt
+    title: "User Authentication via JWT"
+    status_classification: IMPLEMENTED
   source:
     type: doc
     location: docs/auth.md#jwt-flow

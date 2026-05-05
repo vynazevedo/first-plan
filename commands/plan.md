@@ -103,6 +103,42 @@ Listar:
 - Conflitos potenciais com in-flight
 - Dependências externas precisando confirmação
 
+#### Co-change check (v0.2.0+)
+
+Para cada arquivo no plano (a modificar ou criar), consultar `.first-plan/08-meta/co-change.json` (skill `co-change-analysis`):
+
+- Identificar co-changers com `ratio >= 0.7` que **não estão no plano**
+- Adicionar seção "Co-change alerts" listando-os:
+
+```markdown
+### Co-change alerts
+
+Arquivos abaixo tem alta correlação histórica de mudança com seu plano:
+
+- `internal/payment/charge.go` (no plano) tem co-changer:
+  - `internal/payment/invoice.go` (ratio 0.94 - strong) - **não está no plano**
+  - `internal/handler/payment.go` (ratio 0.81 - moderate) - **não está no plano**
+
+Considere:
+A) Adicionar ao plano (provavelmente esquecimento)
+B) Justificar exclusão na seção "Out of scope"
+C) Ignorar se co-change é coincidência histórica
+```
+
+Se cluster inteiro está sendo tocado mas com membros faltando, alertar:
+
+```markdown
+### Cluster alert
+
+Plano toca arquivos do cluster `payment-subsystem` (87% cohesion):
+- charge.go ✓ (no plano)
+- refund.go ✗ (não no plano)
+- invoice.go ✗ (não no plano)
+- handler/payment.go ✓ (no plano)
+
+Cluster parcialmente tocado é sinal de potencial PR incompleto.
+```
+
 ### Passo 8 - Critério de "feito" + Out of scope
 
 - Done criteria: lista verificável

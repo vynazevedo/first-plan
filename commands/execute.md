@@ -26,13 +26,26 @@ Fase 3 - executa plano aprovado.
 4. Ler `.first-plan/08-meta/questions.md`:
    - Se há perguntas marcadas como críticas para este plano e ainda `answered: false`: **PARAR** e listar
 
-### Passo 2 - Atualizar STATE
+### Passo 2 - Snapshot pre-execute (v0.2.0+)
+
+Antes de qualquer modificação, criar snapshot do estado atual de `.first-plan/`:
+
+```bash
+SNAPSHOT_ID="$(date -u +%Y-%m-%dT%H-%M-%S)-pre-execute-<slug>"
+mkdir -p .first-plan/cache/snapshots/${SNAPSHOT_ID}
+cp -r .first-plan .first-plan/cache/snapshots/${SNAPSHOT_ID}/snapshot 2>/dev/null
+```
+
+Habilita `/first-plan:rollback` se algo der errado.
+
+### Passo 3 - Atualizar STATE
 
 `.first-plan/07-state/STATE.md`:
 - `phase: executing`
 - registrar timestamp de início
+- registrar snapshot_id criado no Passo 2
 
-### Passo 3 - Confirmar premissas
+### Passo 4 - Confirmar premissas
 
 Para cada arquivo que o plano marca como "modificar" ou "reusar":
 - Verificar que o path existe
@@ -56,7 +69,7 @@ Se alguma premissa não bate:
   ```
 - **Aguardar instrução humana.** Não improvisar.
 
-### Passo 4 - Executar passos na ordem
+### Passo 5 - Executar passos na ordem
 
 Para cada passo do plano:
 
@@ -68,7 +81,7 @@ Para cada passo do plano:
    - Se houve linter/formatter automático no projeto, rodar inline (sem corrigir além do plano)
 5. Atualizar `STATE.md` com último passo executado
 
-### Passo 5 - Detecção de invalidação durante execução
+### Passo 6 - Detecção de invalidação durante execução
 
 A cada passo, verificar:
 - Símbolo que outro passo do plano vai usar ainda existe?
@@ -96,21 +109,62 @@ Se algo invalidar plano:
   ```
 - **Não improvisar.** Aguardar instrução.
 
-### Passo 6 - Após sucesso, gerar report
+### Passo 7 - Verification Loop (v0.2.0+)
 
-Quando todos os passos completam:
+Quando todos os passos do plano completam, **antes** de gerar report final:
+
+Spawnar `verification-runner` subagent:
+
+```
+Task(
+  subagent_type="verification-runner",
+  description="Verify implementation post-execute",
+  prompt="<contrato com project_root, plan_path, report_path, affected_files=<list>, co_change_data=<from .first-plan/08-meta/co-change.json>>"
+)
+```
+
+Receber `overall_status: passed | failed | partial`:
+
+#### Se `passed`
+- Prossegue para Passo 8
+- Verification report salvo em `.first-plan/07-state/reports/<slug>-verification.md`
+
+#### Se `partial`
+- Report final ainda gerado mas com flag de warning
+- STATE.md: `phase: done_with_warnings`
+- Mostrar warnings ao usuário com recomendações
+
+#### Se `failed`
+- **PARAR**
+- STATE.md: `phase: paused`
+- Apresentar erros + recomendações ao usuário:
+  ```
+  Verification falhou:
+  - <check_name>: <erro>
+  - <check_name>: <erro>
+
+  Opções:
+  A) Corrigir os erros e rerun /first-plan:execute (continua daí)
+  B) /first-plan:rollback para reverter mudanças do execute
+  C) Skip verification (não recomendado): edite STATE.md manualmente para 'done'
+  ```
+- **Aguardar instrução humana.** Não improvisar correção.
+
+### Passo 8 - Após sucesso, gerar report
+
 1. Spawnar geração do report usando `${CLAUDE_PLUGIN_ROOT}/meta-templates/report.md`
 2. Salvar em `.first-plan/07-state/reports/<slug>.md`
-3. Atualizar `09-features/<slug>.md` se a feature ja estava lá (mudar status para IMPLEMENTED) ou criar nova entry
+3. Incluir referência ao `<slug>-verification.md`
+4. Atualizar `09-features/<slug>.md` se a feature ja estava lá (mudar status para IMPLEMENTED) ou criar nova entry
 
-### Passo 7 - Atualizar STATE
+### Passo 9 - Atualizar STATE
 
 `.first-plan/07-state/STATE.md`:
 - `phase: done`
 - `last_completed_plan: <slug>`
 - `active_plan: null`
 
-### Passo 8 - Recomendar refresh
+### Passo 10 - Recomendar refresh
 
 ```
 Feature implementada com sucesso.
