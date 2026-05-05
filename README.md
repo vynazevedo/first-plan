@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.4.1-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.5.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -150,6 +150,18 @@ In ~3-8 minutes (depending on project size) it generates a complete `.first-plan
 <td><img src="https://img.shields.io/badge/-EMBEDDINGS-teal?style=flat-square" /></td>
 <td><strong>ML Embeddings (Hybrid)</strong> (v0.4.1) - opt-in build with BGE-small (ONNX). Hybrid search combines BM25 + cosine similarity for true semantic matches.</td>
 </tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-AST-darkblue?style=flat-square" /></td>
+<td><strong>Tree-sitter AST</strong> (v0.5.0) - opt-in build with exact parsing. +43% extraction precision over regex. Auto-detects methods inside class/impl/struct. 5 languages: Rust, Go, Python, TypeScript, Bash.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-BASH-yellow?style=flat-square" /></td>
+<td><strong>Bash extractor</strong> (v0.5.0) - dotfiles and shell scripts now indexable. POSIX <code>name()</code> and <code>function name</code> forms. Detects <code>.bashrc</code>, <code>.zshrc</code>, etc.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-WIKILINKS-purple?style=flat-square" /></td>
+<td><strong>Obsidian Wikilinks</strong> (v0.5.0) - <code>[[section/file]]</code> syntax across .first-plan/. Open as Obsidian/Logseq vault for graph navigation.</td>
+</tr>
 </table>
 
 ---
@@ -177,20 +189,27 @@ A) Yes B) No C) Manual
 
 **Manual:** Download from [Releases](https://github.com/vynazevedo/first-plan/releases) the binary matching your OS/arch. Extract and place in `${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine` (or anywhere in your `$PATH`).
 
-**Supported platforms (v0.4.1):**
+**Supported platforms (v0.5.0):**
+
+Default lean build (~1MB):
 - Linux x86_64 (musl, fully static)
 - Linux aarch64 (musl, fully static)
 - Windows x86_64
-- Linux x86_64 GNU **with ML build** (`-ml` suffix, ~50MB, embeddings via fastembed)
 
-> macOS (x86_64 + aarch64) coming back in v0.5.0. macOS users can build from source via `cargo install --path engine/crates/cli` for now.
+Opt-in builds:
+- Linux x86_64 GNU **with ML build** (`-ml` suffix, ~50MB, embeddings via fastembed)
+- Linux x86_64 musl **with tree-sitter** (`-ast` suffix, ~10MB, AST-precise extraction)
+
+> macOS (x86_64 + aarch64) coming back in v0.6.0. macOS users can build from source via `cargo install --path engine/crates/cli` for now.
 
 **From source:**
 ```bash
 git clone https://github.com/vynazevedo/first-plan
 cd first-plan/engine
-cargo install --path crates/cli                       # default lean build
-cargo install --path crates/cli --features=ml         # ML-enabled (embeddings)
+cargo install --path crates/cli                            # default lean build
+cargo install --path crates/cli --features=ml              # ML-enabled (embeddings)
+cargo install --path crates/cli --features=tree-sitter     # AST-enabled (precision)
+cargo install --path crates/cli --features=ml,tree-sitter  # both
 ```
 
 ### Graceful fallback
@@ -422,7 +441,7 @@ The plugin also appends to the target project's `.gitignore`:
 
 ## Stack Lenses
 
-V1 ships dedicated lenses for:
+Dedicated lenses (with skill `lens-<stack>`):
 
 <p>
 <img src="https://img.shields.io/badge/Go-supported-00ADD8?style=flat-square" alt="Go">
@@ -445,6 +464,22 @@ V1 ships dedicated lenses for:
 | Terraform | `lens-terraform` | modules, state backend, environments, providers, naming/tagging |
 | Mobile | `lens-mobile` | RN, Flutter, iOS Swift, Android Kotlin |
 | Other | `lens-generic` | Heuristic fallback (Elixir, OCaml, Haskell, Zig, etc) |
+
+### Symbol extraction (engine - v0.4.0+)
+
+Beyond the lens skills, the native engine extracts symbols (functions, types, classes) for the Reuse Index and semantic search:
+
+| Language | Regex (default) | Tree-sitter (--features=tree-sitter) |
+|----------|:---------------:|:------------------------------------:|
+| Go | ✓ | ✓ |
+| Rust | ✓ | ✓ |
+| TypeScript / JavaScript | ✓ | ✓ |
+| Python | ✓ | ✓ |
+| **Bash / Shell** (v0.5.0) | ✓ | ✓ |
+| PHP | ✓ | - |
+| Ruby, Java, Kotlin, Swift, Elixir | - | - |
+
+Tree-sitter mode delivers +43% precision in real-world tests. Default regex mode keeps the binary at ~1MB.
 
 ### Add support for a new stack
 
@@ -777,8 +812,8 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.4.1-current-brightgreen?style=flat-square" alt="v0.4.1 current">
-<img src="https://img.shields.io/badge/v0.5.0-next-blue?style=flat-square" alt="v0.5.0 next">
+<img src="https://img.shields.io/badge/v0.5.0-current-brightgreen?style=flat-square" alt="v0.5.0 current">
+<img src="https://img.shields.io/badge/v0.6.0-next-blue?style=flat-square" alt="v0.6.0 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
 
@@ -813,7 +848,7 @@ Workflow:
 - `semantic-reuse` skill with graceful fallback
 - <10ms latency, zero Claude tokens
 
-#### v0.4.1 - ML Embeddings (current)
+#### v0.4.1 - ML Embeddings
 
 - Opt-in `--features=ml` feature flag
 - `core::embeddings` with FastEmbedProvider (BGE-small, ONNX)
@@ -821,16 +856,22 @@ Workflow:
 - CLI `--mode bm25|embed|hybrid` + `--alpha` tuning
 - Auto-download of models in `~/.cache/first-plan/models/`
 
-### Planned
+#### v0.5.0 - Tree-sitter AST + Bash + Wikilinks (current)
 
-#### v0.5.0 - Tree-sitter AST + Bash support + Wikilinks
-
-- Replace regex extraction with tree-sitter (exact parsing)
-- Support for Bash, Ruby, Java, Kotlin, Swift, Elixir
-- Engine `ast` subcommand (signature/scope/refs)
-- Cross-platform ML build (linux musl + macOS + windows)
-- **Obsidian-compatible `[[wikilinks]]`** between `.first-plan/` sections
+- **Bash extractor** (regex) - dotfiles and shell scripts now indexable
+  - Supports `function name()` and POSIX `name()` forms
+  - Detects `.bashrc`, `.zshrc`, `.bash_profile`, `.profile`, `.bash_aliases`
+- **Tree-sitter AST** opt-in via `--features=tree-sitter`
+  - Exact parsing for Rust, Go, Python, TypeScript/JavaScript, Bash
+  - +43% extraction precision over regex (validated on real Rust project)
+  - Method auto-detection inside class/impl/struct
+  - Doc enrichment via line-based extractor fallback
+- **Obsidian-compatible `[[wikilinks]]`** in `.first-plan/`
   - Inspired by OpenKB - turns the layer into a navigable graph
+  - INDEX.md template uses 30+ wikilinks for cross-references
+  - Skill protocol documents the convention
+
+### Planned
 
 #### v0.6.0 - LSP Integration + Watch mode
 

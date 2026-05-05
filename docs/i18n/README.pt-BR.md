@@ -758,8 +758,8 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.4.1-current-brightgreen?style=flat-square" alt="v0.4.1 current">
-<img src="https://img.shields.io/badge/v0.5.0-next-blue?style=flat-square" alt="v0.5.0 next">
+<img src="https://img.shields.io/badge/v0.5.0-current-brightgreen?style=flat-square" alt="v0.5.0 current">
+<img src="https://img.shields.io/badge/v0.6.0-next-blue?style=flat-square" alt="v0.6.0 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
 
@@ -794,7 +794,7 @@ Workflow:
 - Skill `semantic-reuse` com graceful fallback
 - Latência <10ms, zero token Claude
 
-#### v0.4.1 - ML Embeddings (current)
+#### v0.4.1 - ML Embeddings
 
 - Feature flag `--features=ml` opt-in
 - `core::embeddings` com FastEmbedProvider (BGE-small, ONNX)
@@ -802,16 +802,22 @@ Workflow:
 - CLI `--mode bm25|embed|hybrid` + `--alpha` tuning
 - Auto-download de modelos em `~/.cache/first-plan/models/`
 
-### Planejado
+#### v0.5.0 - Tree-sitter AST + Bash + Wikilinks (current)
 
-#### v0.5.0 - Tree-sitter AST + Bash + Wikilinks
-
-- Substituir regex extraction por tree-sitter (parsing exato)
-- Suporte a Bash, Ruby, Java, Kotlin, Swift, Elixir
-- Engine subcommand `ast` (assinatura/scope/refs)
-- ML build cross-platform (linux musl + macOS + windows)
-- **Wikilinks `[[secao]]` Obsidian-compatible** entre arquivos do `.first-plan/`
+- **Bash extractor** (regex) - dotfiles e shell scripts agora indexaveis
+  - Suporta `function name()` e POSIX `name()` forms
+  - Detecta `.bashrc`, `.zshrc`, `.bash_profile`, `.profile`, `.bash_aliases`
+- **Tree-sitter AST** opt-in via `--features=tree-sitter`
+  - Parsing exato para Rust, Go, Python, TypeScript/JavaScript, Bash
+  - +43% precisao de extracao vs regex (validado em projeto Rust real)
+  - Method auto-detection em class/impl/struct
+  - Enriquece com docs via fallback regex extractor
+- **Wikilinks `[[secao]]` Obsidian-compatible** em `.first-plan/`
   - Inspirado em OpenKB - transforma a camada em graph navegavel
+  - INDEX.md template usa 30+ wikilinks para cross-references
+  - Skill protocol documenta a convencao
+
+### Planejado
 
 #### v0.6.0 - LSP Integration + Watch mode
 
