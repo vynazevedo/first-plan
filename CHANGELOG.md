@@ -17,8 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Cargo workspace at `engine/` with `core` and `cli` crates
 - Cross-platform pre-built binaries via GitHub Releases
   - linux x86_64 + aarch64 (musl, fully static)
-  - macOS x86_64 + aarch64
   - windows x86_64
+  - macOS (x86_64 + aarch64) pendente para v0.4.0 (runner queue ruim no GitHub
+    Actions; usuarios macOS buildam from source via cargo install)
 - GitHub Actions CI/CD pipelines
   - `lint.yml`: cargo fmt, clippy, JSON validation, shellcheck on hooks
   - `test.yml`: cargo test on linux/macos/windows

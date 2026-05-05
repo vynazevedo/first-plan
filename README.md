@@ -163,6 +163,13 @@ A) Sim B) Nao C) Manual
 
 **Manual:** Download em [Releases](https://github.com/vynazevedo/first-plan/releases) o binário matching seu OS/arch. Extraia e coloque em `${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine` (ou no `$PATH`).
 
+**Plataformas suportadas (v0.3.0):**
+- Linux x86_64 (musl, fully static)
+- Linux aarch64 (musl, fully static)
+- Windows x86_64
+
+> macOS (x86_64 + aarch64) sera reativado em v0.4.0. Por enquanto, usuarios macOS podem buildar from source via `cargo install --path engine/crates/cli`.
+
 **From source:**
 ```bash
 git clone https://github.com/vynazevedo/first-plan

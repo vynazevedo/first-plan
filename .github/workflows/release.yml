@@ -21,15 +21,17 @@ jobs:
           - target: aarch64-unknown-linux-musl
             runner: ubuntu-latest
             cross: true
-          - target: x86_64-apple-darwin
-            runner: macos-13
-            cross: false
-          - target: aarch64-apple-darwin
-            runner: macos-latest
-            cross: false
           - target: x86_64-pc-windows-msvc
             runner: windows-latest
             cross: false
+          # macOS targets temporariamente desabilitados (runner queue lenta).
+          # Reativar quando GitHub melhorar SLA dos macos runners.
+          # - target: x86_64-apple-darwin
+          #   runner: macos-13
+          #   cross: false
+          # - target: aarch64-apple-darwin
+          #   runner: macos-latest
+          #   cross: false
     steps:
       - uses: actions/checkout@v4
 
