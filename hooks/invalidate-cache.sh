@@ -62,14 +62,15 @@ main() {
     esac
 
     # Path relativo ao project_dir
-    local rel_path="${file_path#${project_dir}/}"
+    local rel_path="${file_path#"${project_dir}"/}"
 
     # Determinar seções afetadas baseadas no tipo de arquivo
     local affected_sections=()
 
     case "${rel_path}" in
         # Manifestos -> 01-topology/stacks
-        go.mod|*/go.mod|package.json|*/package.json|composer.json|*/composer.json|pyproject.toml|*/pyproject.toml|Cargo.toml|*/Cargo.toml|Gemfile|*/Gemfile|pubspec.yaml|*/pubspec.yaml|*.csproj|*/*.csproj)
+        # *X matches both root "X" and subdir "*/X" since * matches empty too
+        *go.mod|*package.json|*composer.json|*pyproject.toml|*Cargo.toml|*Gemfile|*pubspec.yaml|*.csproj)
             affected_sections+=("01-topology/stacks")
             ;;
     esac
@@ -140,7 +141,7 @@ main() {
     local unique_sections
     unique_sections=$(printf '%s\n' "${affected_sections[@]}" | sort -u)
 
-    log "stale: ${rel_path} -> $(echo ${unique_sections} | tr '\n' ' ')"
+    log "stale: ${rel_path} -> $(echo "${unique_sections}" | tr '\n' ' ')"
 
     # Append em coverage.md (apenas string append - simples e robusto)
     local coverage_file="${project_dir}/.first-plan/08-meta/coverage.md"
@@ -154,7 +155,7 @@ main() {
             {
                 echo ""
                 echo "<!-- stale-entry timestamp=${timestamp} -->"
-                echo "- \`${rel_path}\` (modificado em ${timestamp}) - afeta: $(echo ${unique_sections} | tr '\n' ',')"
+                echo "- \`${rel_path}\` (modificado em ${timestamp}) - afeta: $(echo "${unique_sections}" | tr '\n' ',')"
             } >> "${coverage_file}" 2>/dev/null || true
         fi
     fi
