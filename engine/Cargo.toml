@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/core", "crates/cli"]
 
 [workspace.package]
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/vynazevedo/first-plan"
@@ -32,6 +32,8 @@ tree-sitter-python = "0.23"
 tree-sitter-typescript = "0.23"
 tree-sitter-bash = "0.23"
 streaming-iterator = "0.1"
+notify = "7"
+notify-debouncer-mini = "0.5"
 
 [profile.release]
 opt-level = 3

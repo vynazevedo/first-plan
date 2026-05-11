@@ -1,7 +1,7 @@
 {
   "name": "first-plan",
   "description": "Camada compilada de contexto multi-layer para Claude Code. Compila projetos desconhecidos em uma estrutura .first-plan/ com discovery por stack, reuse index invertido, reconciliação spec-código, git intelligence e estado vivo. Resolve re-implementação cega, phantom features, drift e cross-session amnesia em projetos complexos.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": {
     "name": "Vinicius Azevedo",
     "email": "viniciusdiazevedo@gmail.com"

@@ -17,6 +17,7 @@ pub mod output;
 pub mod search;
 pub mod symbols;
 pub mod tokenize;
+pub mod watch;
 
 /// Whether this binary was built with the `ml` feature enabled.
 pub const ML_ENABLED: bool = cfg!(feature = "ml");

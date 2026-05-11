@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-05-05
+
+### Added
+
+- **Watch subcommand** (`first-plan-engine watch`) - filesystem monitoring com debounced events
+  - notify-rs + notify-debouncer-mini
+  - Default debounce 5s (interativo); 300s recomendado para production refresh triggers
+  - Filtra eventos por linguagem suportada (Go, Rust, TS, Python, PHP, Bash)
+  - Honra default ignores (node_modules, vendor, target, .git, .first-plan/cache, etc)
+  - Output JSON line stream em stdout (parseável por skill ou wrapper)
+  - `--exec '<cmd>'` opcional dispara comando externo a cada batch
+  - Paths relativos ao --repo (canonicalized)
+- Novo `core::watch` módulo com helper `make_event` para testes
+- Inspirado em OpenKB (continuous compilation pattern)
+
+### Performance
+
+- Cold start <100ms, overhead de debounce desprezível
+- 3 unit tests cobrindo language filtering + path relativization + ignores
+
 ## [0.5.0] - 2026-05-05
 
 ### Added
@@ -201,7 +221,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/vynazevedo/first-plan/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/vynazevedo/first-plan/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/vynazevedo/first-plan/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/vynazevedo/first-plan/compare/v0.3.0...v0.4.0

@@ -24,6 +24,8 @@ enum Command {
     Index(commands::index::Args),
     /// Query the BM25 index with a natural-language string.
     Search(commands::search::Args),
+    /// Watch filesystem and emit debounced events for relevant source changes.
+    Watch(commands::watch::Args),
 }
 
 fn main() -> Result<()> {
@@ -33,5 +35,6 @@ fn main() -> Result<()> {
         Command::Hash(args) => commands::hash::run(args),
         Command::Index(args) => commands::index::run(args),
         Command::Search(args) => commands::search::run(args),
+        Command::Watch(args) => commands::watch::run(args),
     }
 }
