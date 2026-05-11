@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.5.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.5.1-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -161,6 +161,10 @@ In ~3-8 minutes (depending on project size) it generates a complete `.first-plan
 <tr>
 <td><img src="https://img.shields.io/badge/-WIKILINKS-purple?style=flat-square" /></td>
 <td><strong>Obsidian Wikilinks</strong> (v0.5.0) - <code>[[section/file]]</code> syntax across .first-plan/. Open as Obsidian/Logseq vault for graph navigation.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-WATCH-cyan?style=flat-square" /></td>
+<td><strong>Watch mode</strong> (v0.5.1) - <code>first-plan-engine watch</code> monitors filesystem with debounced events. JSON line stream on stdout. Inspired by OpenKB (continuous compilation).</td>
 </tr>
 </table>
 
@@ -812,7 +816,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.5.0-current-brightgreen?style=flat-square" alt="v0.5.0 current">
+<img src="https://img.shields.io/badge/v0.5.1-current-brightgreen?style=flat-square" alt="v0.5.1 current">
 <img src="https://img.shields.io/badge/v0.6.0-next-blue?style=flat-square" alt="v0.6.0 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
@@ -856,7 +860,7 @@ Workflow:
 - CLI `--mode bm25|embed|hybrid` + `--alpha` tuning
 - Auto-download of models in `~/.cache/first-plan/models/`
 
-#### v0.5.0 - Tree-sitter AST + Bash + Wikilinks (current)
+#### v0.5.0 - Tree-sitter AST + Bash + Wikilinks
 
 - **Bash extractor** (regex) - dotfiles and shell scripts now indexable
   - Supports `function name()` and POSIX `name()` forms
@@ -871,16 +875,23 @@ Workflow:
   - INDEX.md template uses 30+ wikilinks for cross-references
   - Skill protocol documents the convention
 
+#### v0.5.1 - Watch mode (current)
+
+- **Engine `watch` subcommand** - filesystem monitoring with debounced events
+  - notify-rs + notify-debouncer-mini
+  - Default debounce 5s (interactive); 300s recommended for production
+  - Language filtering (Go, Rust, TS, Python, PHP, Bash)
+  - JSON line stream on stdout (parseable by skill/wrapper)
+  - `--exec '<cmd>'` triggers external command per batch
+  - Inspired by OpenKB - goes beyond the PostToolUse hook (which only signals)
+
 ### Planned
 
-#### v0.6.0 - LSP Integration + Watch mode
+#### v0.6.0 - LSP Integration
 
 - Engine talks to gopls/pyright/typescript-language-server/rust-analyzer
 - Real types via `textDocument/references` (vs heuristic)
 - Replaces grep with symbol-level navigation
-- **Engine `watch` subcommand** - continuous incremental refresh
-  - Inspired by OpenKB - filesystem monitoring with debounced auto-refresh
-  - Goes beyond the current PostToolUse hook (which only signals)
 
 #### v0.7.0 - Multi-Repo Awareness + Multi-format docs
 

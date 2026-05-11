@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.4.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.5.1-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -144,7 +144,27 @@ Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo
 </tr>
 <tr>
 <td><img src="https://img.shields.io/badge/-SEMANTIC-purple?style=flat-square" /></td>
-<td><strong>Semantic Search BM25</strong> (v0.4.0) - "preciso de validacao de email" encontra `validateEmailRFC` mesmo sem nome exato. Indice SQLite local, &lt;10ms por query, 6 linguagens suportadas.</td>
+<td><strong>Semantic Search BM25</strong> (v0.4.0) - "preciso de validação de email" encontra <code>validateEmailRFC</code> mesmo sem nome exato. Índice SQLite local, &lt;10ms por query, 6 linguagens suportadas.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-EMBEDDINGS-teal?style=flat-square" /></td>
+<td><strong>Embeddings ML (Hybrid)</strong> (v0.4.1) - build opt-in com BGE-small (ONNX). Hybrid search combina BM25 + cosine similarity para matches semânticos reais.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-AST-darkblue?style=flat-square" /></td>
+<td><strong>Tree-sitter AST</strong> (v0.5.0) - build opt-in com parsing exato. +43% de precisão na extração vs regex. Auto-detecta methods dentro de class/impl/struct. 5 linguagens: Rust, Go, Python, TypeScript, Bash.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-BASH-yellow?style=flat-square" /></td>
+<td><strong>Bash extractor</strong> (v0.5.0) - dotfiles e shell scripts agora indexáveis. Formas POSIX <code>name()</code> e <code>function name</code>. Detecta <code>.bashrc</code>, <code>.zshrc</code>, etc.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-WIKILINKS-purple?style=flat-square" /></td>
+<td><strong>Wikilinks Obsidian</strong> (v0.5.0) - sintaxe <code>[[seção/arquivo]]</code> em todo <code>.first-plan/</code>. Abra como vault Obsidian/Logseq para navegação em graph.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-WATCH-cyan?style=flat-square" /></td>
+<td><strong>Watch mode</strong> (v0.5.1) - <code>first-plan-engine watch</code> monitora filesystem com debounce. Emite eventos JSON stream em stdout. Inspirado em OpenKB (continuous compilation).</td>
 </tr>
 </table>
 
@@ -173,18 +193,27 @@ A) Sim B) Nao C) Manual
 
 **Manual:** Download em [Releases](https://github.com/vynazevedo/first-plan/releases) o binário matching seu OS/arch. Extraia e coloque em `${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine` (ou no `$PATH`).
 
-**Plataformas suportadas (v0.3.0):**
+**Plataformas suportadas (v0.5.1):**
+
+Build padrão lean (~1MB):
 - Linux x86_64 (musl, fully static)
 - Linux aarch64 (musl, fully static)
 - Windows x86_64
 
-> macOS (x86_64 + aarch64) sera reativado em v0.4.0. Por enquanto, usuarios macOS podem buildar from source via `cargo install --path engine/crates/cli`.
+Builds opt-in:
+- Linux x86_64 GNU **com ML build** (sufixo `-ml`, ~50MB, embeddings via fastembed)
+- Linux x86_64 musl **com tree-sitter** (sufixo `-ast`, ~10MB, extração precisa via AST)
+
+> macOS (x86_64 + aarch64) volta em v0.6.0. Usuários macOS podem buildar from source via `cargo install --path engine/crates/cli` por enquanto.
 
 **From source:**
 ```bash
 git clone https://github.com/vynazevedo/first-plan
 cd first-plan/engine
-cargo install --path crates/cli
+cargo install --path crates/cli                            # build padrão lean
+cargo install --path crates/cli --features=ml              # com ML (embeddings)
+cargo install --path crates/cli --features=tree-sitter     # com AST (precisão)
+cargo install --path crates/cli --features=ml,tree-sitter  # ambos
 ```
 
 ### Graceful fallback
@@ -758,7 +787,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.5.0-current-brightgreen?style=flat-square" alt="v0.5.0 current">
+<img src="https://img.shields.io/badge/v0.5.1-current-brightgreen?style=flat-square" alt="v0.5.1 current">
 <img src="https://img.shields.io/badge/v0.6.0-next-blue?style=flat-square" alt="v0.6.0 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
@@ -802,31 +831,38 @@ Workflow:
 - CLI `--mode bm25|embed|hybrid` + `--alpha` tuning
 - Auto-download de modelos em `~/.cache/first-plan/models/`
 
-#### v0.5.0 - Tree-sitter AST + Bash + Wikilinks (current)
+#### v0.5.0 - Tree-sitter AST + Bash + Wikilinks
 
-- **Bash extractor** (regex) - dotfiles e shell scripts agora indexaveis
+- **Bash extractor** (regex) - dotfiles e shell scripts agora indexáveis
   - Suporta `function name()` e POSIX `name()` forms
   - Detecta `.bashrc`, `.zshrc`, `.bash_profile`, `.profile`, `.bash_aliases`
 - **Tree-sitter AST** opt-in via `--features=tree-sitter`
   - Parsing exato para Rust, Go, Python, TypeScript/JavaScript, Bash
-  - +43% precisao de extracao vs regex (validado em projeto Rust real)
+  - +43% de precisão na extração vs regex (validado em projeto Rust real)
   - Method auto-detection em class/impl/struct
   - Enriquece com docs via fallback regex extractor
-- **Wikilinks `[[secao]]` Obsidian-compatible** em `.first-plan/`
-  - Inspirado em OpenKB - transforma a camada em graph navegavel
+- **Wikilinks `[[seção]]` Obsidian-compatible** em `.first-plan/`
+  - Inspirado em OpenKB - transforma a camada em graph navegável
   - INDEX.md template usa 30+ wikilinks para cross-references
-  - Skill protocol documenta a convencao
+  - Skill protocol documenta a convenção
+
+#### v0.5.1 - Watch mode (current)
+
+- **Engine subcommand `watch`** - filesystem monitoring com debounced events
+  - notify-rs + notify-debouncer-mini
+  - Default debounce 5s (interativo); 300s recomendado para production
+  - Filtra eventos por linguagem suportada
+  - Output JSON line stream em stdout (parseável por skill/wrapper)
+  - `--exec '<cmd>'` opcional dispara comando externo a cada batch
+  - Inspirado em OpenKB - vai além do hook PostToolUse (que só sinaliza)
 
 ### Planejado
 
-#### v0.6.0 - LSP Integration + Watch mode
+#### v0.6.0 - LSP Integration
 
 - Engine fala com gopls/pyright/typescript-language-server/rust-analyzer
 - Tipos reais via `textDocument/references` (vs heurística)
 - Substitui grep por symbol-level navigation
-- **Engine subcommand `watch`** - refresh incremental contínuo
-  - Inspirado em OpenKB - filesystem monitoring com auto-refresh debounced
-  - Vai alem do hook PostToolUse atual (que so sinaliza)
 
 #### v0.7.0 - Multi-Repo Awareness + Multi-format docs
 
