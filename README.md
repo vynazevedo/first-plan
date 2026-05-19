@@ -725,7 +725,7 @@ Git intelligence is cached for 24h by default in `08-meta/cache.json`. To force 
 first-plan/
 ├── .claude-plugin/plugin.json       manifest
 ├── commands/                        14 slash commands
-├── skills/                          17 skills (1 protocol + 1 lens-engine + 8 lenses + 7 advanced)
+├── skills/                          18 skills (1 protocol + 1 lens-engine + 8 lenses + 8 advanced)
 ├── agents/                          4 subagents (discovery, reconciliation, pattern, verification)
 ├── hooks/                           hooks.json + invalidate-cache.sh
 ├── templates/                       41 templates copied to .first-plan/ on init
