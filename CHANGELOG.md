@@ -7,6 +7,77 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-05-19
+
+### Added
+
+- **LSP Integration polyglot** - resolução semântica de símbolos via Language Server Protocol
+  - Novo módulo `core::lsp` com 5 sub-módulos: registry, client, ops, fallback, daemon
+  - Novo subcommand `first-plan-engine lsp <op>` com 7 operações:
+    - `refs` - find references via `textDocument/references`
+    - `def` - resolver definição via `textDocument/definition`
+    - `symbols` - listar símbolos de arquivo via `textDocument/documentSymbol`
+    - `hover` - tipo + docstring via `textDocument/hover`
+    - `wsymbols` - busca workspace via `workspace/symbol`
+    - `status` - inspecionar servers instalados + sugestões de install
+    - `daemon` - gerenciar daemon de warm-servers (futuro)
+- **8 LSP servers suportados** (auto-detect via manifest):
+  - rust-analyzer (Rust, `Cargo.toml`)
+  - gopls (Go, `go.mod`)
+  - pyright (Python, `pyproject.toml`/`setup.py`/`requirements.txt`)
+  - typescript-language-server (TS/JS, `package.json`/`tsconfig.json`)
+  - intelephense (PHP, `composer.json`)
+  - clangd (C/C++, `CMakeLists.txt`/`compile_commands.json`)
+  - ruby-lsp (Ruby, `Gemfile`/`*.gemspec`)
+  - lua-language-server (Lua, `.luarc.json`)
+- **Detecção automática de stacks** reusa Discovery existente (manifest-based)
+- **Sugestão platform-aware de install commands** (Linux/macOS/Windows)
+- **Fallback graceful em 2 níveis**: LSP -> tree-sitter (quando feature ast ativa) -> grep + word-boundary
+  - Plugin **funciona 100% sem nenhum LSP server instalado**
+  - Output JSON marca `used_fallback: true` quando LSP indisponível
+- **JSON-RPC 2.0 client** sobre stdio com Content-Length framing
+  - Initialize handshake completo (capabilities, workspaceFolders)
+  - Request/response correlation por ID
+  - Shutdown gracioso (`shutdown` + `exit` + SIGKILL)
+  - Timeouts: 30s por request, 60s no initialize
+- Novo slash command `/first-plan:lsp-status` reporta cobertura LSP do projeto
+- Nova skill `lsp-aware` documenta quando usar LSP vs grep
+- Nova skill `lsp-bootstrap` detecta stacks faltantes e sugere instalação (nunca instala automaticamente)
+- Subagents atualizados para preferir LSP quando disponível:
+  - `discovery-analyst` - usa `lsp status` para mapear ambiente
+  - `pattern-archeologist` - usa `lsp symbols`/`refs` para precisão semântica
+  - `reconciliation-auditor` - usa `lsp wsymbols` para validar phantom features
+
+### Changed
+
+- Workspace bumped to 0.6.0
+- Engine deps: `tokio` (rt-multi-thread + io-util + process + net + fs), `lsp-types` 0.97, `url` 2, `which` 7
+- CI matrix: novo job `lsp-integration` instala rust-analyzer + gopls + typescript-language-server e roda smoke tests
+
+### Performance
+
+- Binary lean: 5.2 MB (+1 MB vs v0.5.3, JSON-RPC client adicionado)
+- Cold start típico por server (primeira invocação):
+  - rust-analyzer: 5-15s em projeto médio
+  - gopls: 3-8s
+  - pyright: 2-5s
+  - typescript-language-server: 2-5s
+- Fallback grep: <100ms tipicamente (sem dependência de server)
+
+### Architecture
+
+- LSP server é **processo externo**, não embarcado no binário (mantém engine lean)
+- Detecção via PATH check + version probe
+- Filosofia "sugere, nunca instala" - usuário sempre executa comandos próprios
+- Daemon mode infraestrutura presente (stop/status); spawn warm pool fica para v0.6.1
+
+### Limitations
+
+- Cold start de 3-15s por server em primeira invocação (mitigado em v0.6.1 com daemon mode completo)
+- Daemon spawn pool não implementado nesta versão (placeholder para v0.6.1)
+- Versões de servers não são validadas contra mínimos requeridos
+- Em CI matrix, smoke test só cobre 3 servers (rust-analyzer, gopls, ts-lsp) - cobertura completa via PR
+
 ## [0.5.3] - 2026-05-19
 
 ### Added
@@ -293,7 +364,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.5.3...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/vynazevedo/first-plan/compare/v0.5.3...v0.6.0
 [0.5.3]: https://github.com/vynazevedo/first-plan/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/vynazevedo/first-plan/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/vynazevedo/first-plan/compare/v0.5.0...v0.5.1

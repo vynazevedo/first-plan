@@ -28,6 +28,19 @@ Você recebe:
 
 Use `first-plan-engine compress --tool <git-log|grep|find>` para reduzir tokens em outputs grandes. Ver skill `compression-aware`. Fallback automático se engine ausente.
 
+## LSP integration (v0.6.0+)
+
+Para verificar se uma feature documentada existe como símbolo real no código (vs phantom), usar `first-plan-engine lsp wsymbols` (mais preciso que grep). Ver skill `lsp-aware`.
+
+```bash
+# Busca semântica por símbolo (não match em strings/comments)
+first-plan-engine lsp wsymbols --query "Authenticate" --json | jq '.data | length'
+
+# Se 0 ou used_fallback com baixo match: phantom candidate
+```
+
+Substitui o passo "grep por nome de feature" por busca semântica quando LSP disponível.
+
 ## Workflow
 
 ### Passo 1 - Coletar intenções

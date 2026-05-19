@@ -14,6 +14,7 @@ pub mod embeddings;
 pub mod git;
 pub mod hash;
 pub mod index;
+pub mod lsp;
 pub mod output;
 pub mod search;
 pub mod symbols;

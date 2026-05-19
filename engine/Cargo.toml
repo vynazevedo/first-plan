@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/core", "crates/cli"]
 
 [workspace.package]
-version = "0.5.3"
+version = "0.6.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/vynazevedo/first-plan"
@@ -37,6 +37,11 @@ notify-debouncer-mini = "0.5"
 crossterm = "0.28"
 indicatif = "0.17"
 is-terminal = "0.4"
+# LSP client (v0.6.0)
+tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "io-util", "process", "sync", "time", "net", "fs"] }
+lsp-types = "0.97"
+url = "2"
+which = "7"
 
 [profile.release]
 opt-level = 3

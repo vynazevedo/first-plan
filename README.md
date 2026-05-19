@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.5.3-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.6.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -169,6 +169,10 @@ In ~3-8 minutes (depending on project size) it generates a complete `.first-plan
 <tr>
 <td><img src="https://img.shields.io/badge/-COMPRESS-darkgreen?style=flat-square" /></td>
 <td><strong>Native Output Compression</strong> (v0.5.3) - <code>first-plan-engine compress --tool &lt;git/find/grep/cargo/etc&gt;</code>. 80-99% token savings on large outputs. No external dependency needed.</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-LSP-purple?style=flat-square" /></td>
+<td><strong>Polyglot LSP Integration</strong> (v0.6.0) - <code>first-plan-engine lsp &lt;refs|def|symbols|hover|wsymbols&gt;</code>. Semantic symbol resolution via 8 language servers (rust-analyzer, gopls, pyright, ts-lsp, intelephense, clangd, ruby-lsp, lua-ls). Auto-detects stack via manifests, suggests install commands for missing servers. Graceful fallback to tree-sitter + grep.</td>
 </tr>
 </table>
 
@@ -725,7 +729,7 @@ Git intelligence is cached for 24h by default in `08-meta/cache.json`. To force 
 first-plan/
 ├── .claude-plugin/plugin.json       manifest
 ├── commands/                        14 slash commands
-├── skills/                          18 skills (1 protocol + 1 lens-engine + 8 lenses + 8 advanced)
+├── skills/                          20 skills (1 protocol + 1 lens-engine + 8 lenses + 10 advanced)
 ├── agents/                          4 subagents (discovery, reconciliation, pattern, verification)
 ├── hooks/                           hooks.json + invalidate-cache.sh
 ├── templates/                       41 templates copied to .first-plan/ on init
@@ -820,8 +824,8 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.5.3-current-brightgreen?style=flat-square" alt="v0.5.3 current">
-<img src="https://img.shields.io/badge/v0.6.0-next-blue?style=flat-square" alt="v0.6.0 next">
+<img src="https://img.shields.io/badge/v0.6.0-current-brightgreen?style=flat-square" alt="v0.6.0 current">
+<img src="https://img.shields.io/badge/v0.6.1-next-blue?style=flat-square" alt="v0.6.1 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
 
@@ -901,7 +905,7 @@ Workflow:
 - Pretty mode in all 5 subcommands: cochange, hash, index, search, watch
 - CLI deps: crossterm 0.28, indicatif 0.17, is-terminal 0.4
 
-#### v0.5.3 - Native output compression (current)
+#### v0.5.3 - Native output compression
 
 - **`first-plan-engine compress --tool <tool>`** - reduces tokens consumed by Claude
   - Tools: git-status, git-log, git-diff, git-branch, find, grep, rg, ls, cargo-check/test/metadata, npm-test, go-build/test
@@ -912,13 +916,29 @@ Workflow:
 - No external dependency needed (alternative to tools like rtk)
 - Measured: 1.5MB `find` -> 1.7KB (99.9%), 21KB `grep` -> 1.3KB (94%)
 
+#### v0.6.0 - Polyglot LSP Integration (current)
+
+- **`first-plan-engine lsp <op>`** - semantic symbol resolution via Language Server Protocol
+  - Operations: refs, def, symbols, hover, wsymbols, status, daemon
+  - 8 servers supported: rust-analyzer, gopls, pyright, typescript-language-server, intelephense, clangd, ruby-lsp, lua-language-server
+  - Auto-detect via manifests (Cargo.toml, go.mod, package.json, etc)
+  - Install commands suggested per OS - never auto-installs
+- **Graceful fallback chain**: LSP -> tree-sitter (when ast feature) -> grep+word-boundary
+  - Plugin works 100% without any LSP server installed
+  - `used_fallback: true` in JSON when LSP unavailable
+- **JSON-RPC 2.0 client** over stdio with Content-Length framing
+- New slash command `/first-plan:lsp-status` reports project LSP coverage
+- New skills `lsp-aware` (usage) and `lsp-bootstrap` (detection + install suggestions)
+- Subagents prefer LSP when available (discovery-analyst, pattern-archeologist, reconciliation-auditor)
+- Binary stays lean: 5.2 MB (+1 MB vs v0.5.3)
+
 ### Planned
 
-#### v0.6.0 - LSP Integration
+#### v0.6.1 - LSP daemon mode
 
-- Engine talks to gopls/pyright/typescript-language-server/rust-analyzer
-- Real types via `textDocument/references` (vs heuristic)
-- Replaces grep with symbol-level navigation
+- Warm-server pool via Unix socket
+- Mitigates cold start (3-15s for rust-analyzer/gopls)
+- Instant queries after first spawn
 
 #### v0.7.0 - Multi-Repo Awareness + Multi-format docs
 

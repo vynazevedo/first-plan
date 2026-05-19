@@ -27,6 +27,23 @@ Você recebe:
 
 Use `first-plan-engine compress --tool grep` para buscas em projetos grandes. Reduz tokens em 60-95%. Ver skill `compression-aware`.
 
+## LSP integration (v0.6.0+)
+
+Para extração de padrões com precisão de tipo (não só texto), usar `first-plan-engine lsp`. Ver skill `lsp-aware`.
+
+```bash
+# Listar símbolos de um arquivo (extrai funções/métodos/classes com kind correto)
+first-plan-engine lsp symbols --file internal/handler/user.go --json
+
+# Achar todas as referências a um símbolo (substitui grep heurístico)
+first-plan-engine lsp refs --file internal/handler/user.go --line 12 --col 5 --json
+
+# Hover para obter assinatura completa + docstring de uma função
+first-plan-engine lsp hover --file internal/handler/user.go --line 12 --col 5 --json
+```
+
+LSP elimina falsos positivos em métodos com nome igual em tipos diferentes. Fallback tree-sitter/grep automático.
+
 ## Workflow
 
 ### Passo 1 - Amostragem por categoria

@@ -29,6 +29,8 @@ enum Command {
     Watch(commands::watch::Args),
     /// Run a tool (git/find/grep/etc) and compress its output for AI consumption.
     Compress(commands::compress::Args),
+    /// Language Server Protocol operations (references, definition, symbols, hover).
+    Lsp(commands::lsp::Args),
 }
 
 fn main() -> Result<()> {
@@ -40,5 +42,6 @@ fn main() -> Result<()> {
         Command::Search(args) => commands::search::run(args),
         Command::Watch(args) => commands::watch::run(args),
         Command::Compress(args) => commands::compress::run(args),
+        Command::Lsp(args) => commands::lsp::run(args),
     }
 }

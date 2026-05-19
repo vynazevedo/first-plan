@@ -131,3 +131,109 @@ fn hash_fails_with_no_paths() {
         .failure()
         .stderr(predicate::str::contains("no paths provided"));
 }
+
+#[test]
+fn lsp_status_runs_and_returns_json() {
+    let tmp = TempDir::new().unwrap();
+    fs::write(tmp.path().join("Cargo.toml"), "[package]\nname='x'\n").unwrap();
+
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "lsp",
+            "status",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert!(parsed["engine_version"].is_string());
+    assert!(parsed["servers"].is_array());
+    assert_eq!(parsed["servers"].as_array().unwrap().len(), 8);
+
+    let needs = parsed["project_needs"].as_array().unwrap();
+    assert!(needs.iter().any(|v| v == "rust-analyzer"));
+}
+
+#[test]
+fn lsp_refs_falls_back_to_grep_when_no_lsp() {
+    let tmp = TempDir::new().unwrap();
+    fs::write(
+        tmp.path().join("a.rs"),
+        "fn target() {}\nfn other() { target(); }\n",
+    )
+    .unwrap();
+
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "lsp",
+            "refs",
+            "--file",
+            tmp.path().join("a.rs").to_str().unwrap(),
+            "--line",
+            "0",
+            "--col",
+            "3",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--no-lsp",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["op"], "references");
+    assert_eq!(parsed["used_fallback"], true);
+    let data = parsed["data"].as_array().unwrap();
+    assert!(
+        data.len() >= 2,
+        "esperava >= 2 referencias, got {}",
+        data.len()
+    );
+}
+
+#[test]
+fn lsp_wsymbols_fallback_finds_function_definition() {
+    let tmp = TempDir::new().unwrap();
+    fs::write(tmp.path().join("lib.rs"), "pub fn unique_func_name() {}\n").unwrap();
+
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "lsp",
+            "wsymbols",
+            "--query",
+            "unique_func",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--no-lsp",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["op"], "workspaceSymbol");
+    assert_eq!(parsed["used_fallback"], true);
+    let names: Vec<String> = parsed["data"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|v| v["name"].as_str().unwrap_or("").to_string())
+        .collect();
+    assert!(names.iter().any(|n| n == "unique_func_name"));
+}

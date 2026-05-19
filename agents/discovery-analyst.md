@@ -41,6 +41,23 @@ first-plan-engine compress --tool grep -- -rn "pattern" src/
 
 Fallback automático se engine ausente.
 
+## LSP integration (v0.6.0+)
+
+Para descobrir símbolos com precisão semântica (não só grep), invocar `first-plan-engine lsp` quando os servidores estiverem instalados. Ver skill `lsp-aware`.
+
+```bash
+# Status dos servers no ambiente atual
+first-plan-engine lsp status --root "$PWD" --json
+
+# Listar símbolos top-level de um arquivo (kind preciso: class/method/function/etc)
+first-plan-engine lsp symbols --file path/to/file.go --json
+
+# Busca de símbolos no workspace (substitui grep heurístico)
+first-plan-engine lsp wsymbols --query "Authenticate" --json
+```
+
+Fallback automático para tree-sitter + grep quando server ausente (`used_fallback: true` no JSON).
+
 ## Workflow
 
 ### Passo 1 - Detecção de stacks

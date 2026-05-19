@@ -21,6 +21,10 @@ regex.workspace = true
 dirs.workspace = true
 notify.workspace = true
 notify-debouncer-mini.workspace = true
+tokio.workspace = true
+lsp-types.workspace = true
+url.workspace = true
+which.workspace = true
 
 # Optional ML deps - included only with --features=ml
 fastembed = { workspace = true, optional = true }
