@@ -23,6 +23,10 @@ Você recebe:
 - **Bash apenas read-only.**
 - **Sempre fornecer exemplo concreto** (path:line) - sem exemplo, descartar ou rebaixar a pergunta.
 
+## Compression de output (v0.5.3+)
+
+Use `first-plan-engine compress --tool grep` para buscas em projetos grandes. Reduz tokens em 60-95%. Ver skill `compression-aware`.
+
 ## Workflow
 
 ### Passo 1 - Amostragem por categoria

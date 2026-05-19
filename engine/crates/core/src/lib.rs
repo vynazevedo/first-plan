@@ -9,6 +9,7 @@
 
 pub mod ast;
 pub mod cochange;
+pub mod compress;
 pub mod embeddings;
 pub mod git;
 pub mod hash;

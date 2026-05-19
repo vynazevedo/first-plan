@@ -27,6 +27,8 @@ enum Command {
     Search(commands::search::Args),
     /// Watch filesystem and emit debounced events for relevant source changes.
     Watch(commands::watch::Args),
+    /// Run a tool (git/find/grep/etc) and compress its output for AI consumption.
+    Compress(commands::compress::Args),
 }
 
 fn main() -> Result<()> {
@@ -37,5 +39,6 @@ fn main() -> Result<()> {
         Command::Index(args) => commands::index::run(args),
         Command::Search(args) => commands::search::run(args),
         Command::Watch(args) => commands::watch::run(args),
+        Command::Compress(args) => commands::compress::run(args),
     }
 }

@@ -27,6 +27,20 @@ Você retorna **findings estruturados** em formato YAML/Markdown que o agente pr
 - **Bash apenas read-only:** `git log`, `git blame`, `git shortlog`, `cat`, `head`, `tail`, `find`, `tree`, `wc`, `ls`. **NUNCA** `git push`, `git commit`, `npm`, `make`, `rm`, `mv`.
 - **Tempo budget:** se ultrapassar, retornar findings parciais com nota explícita.
 
+## Compression de output (v0.5.3+)
+
+Comandos com output potencialmente grande (`find`, `grep`, `git log`) DEVEM passar pelo `first-plan-engine compress` quando o engine estiver disponível. Reduz tokens em 80-99% em outputs grandes. Ver skill `compression-aware` para tools suportados e exemplos.
+
+```bash
+# Ao invés de: find . -type f
+first-plan-engine compress --tool find -- . -type f
+
+# Ao invés de: grep -rn "pattern" src/
+first-plan-engine compress --tool grep -- -rn "pattern" src/
+```
+
+Fallback automático se engine ausente.
+
 ## Workflow
 
 ### Passo 1 - Detecção de stacks

@@ -28,6 +28,21 @@ fi
 
 JSON schema `first-plan-hash-v1` em `08-meta/cache.json` (ou similar).
 
+## Compression de output (v0.5.3+)
+
+Comandos `git log`, `git status`, `git diff` podem gerar muito output em repos grandes. Use `first-plan-engine compress` (ver skill `compression-aware`) para reduzir tokens em 30-80%:
+
+```bash
+# Ao invés de:
+git log --oneline -n 100
+
+# Use:
+first-plan-engine compress --tool git-log --json -- -n 100
+# retorna JSON com .output já comprimido
+```
+
+Compressão automática quando engine disponível, fallback graceful sem ele.
+
 ---
 
 ## Pré-requisito (fallback)

@@ -7,6 +7,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-05-19
+
+### Added
+
+- **Output compression nativa** - reduz tokens em comandos shell sem dependência externa
+  - Novo módulo `core::compress` com filtros por tool
+  - Novo subcommand `first-plan-engine compress --tool <tool>`
+  - Tools suportados: git-status, git-log, git-diff, git-diff-stat, git-branch,
+    find, grep, rg, ls, cargo-check, cargo-test, cargo-metadata, npm-test, go-build, go-test
+  - Heurísticas específicas por tool (agrupa por dir, summarize por arquivo,
+    extrai só failures de tests, etc)
+- Nova skill `compression-aware` documentando uso e economia esperada
+- Subagents atualizados para preferir engine compress quando disponível:
+  - `discovery-analyst` (find, grep, git log)
+  - `pattern-archeologist` (grep)
+  - `reconciliation-auditor` (git log, grep, find)
+- Skill `git-intelligence` documenta compression de git log/status/diff
+
+### Performance medida (em projetos reais)
+
+- `find . -type f` em projeto Rust: 1.5MB -> 1.7KB (99.9% economia)
+- `grep -rn "fn "` em crates/: 21KB -> 1.3KB (94% economia)
+- `git log -n 50`: 1.4KB -> 963B (30% economia)
+- `cargo test` em CI: 70-95% economia (mantém só FAILED + summary)
+
+### Architecture
+
+- Compression aplicada via tool keys (não inspeção shell), arquitetura previsível
+- Fallback graceful: tool não-listada passa output direto
+- `--raw-stdin` flag permite comprimir output existente sem re-executar comando
+- Exit code preservado para detecção correta de falhas
+- Stderr incluído para test runners (panics, errors)
+
+### Limitations
+
+- Outputs curtos (<500 bytes) têm ganho marginal
+- Heurísticas são linha-baseadas, não AST (suficiente para shell tools)
+- 15 tools cobertos vs 100+ do rtk - escolha intencional pra manter foco no fluxo do plugin
+
 ## [0.5.2] - 2026-05-05
 
 ### Added
@@ -254,7 +293,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.5.3...HEAD
+[0.5.3]: https://github.com/vynazevedo/first-plan/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/vynazevedo/first-plan/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/vynazevedo/first-plan/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/vynazevedo/first-plan/compare/v0.4.1...v0.5.0

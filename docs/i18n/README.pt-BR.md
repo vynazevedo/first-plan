@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.5.2-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.5.3-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -165,6 +165,10 @@ Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo
 <tr>
 <td><img src="https://img.shields.io/badge/-WATCH-cyan?style=flat-square" /></td>
 <td><strong>Watch mode</strong> (v0.5.1) - <code>first-plan-engine watch</code> monitora filesystem com debounce. Emite eventos JSON stream em stdout. Inspirado em OpenKB (continuous compilation).</td>
+</tr>
+<tr>
+<td><img src="https://img.shields.io/badge/-COMPRESS-darkgreen?style=flat-square" /></td>
+<td><strong>Compressão Nativa de Output</strong> (v0.5.3) - <code>first-plan-engine compress --tool &lt;git/find/grep/cargo/etc&gt;</code>. Economia de 80-99% em tokens para outputs grandes. Sem dependência externa.</td>
 </tr>
 </table>
 
@@ -787,7 +791,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.5.2-current-brightgreen?style=flat-square" alt="v0.5.2 current">
+<img src="https://img.shields.io/badge/v0.5.3-current-brightgreen?style=flat-square" alt="v0.5.3 current">
 <img src="https://img.shields.io/badge/v0.6.0-next-blue?style=flat-square" alt="v0.6.0 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
@@ -856,7 +860,7 @@ Workflow:
   - `--exec '<cmd>'` opcional dispara comando externo a cada batch
   - Inspirado em OpenKB - vai além do hook PostToolUse (que só sinaliza)
 
-#### v0.5.2 - Visual polish (current)
+#### v0.5.2 - Visual polish
 
 - **TTY auto-detection** - output formatado quando stdout é terminal
   - JSON mode preservado em pipe ou com flag `--json`
@@ -867,6 +871,17 @@ Workflow:
 - **Strength badges** colorindo strong/moderate/weak em cochange
 - Pretty mode em todos os 5 subcommands: cochange, hash, index, search, watch
 - CLI deps: crossterm 0.28, indicatif 0.17, is-terminal 0.4
+
+#### v0.5.3 - Compressão nativa de output (current)
+
+- **`first-plan-engine compress --tool <tool>`** - reduz tokens consumidos pelo Claude
+  - Tools: git-status, git-log, git-diff, git-branch, find, grep, rg, ls, cargo-check/test/metadata, npm-test, go-build/test
+  - Heurísticas por tool (agrupa por dir, summariza por arquivo, apenas failures, etc)
+  - Fallback graceful: tool desconhecido passa output direto
+- Subagents preferem engine compress quando disponível (discovery, pattern, reconciliation)
+- Nova skill `compression-aware` com documentação de uso
+- Sem dependência externa (alternativa a ferramentas como rtk)
+- Medição real: 1.5MB `find` -> 1.7KB (99.9%), 21KB `grep` -> 1.3KB (94%)
 
 ### Planejado
 

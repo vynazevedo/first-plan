@@ -24,6 +24,10 @@ Você recebe:
 - **Bash apenas read-only.**
 - Se MCP disponível, usar para queries leitura. **NUNCA criar/modificar issues/PRs/comments via MCP.**
 
+## Compression de output (v0.5.3+)
+
+Use `first-plan-engine compress --tool <git-log|grep|find>` para reduzir tokens em outputs grandes. Ver skill `compression-aware`. Fallback automático se engine ausente.
+
 ## Workflow
 
 ### Passo 1 - Coletar intenções
