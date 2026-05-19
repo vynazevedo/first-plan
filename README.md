@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.5.1-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.5.2-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -816,7 +816,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.5.1-current-brightgreen?style=flat-square" alt="v0.5.1 current">
+<img src="https://img.shields.io/badge/v0.5.2-current-brightgreen?style=flat-square" alt="v0.5.2 current">
 <img src="https://img.shields.io/badge/v0.6.0-next-blue?style=flat-square" alt="v0.6.0 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
@@ -875,7 +875,7 @@ Workflow:
   - INDEX.md template uses 30+ wikilinks for cross-references
   - Skill protocol documents the convention
 
-#### v0.5.1 - Watch mode (current)
+#### v0.5.1 - Watch mode
 
 - **Engine `watch` subcommand** - filesystem monitoring with debounced events
   - notify-rs + notify-debouncer-mini
@@ -884,6 +884,18 @@ Workflow:
   - JSON line stream on stdout (parseable by skill/wrapper)
   - `--exec '<cmd>'` triggers external command per batch
   - Inspired by OpenKB - goes beyond the PostToolUse hook (which only signals)
+
+#### v0.5.2 - Visual polish (current)
+
+- **TTY auto-detection** - pretty output when stdout is a terminal
+  - JSON mode preserved when piped or `--json` flag set
+  - Zero overhead in JSON mode
+- **Colored output** with crossterm: headers with box-drawing borders, status indicators, dim/bold contrast
+- **Progress spinners** during long ops in `index` (collect symbols, embeddings, write)
+- **Score bars** visual em search results
+- **Strength badges** colorindo strong/moderate/weak em cochange
+- Pretty mode em todos os 5 subcommands: cochange, hash, index, search, watch
+- CLI deps: crossterm 0.28, indicatif 0.17, is-terminal 0.4
 
 ### Planned
 

@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-05-05
+
+### Added
+
+- **Visual polish para CLI** - output formatado quando stdout é TTY
+  - Headers com bordas coloridas (Unicode box-drawing)
+  - Cores ANSI por contexto (cyan, green, yellow, red, dim)
+  - Score bars visuais para search results
+  - Strength indicators coloridos em cochange (strong/moderate/weak)
+  - Status indicators (OK, WARN, ERR, INFO)
+- **Progress spinners** durante operações longas em `index`
+  - Spinner durante symbol collection
+  - Spinner durante embeddings generation
+  - Spinner durante index write
+- **TTY auto-detection** - JSON mode preservado quando piped
+  - Flag `--json` força JSON mesmo em TTY (CI, scripts)
+  - `--output-json <path>` continua forçando JSON
+  - Sem TTY (pipe, redirect): JSON automático
+- Watch mode com output formatado: timestamp colorido + delta indicator (Δ) + lang badges
+- Hash command com header e stats coloridos
+- Search com ranking visual: #1 Yellow, score bar, kind badge dim, doc preview
+
+### Changed
+
+- Todos os 5 subcommands (cochange, hash, index, search, watch) suportam pretty mode
+- CLI deps: crossterm 0.28, indicatif 0.17, is-terminal 0.4
+- Binary size aumentou marginalmente (~1.5MB vs 1MB lean)
+
+### Performance
+
+- Zero overhead em JSON mode (pretty rendering só executa em TTY)
+- TTY detection via is-terminal: <1ms
+
 ## [0.5.1] - 2026-05-05
 
 ### Added
@@ -221,7 +254,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/vynazevedo/first-plan/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/vynazevedo/first-plan/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/vynazevedo/first-plan/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/vynazevedo/first-plan/compare/v0.4.0...v0.4.1

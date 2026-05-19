@@ -1,5 +1,10 @@
+use crate::tty::{
+    flush, output_mode, print_header, print_kv, print_kv_bold, print_section, print_success,
+    OutputMode,
+};
 use anyhow::Result;
 use clap::Args as ClapArgs;
+use crossterm::style::Color;
 use first_plan_core::{
     hash::hash_files_parallel,
     output::{write_json, HashOutput},
@@ -21,10 +26,16 @@ pub struct Args {
     /// Output JSON path. Use `-` for stdout.
     #[arg(long, default_value = "-")]
     output_json: String,
+
+    /// Force JSON output even when stdout is a TTY
+    #[arg(long)]
+    json: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
     let start = Instant::now();
+    let mode = output_mode(args.json || args.output_json != "-");
+
     let mut paths = args.paths.clone();
 
     if args.paths_from_stdin {
@@ -43,7 +54,29 @@ pub fn run(args: Args) -> Result<()> {
     }
 
     let files = hash_files_parallel(&paths)?;
-    let output = HashOutput::new(files, start.elapsed().as_millis() as u64);
+    let elapsed = start.elapsed().as_millis() as u64;
 
-    write_json(&output, &args.output_json)
+    if mode == OutputMode::Pretty {
+        print_header("File Hashing");
+        print_section("Stats");
+        print_kv_bold("Files hashed", &files.len().to_string(), Color::Green);
+        print_kv(
+            "Total bytes",
+            &files
+                .values()
+                .map(|f| f.size_bytes)
+                .sum::<u64>()
+                .to_string(),
+            Color::White,
+        );
+        print_kv("Algorithm", "xxh3_64", Color::DarkGrey);
+        print_kv("Elapsed", &format!("{}ms", elapsed), Color::DarkGrey);
+        println!();
+        print_success("Hashing complete");
+        flush();
+        Ok(())
+    } else {
+        let output = HashOutput::new(files, elapsed);
+        write_json(&output, &args.output_json)
+    }
 }

@@ -2,6 +2,7 @@ use anyhow::Result;
 use clap::{Parser, Subcommand};
 
 mod commands;
+mod tty;
 
 #[derive(Parser)]
 #[command(

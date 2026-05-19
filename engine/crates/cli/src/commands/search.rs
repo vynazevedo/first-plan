@@ -1,5 +1,9 @@
+use crate::tty::{
+    flush, output_mode, print_header, print_kv, print_section, print_warning, score_bar, OutputMode,
+};
 use anyhow::Result;
 use clap::{Args as ClapArgs, ValueEnum};
+use crossterm::style::{Color, Stylize};
 use first_plan_core::{
     output::{write_json, SearchOutput},
     search::{search, SearchHit},
@@ -32,6 +36,10 @@ pub struct Args {
     /// Output JSON path. Use `-` for stdout.
     #[arg(long, default_value = "-")]
     output_json: String,
+
+    /// Force JSON output even when stdout is a TTY
+    #[arg(long)]
+    json: bool,
 }
 
 #[derive(Copy, Clone, Debug, ValueEnum)]
@@ -43,6 +51,7 @@ pub enum Mode {
 
 pub fn run(args: Args) -> Result<()> {
     let start = Instant::now();
+    let mode_out = output_mode(args.json || args.output_json != "-");
 
     let hits: Vec<SearchHit> = match args.mode {
         Mode::Bm25 => search(&args.db_path, &args.query, args.limit)?,
@@ -50,14 +59,78 @@ pub fn run(args: Args) -> Result<()> {
         Mode::Hybrid => hybrid(&args.db_path, &args.query, args.limit, args.alpha)?,
     };
 
-    let output = SearchOutput::new(
-        args.query,
-        args.limit as u32,
-        hits,
-        start.elapsed().as_millis() as u64,
-    );
+    let elapsed = start.elapsed().as_millis() as u64;
 
-    write_json(&output, &args.output_json)
+    if mode_out == OutputMode::Pretty {
+        render_pretty(&args.query, &args.mode, &hits, elapsed);
+        Ok(())
+    } else {
+        let output = SearchOutput::new(args.query, args.limit as u32, hits, elapsed);
+        write_json(&output, &args.output_json)
+    }
+}
+
+fn render_pretty(query: &str, mode: &Mode, hits: &[SearchHit], elapsed: u64) {
+    let mode_label = match mode {
+        Mode::Bm25 => "BM25",
+        Mode::Embed => "Embeddings",
+        Mode::Hybrid => "Hybrid",
+    };
+    print_header(&format!("Search: {} [{}]", query, mode_label));
+
+    if hits.is_empty() {
+        print_warning("No matches found");
+        return;
+    }
+
+    let max_score = hits
+        .iter()
+        .map(|h| h.score)
+        .fold(0.0_f64, f64::max)
+        .max(1e-9);
+
+    print_section(&format!("Top {} results", hits.len()));
+    println!();
+
+    for (i, hit) in hits.iter().enumerate() {
+        let rank = format!("#{}", i + 1).bold().with(Color::Yellow);
+        let name = hit.symbol.name.as_str().bold().with(Color::Cyan);
+        let kind = format!("[{:?}]", hit.symbol.kind).to_lowercase();
+        let bar = score_bar(hit.score, max_score, 12);
+        let score_text = format!("{:.2}", hit.score);
+
+        println!(
+            "  {} {} {} {} {}",
+            rank,
+            name,
+            kind.with(Color::DarkGrey),
+            bar,
+            score_text.with(Color::Green)
+        );
+        println!(
+            "      {} {}:{}",
+            "in".dim(),
+            hit.symbol.path.as_str().with(Color::White),
+            hit.symbol.line.to_string().with(Color::Yellow)
+        );
+        if !hit.matched_tokens.is_empty() {
+            let tokens = hit.matched_tokens.join(", ");
+            println!("      {} {}", "matched:".dim(), tokens.as_str().dim());
+        }
+        if let Some(doc) = &hit.symbol.doc {
+            let preview = doc.lines().next().unwrap_or(doc);
+            let preview = if preview.len() > 70 {
+                format!("{}...", &preview[..70])
+            } else {
+                preview.to_string()
+            };
+            println!("      {} {}", "doc:".dim(), preview.as_str().dim());
+        }
+        println!();
+    }
+
+    print_kv("Elapsed", &format!("{}ms", elapsed), Color::DarkGrey);
+    flush();
 }
 
 #[cfg(feature = "ml")]

@@ -17,6 +17,9 @@ first-plan-core = { path = "../core" }
 clap = { version = "4", features = ["derive"] }
 anyhow.workspace = true
 serde_json.workspace = true
+crossterm.workspace = true
+indicatif.workspace = true
+is-terminal.workspace = true
 
 [features]
 default = []

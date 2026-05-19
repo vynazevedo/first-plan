@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.5.1-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.5.2-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -787,7 +787,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.5.1-current-brightgreen?style=flat-square" alt="v0.5.1 current">
+<img src="https://img.shields.io/badge/v0.5.2-current-brightgreen?style=flat-square" alt="v0.5.2 current">
 <img src="https://img.shields.io/badge/v0.6.0-next-blue?style=flat-square" alt="v0.6.0 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
@@ -846,7 +846,7 @@ Workflow:
   - INDEX.md template usa 30+ wikilinks para cross-references
   - Skill protocol documenta a convenção
 
-#### v0.5.1 - Watch mode (current)
+#### v0.5.1 - Watch mode
 
 - **Engine subcommand `watch`** - filesystem monitoring com debounced events
   - notify-rs + notify-debouncer-mini
@@ -855,6 +855,18 @@ Workflow:
   - Output JSON line stream em stdout (parseável por skill/wrapper)
   - `--exec '<cmd>'` opcional dispara comando externo a cada batch
   - Inspirado em OpenKB - vai além do hook PostToolUse (que só sinaliza)
+
+#### v0.5.2 - Visual polish (current)
+
+- **TTY auto-detection** - output formatado quando stdout é terminal
+  - JSON mode preservado em pipe ou com flag `--json`
+  - Zero overhead em JSON mode
+- **Output colorido** com crossterm: headers com bordas Unicode, status indicators, contraste dim/bold
+- **Progress spinners** em operações longas do `index` (collect symbols, embeddings, write)
+- **Score bars** visuais em search results
+- **Strength badges** colorindo strong/moderate/weak em cochange
+- Pretty mode em todos os 5 subcommands: cochange, hash, index, search, watch
+- CLI deps: crossterm 0.28, indicatif 0.17, is-terminal 0.4
 
 ### Planejado
 
