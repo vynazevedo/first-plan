@@ -203,27 +203,38 @@ fn lsp_refs_falls_back_to_grep_when_no_lsp() {
     );
 }
 
+#[cfg(unix)]
 #[test]
 fn lsp_daemon_status_when_not_running() {
+    use std::thread::sleep;
+    use std::time::Duration;
+
     let _ = Command::cargo_bin("first-plan-engine")
         .unwrap()
         .args(["lsp", "daemon", "stop"])
         .assert();
 
-    let out = Command::cargo_bin("first-plan-engine")
-        .unwrap()
-        .args(["lsp", "daemon", "status", "--json"])
-        .assert()
-        .success()
-        .get_output()
-        .stdout
-        .clone();
-
-    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
-    assert_eq!(parsed["running"], false);
-    assert!(parsed["socket_path"].is_string());
+    // Aguarda daemon de outros testes encerrar completamente (CI compartilha runtime dir).
+    for _ in 0..30 {
+        let out = Command::cargo_bin("first-plan-engine")
+            .unwrap()
+            .args(["lsp", "daemon", "status", "--json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+        if parsed["running"] == false {
+            assert!(parsed["socket_path"].is_string());
+            return;
+        }
+        sleep(Duration::from_millis(100));
+    }
+    panic!("daemon ainda rodando apos 3s de espera");
 }
 
+#[cfg(unix)]
 #[test]
 fn lsp_daemon_start_then_status_then_stop() {
     use std::process::{Command as StdCommand, Stdio};
