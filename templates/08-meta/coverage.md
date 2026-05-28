@@ -28,6 +28,6 @@ PLACEHOLDER_UNMAPPED
 
 ## Stale (marcado pelo hook após edits)
 
-(arquivos que mudaram desde a última análise - rodar `/first-plan:refresh`)
+(arquivos que mudaram desde a última análise - rodar `/fp:refresh`)
 
 PLACEHOLDER_STALE_LIST

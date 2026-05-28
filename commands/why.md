@@ -4,7 +4,7 @@ argument-hint: <símbolo|path|padrão>
 allowed-tools: [Read, Glob, Grep, Bash]
 ---
 
-# /first-plan:why
+# /fp:why
 
 Query da camada compilada: contexto sobre algo do projeto.
 
@@ -12,9 +12,9 @@ Query da camada compilada: contexto sobre algo do projeto.
 
 `$ARGUMENTS` - alvo da consulta. Pode ser:
 - Path de arquivo: `.first-plan:why src/auth/jwt.go`
-- Símbolo: `/first-plan:why ValidateEmail`
-- Padrão: `/first-plan:why "wrapping de erros"`
-- Decisão: `/first-plan:why "uso de Bull em vez de BullMQ"`
+- Símbolo: `/fp:why ValidateEmail`
+- Padrão: `/fp:why "wrapping de erros"`
+- Decisão: `/fp:why "uso de Bull em vez de BullMQ"`
 
 ## Workflow
 
@@ -86,7 +86,7 @@ Se a camada não tem informação:
 Sem informação compilada sobre "<argumento>" em .first-plan/.
 
 Sugestões:
-- /first-plan:refresh para garantir camada atualizada
+- /fp:refresh para garantir camada atualizada
 - Buscar diretamente: <comando grep sugerido>
 - Adicionar como pergunta: editar .first-plan/08-meta/questions.md
 ```

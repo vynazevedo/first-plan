@@ -1,6 +1,6 @@
 ---
 name: first-plan-plan-emission
-description: Skill que define como o comando /first-plan:plan emite um plano detalhado para uma feature. Use quando precisar gerar plano que respeite a camada compilada, verifique duplicidade contra 09-features, identifique reuse e siga template em meta-templates/plan.md. Sempre pausa pedindo aprovação ao final.
+description: Skill que define como o comando /fp:plan emite um plano detalhado para uma feature. Use quando precisar gerar plano que respeite a camada compilada, verifique duplicidade contra 09-features, identifique reuse e siga template em meta-templates/plan.md. Sempre pausa pedindo aprovação ao final.
 version: 0.1.0
 ---
 
@@ -11,7 +11,7 @@ Como gerar o plano da Fase 2 que pausa para aprovação humana.
 ## Pré-requisitos antes de gerar plano
 
 1. `.first-plan/` existe e `STATE.md` indica fase >= `discovered`
-2. Stale check: se `08-meta/coverage.md` lista muitos arquivos stale, recomendar `/first-plan:refresh` antes
+2. Stale check: se `08-meta/coverage.md` lista muitos arquivos stale, recomendar `/fp:refresh` antes
 3. Feature solicitada (texto livre do usuário)
 
 ## Workflow
@@ -104,7 +104,7 @@ Onde `<slug>` é gerado a partir do título da feature em kebab-case.
 
 ### Passo 11 - Pausar
 
-Apresentar o plano ao usuário e **encerrar a invocação** sem fazer mais nada. O usuário responde com `/first-plan:execute` (aprova) ou texto com mudanças (revisar).
+Apresentar o plano ao usuário e **encerrar a invocação** sem fazer mais nada. O usuário responde com `/fp:execute` (aprova) ou texto com mudanças (revisar).
 
 ## Anti-padrões em planos
 

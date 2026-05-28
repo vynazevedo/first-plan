@@ -1,10 +1,10 @@
 ---
-description: Reverte as mudanças do último /first-plan:execute. Restaura snapshot do .first-plan/ e oferece git operations para reverter o working tree. Safety net para experimentação.
+description: Reverte as mudanças do último /fp:execute. Restaura snapshot do .first-plan/ e oferece git operations para reverter o working tree. Safety net para experimentação.
 argument-hint: [--dry-run|--snapshot <id>]
 allowed-tools: [Read, Glob, Bash]
 ---
 
-# /first-plan:rollback
+# /fp:rollback
 
 Reverte mudanças do último execute (ou snapshot específico).
 
@@ -98,7 +98,7 @@ Estado atual:
 Working tree:
 - 3 arquivos do projeto AINDA estão modificados
 - Reverter manualmente conforme instruções acima
-- OU /first-plan:execute novamente para reaplicar plano
+- OU /fp:execute novamente para reaplicar plano
 
 Próxima ação sugerida:
 - Revisar plan em .first-plan/07-state/plans/csv-export.md
@@ -113,7 +113,7 @@ Mostra preview (Passo 3) e termina sem aplicar nada.
 ### Modo --snapshot
 
 ```bash
-/first-plan:rollback --snapshot 2026-05-03T15-22-08-pre-execute-rate-limit
+/fp:rollback --snapshot 2026-05-03T15-22-08-pre-execute-rate-limit
 ```
 
 Volta para snapshot específico (não o mais recente). Útil pra desfazer múltiplos executes consecutivos.
@@ -141,6 +141,6 @@ find .first-plan/cache/snapshots/ -mindepth 1 -maxdepth 1 -mtime +30 -exec rm -r
 
 ## Quando NÃO usar rollback
 
-- Se o execute foi bem-sucedido e você só quer ajustar - use `/first-plan:plan` para um novo
-- Se quer voltar ao estado pre-init - use `/first-plan:init --force` (regenera tudo)
+- Se o execute foi bem-sucedido e você só quer ajustar - use `/fp:plan` para um novo
+- Se quer voltar ao estado pre-init - use `/fp:init --force` (regenera tudo)
 - Se snapshots estão corrompidos - delete `.first-plan/` e reinit

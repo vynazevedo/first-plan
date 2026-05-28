@@ -7,6 +7,80 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-05-28
+
+### BREAKING CHANGES
+
+- **Plugin renamed: `first-plan` → `fp`**. Todos os slash commands mudaram de prefixo:
+  - `/first-plan:init` → `/fp:init`
+  - `/first-plan:check` → `/fp:check`
+  - `/first-plan:cochange` → `/fp:cochange`
+  - ...e os demais 16 comandos
+- **Comando de install mudou**:
+  - Antes: `/plugin install first-plan`
+  - Depois: `/plugin install fp` (ou `/plugin install fp@first-plan` em local development)
+- Marca/repo/binário **mantidos**: o repo continua `vynazevedo/first-plan`, o engine continua `first-plan-engine`, a descrição/marca segue "first-plan". Mudança é só no nome do plugin (atalho de invocação).
+- **Migração**: reinstalar plugin com novo nome. Configurações em `.first-plan/` são preservadas.
+
+### Added
+
+- **`/fp:quick` - 5-second project glance** (novo comando flagship)
+  - Gera `.first-plan/quick/00-glance.md` em 1-5 segundos
+  - Stacks detectadas (root + 1 nível: detecta Cargo.toml em `engine/`, package.json em `frontend/`, etc)
+  - Entry points classicos (`main.*`, `index.*`, `server.*`, `app.py`)
+  - Top 25 símbolos via heurística (pub fn, struct, class, def, export function, etc)
+  - Atividade git 90d: últimos 10 commits, top 5 hot files, top 5 autores
+  - Naming convention detectada (snake_case vs camelCase vs kebab-case)
+  - Test framework detectado (cargo test, go test, pytest, jest, vitest, etc)
+  - Suggested commands extraídos de manifests + scripts package.json + targets Makefile
+- **Engine subcommand `first-plan-engine quick`**
+  - `--root <path>` projeto alvo
+  - `--output <path>` escreve markdown renderizado pra arquivo
+  - `--markdown` saída markdown em stdout
+  - `--json` força JSON em TTY
+  - Pretty mode com cores: stacks, symbols, recent commits, hot files, conventions
+- **`core::quick::glance()`** retorna `GlanceReport` estruturado
+- **`core::quick::render_markdown()`** converte report em 1 página markdown denso
+- 5 unit tests cobrindo stack detection, symbol sampling, command suggestion
+
+### Changed
+
+- Workspace bumped to 0.7.0
+- README EN + PT-BR hero pivotado: headline benefit-oriented, `/fp:quick` antes do `/fp:init`
+- Roadmap badge atualizado: v0.7.0 current, v0.7.1 next
+
+### Performance
+
+- `/fp:quick` em first-plan próprio (projeto Rust + frontend): **1.3-1.5 segundos**
+- Output: ~3.5KB markdown, ~100 linhas
+- Sem indexing, sem subagents, sem LSP cold start
+- Binary impact: negligível (~100KB)
+
+### Architecture
+
+- `/fp:quick` não duplica `/fp:init` - é uma **camada paralela** em `.first-plan/quick/`
+- Roda tudo via engine + Claude lendo JSON (zero subagents = mais leve em tokens)
+- Heurística-first: prioriza velocidade sobre completude (oposto do init que prioriza precisão)
+- Stack detection olha root + 1 nível: cobre 90% dos projetos sem fazer walk profundo
+
+### Migration guide (v0.6.x → v0.7.0)
+
+```bash
+# 1. Desinstalar plugin antigo
+/plugin uninstall first-plan
+
+# 2. Atualizar marketplace
+/plugin marketplace update first-plan
+
+# 3. Instalar com novo nome
+/plugin install fp
+
+# 4. (opcional) Rodar quick glance pra ver o que mudou
+/fp:quick
+```
+
+Configurações em `.first-plan/` do projeto-alvo são **preservadas** - o rename é só no atalho de invocação.
+
 ## [0.6.1] - 2026-05-26
 
 ### Added
@@ -38,7 +112,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workspace bumped to 0.6.1
 - Engine deps: `libc 0.2` (target unix) para `kill(pid, 0)` check
 - Skill `lsp-aware` atualizada com secao Daemon mode + lifecycle + recomendacoes
-- Slash command `/first-plan:lsp-status` mostra daemon status no relatorio
+- Slash command `/fp:lsp-status` mostra daemon status no relatorio
 
 ### Performance
 
@@ -96,7 +170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Request/response correlation por ID
   - Shutdown gracioso (`shutdown` + `exit` + SIGKILL)
   - Timeouts: 30s por request, 60s no initialize
-- Novo slash command `/first-plan:lsp-status` reporta cobertura LSP do projeto
+- Novo slash command `/fp:lsp-status` reporta cobertura LSP do projeto
 - Nova skill `lsp-aware` documenta quando usar LSP vs grep
 - Nova skill `lsp-bootstrap` detecta stacks faltantes e sugere instalação (nunca instala automaticamente)
 - Subagents atualizados para preferir LSP quando disponível:
@@ -311,7 +385,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Stop words filtradas, tokens curtos descartados (exceto digitos)
   - Storage: SQLite com indices em `tokens` e `symbols`, sqlite bundled (zero deps externas)
 - Novo skill `semantic-reuse` - usa engine BM25 quando disponivel, fallback markdown
-- `/first-plan:reuse` atualizado com Passo 0 (BM25 path) antes do fallback
+- `/fp:reuse` atualizado com Passo 0 (BM25 path) antes do fallback
 - Schemas `first-plan-index-v1` e `first-plan-search-v1` adicionados ao output
 
 ### Performance
@@ -378,23 +452,23 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - Provenance & Freshness Tracking (Pilar 6)
   - Schema with `finding_id`, `source` (file:line@SHA), `extracted_at`, `ttl`, `lifecycle`
   - Confidence decay over time (linear curve: 100% < 7d, 95% 7-30d, 85% 30-90d, ...)
-  - New skill `provenance-tracker` and command `/first-plan:provenance <id>`
+  - New skill `provenance-tracker` and command `/fp:provenance <id>`
 - Co-change Graph (Pilar 2)
   - New skill `co-change-analysis` with Union-Find clustering
-  - New command `/first-plan:cochange <path>`
-  - Integration in `/first-plan:plan`: alerts on missing co-changers
+  - New command `/fp:cochange <path>`
+  - Integration in `/fp:plan`: alerts on missing co-changers
 - Verification Loop (Pilar 1)
   - New subagent `verification-runner` (lint/typecheck/tests post-execute)
   - Diff vs plan validation
 - Rollback / Time Travel (Pilar 7)
-  - Auto snapshots before `/first-plan:execute`
-  - New command `/first-plan:rollback`
+  - Auto snapshots before `/fp:execute`
+  - New command `/fp:rollback`
 
 ### Changed
 
 - Subagents (discovery, pattern, reconciliation) emit findings with provenance schema
-- `/first-plan:plan` integrates co-change check
-- `/first-plan:execute` creates snapshot pre-execute, invokes verification post-execute
+- `/fp:plan` integrates co-change check
+- `/fp:execute` creates snapshot pre-execute, invokes verification post-execute
 
 ## [0.1.1] - 2026-05-05
 
@@ -420,7 +494,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.6.1...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/vynazevedo/first-plan/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/vynazevedo/first-plan/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/vynazevedo/first-plan/compare/v0.5.3...v0.6.0
 [0.5.3]: https://github.com/vynazevedo/first-plan/compare/v0.5.2...v0.5.3

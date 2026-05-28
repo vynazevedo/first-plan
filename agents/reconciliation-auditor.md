@@ -1,6 +1,6 @@
 ---
 name: reconciliation-auditor
-description: Use proactively during /first-plan:init and /first-plan:check to perform Spec-Code Reconciliation. Read-only subagent that matches intent artifacts (docs, specs, JIRA, GitHub issues, README sections) against code implementation. Returns feature × status × evidence matrix. NEVER modifies files.
+description: Use proactively during /fp:init and /fp:check to perform Spec-Code Reconciliation. Read-only subagent that matches intent artifacts (docs, specs, JIRA, GitHub issues, README sections) against code implementation. Returns feature × status × evidence matrix. NEVER modifies files.
 tools: Read, Glob, Grep, Bash
 model: sonnet
 color: purple
@@ -16,7 +16,7 @@ Você recebe:
 - `project_root` - caminho absoluto do projeto-alvo
 - `discovery_findings` - findings do discovery-analyst (stacks, reuse, etc)
 - `mcp_available` - lista de MCPs disponíveis (jira-mm, github-work, etc)
-- `feature_query` (opcional) - se invocado por /first-plan:check, é a feature específica a auditar
+- `feature_query` (opcional) - se invocado por /fp:check, é a feature específica a auditar
 
 ## Restrições absolutas
 

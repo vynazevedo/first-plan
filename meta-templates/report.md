@@ -54,4 +54,4 @@ Seções que precisam ser regeneradas para refletir o trabalho:
 
 PLACEHOLDER_SECTIONS_TO_REFRESH
 
-Recomendado: rode `/first-plan:refresh` em seguida.
+Recomendado: rode `/fp:refresh` em seguida.

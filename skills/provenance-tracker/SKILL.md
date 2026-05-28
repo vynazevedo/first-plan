@@ -87,7 +87,7 @@ Fórmula:
 current_confidence = initial_confidence * age_multiplier
 ```
 
-Confidence `current` é recalculada a cada `/first-plan:status` ou `/first-plan:refresh`.
+Confidence `current` é recalculada a cada `/fp:status` ou `/fp:refresh`.
 
 Se `current < 0.5`, o finding é marcado como `expired` e movido para `08-meta/expired.md` (não deletado, preservado para auditoria).
 
@@ -195,7 +195,7 @@ Sempre incluir todos os campos obrigatórios do schema. Se não souber `commit_s
 
 ### Renovar (revalidar)
 
-Quando `/first-plan:refresh` reanalizá área:
+Quando `/fp:refresh` reanalizá área:
 
 ```yaml
 extracted_at: 2026-05-04T22:00:00Z   # mantém original
@@ -225,8 +225,8 @@ Quando finding novo emerge que substitui antigo, marcar ambos com cross-referenc
 - **pattern-archeologist**: idem
 - **reconciliation-auditor**: idem para features
 - **plan-emission**: ao consultar findings, verificar `lifecycle.status` e `confidence.current` (não usar superseded/expired/invalidated)
-- **/first-plan:refresh**: recalcula `confidence.current` e marca expired/superseded conforme regras
-- **/first-plan:status**: mostra count de findings active/superseded/expired
+- **/fp:refresh**: recalcula `confidence.current` e marca expired/superseded conforme regras
+- **/fp:status**: mostra count de findings active/superseded/expired
 
 ## Output
 

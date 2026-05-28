@@ -4,7 +4,7 @@ argument-hint: [status:IMPLEMENTED|IN_PROGRESS|SPEC_ONLY|NOT_STARTED|DRIFTED|ABA
 allowed-tools: [Read, Glob, Grep]
 ---
 
-# /first-plan:features
+# /fp:features
 
 Matriz de Spec-Code Reconciliation.
 
@@ -91,4 +91,4 @@ Sempre destacar:
 
 ## Cuidados
 
-- Se INDEX.md está stale, recomendar `/first-plan:refresh 09-features` antes de confiar plenamente.
+- Se INDEX.md está stale, recomendar `/fp:refresh 09-features` antes de confiar plenamente.

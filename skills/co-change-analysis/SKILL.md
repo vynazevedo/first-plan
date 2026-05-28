@@ -1,6 +1,6 @@
 ---
 name: first-plan-co-change-analysis
-description: Skill que constrói o Co-change Graph - "quando arquivo X muda, qual outro arquivo geralmente muda junto?". Use durante Discovery e em /first-plan:cochange. Baseado em git history. Detecta arquivos co-dependentes que devem ser editados juntos para evitar PRs incompletos. v0.3.0+ usa engine nativo Rust quando disponível (10-100x mais rápido).
+description: Skill que constrói o Co-change Graph - "quando arquivo X muda, qual outro arquivo geralmente muda junto?". Use durante Discovery e em /fp:cochange. Baseado em git history. Detecta arquivos co-dependentes que devem ser editados juntos para evitar PRs incompletos. v0.3.0+ usa engine nativo Rust quando disponível (10-100x mais rápido).
 version: 0.3.0
 ---
 
@@ -140,7 +140,7 @@ Indicação: módulo coeso real, mudanças tipicamente afetam todos.
 
 ## Implicações pra Claude
 
-- Antes de mexer em arquivo X, verificar `/first-plan:cochange X`
+- Antes de mexer em arquivo X, verificar `/fp:cochange X`
 - Se algum co-changer não estiver no plano, alertar antes de execute
 - Clusters detectados podem indicar boundaries de módulo - útil pra refator
 ```
@@ -203,9 +203,9 @@ Filtros padrão excluem:
 - `vendor/`, `node_modules/`, `target/`
 - Arquivos com `.gen.`, `.pb.`, `_pb2.py`
 
-## Integração com /first-plan:plan
+## Integração com /fp:plan
 
-Quando usuário roda `/first-plan:plan <feature>`:
+Quando usuário roda `/fp:plan <feature>`:
 
 1. Para cada arquivo no plano (a modificar ou criar), consultar co-change graph
 2. Se algum co-changer com `ratio >= 0.7` não está no plano, listar como "potential missing co-change":

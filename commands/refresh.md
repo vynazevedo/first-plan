@@ -1,10 +1,10 @@
 ---
-description: Atualiza incrementalmente .first-plan/ baseado nos arquivos marcados como stale pelo hook PostToolUse. Mais barato que /first-plan:init - só recompila o que mudou.
+description: Atualiza incrementalmente .first-plan/ baseado nos arquivos marcados como stale pelo hook PostToolUse. Mais barato que /fp:init - só recompila o que mudou.
 argument-hint: [section|--all]
 allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, Task]
 ---
 
-# /first-plan:refresh
+# /fp:refresh
 
 Atualização incremental da camada compilada.
 
@@ -13,13 +13,13 @@ Atualização incremental da camada compilada.
 `$ARGUMENTS`:
 - vazio: atualiza só seções marcadas como stale
 - nome de seção (e.g., `01-topology`): força refresh dessa seção
-- `--all`: força refresh completo (equivalente a `/first-plan:init --force` mas preserva backups)
+- `--all`: força refresh completo (equivalente a `/fp:init --force` mas preserva backups)
 
 ## Workflow
 
 ### Passo 1 - Pre-flight
 
-Verificar `.first-plan/` existe. Se não, orientar a rodar `/first-plan:init` primeiro.
+Verificar `.first-plan/` existe. Se não, orientar a rodar `/fp:init` primeiro.
 
 ### Passo 2 - Determinar escopo
 

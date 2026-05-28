@@ -4,7 +4,7 @@ argument-hint: <path>
 allowed-tools: [Read, Bash]
 ---
 
-# /first-plan:cochange
+# /fp:cochange
 
 Query do Co-change Graph.
 
@@ -16,7 +16,7 @@ Query do Co-change Graph.
 
 ### Passo 1 - Pre-flight
 
-Verificar `.first-plan/02-conventions/co-change.md` ou `.first-plan/08-meta/co-change.json` existe. Se não, recomendar `/first-plan:refresh 02-conventions`.
+Verificar `.first-plan/02-conventions/co-change.md` ou `.first-plan/08-meta/co-change.json` existe. Se não, recomendar `/fp:refresh 02-conventions`.
 
 ### Passo 2 - Lookup
 
@@ -82,8 +82,8 @@ Possíveis razões:
 - Frozen zone (sem manutenção ativa)
 
 Considere:
-- /first-plan:hot para verificar se está frozen
-- /first-plan:owner internal/util/format.go para descobrir dono
+- /fp:hot para verificar se está frozen
+- /fp:owner internal/util/format.go para descobrir dono
 ```
 
 ### Passo 5 - Modes especiais
@@ -110,7 +110,7 @@ Implicação: este é um módulo coeso real. Mudanças idealmente tocam vários 
 Se múltiplos paths separados por espaço:
 
 ```bash
-/first-plan:cochange internal/payment/charge.go internal/payment/invoice.go
+/fp:cochange internal/payment/charge.go internal/payment/invoice.go
 ```
 
 Mostra co-changers da intersecção (arquivos que mudam quando AMBOS mudam).

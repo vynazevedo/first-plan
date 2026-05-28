@@ -1,6 +1,6 @@
 ---
 name: first-plan-reconciliation
-description: Skill que define Spec-Code Reconciliation - matching contínuo entre artefatos de intenção (docs, specs, JIRA, GitHub issues) e implementação (código, testes, PRs). Use durante Discovery e em /first-plan:check para identificar feature ja implementada, em flight, drifted ou abandonada.
+description: Skill que define Spec-Code Reconciliation - matching contínuo entre artefatos de intenção (docs, specs, JIRA, GitHub issues) e implementação (código, testes, PRs). Use durante Discovery e em /fp:check para identificar feature ja implementada, em flight, drifted ou abandonada.
 version: 0.1.0
 ---
 
@@ -141,9 +141,9 @@ Várias docs descrevem a mesma feature. Detectar via overlap de termos-chave > 7
 
 Duas docs descrevem feature similar mas com requisitos conflitantes. Detectar via análise dos asserts. Reportar em questions.md - é decisão humana qual seguir.
 
-## Atualização durante /first-plan:plan
+## Atualização durante /fp:plan
 
-Quando usuário pede uma feature nova via `/first-plan:plan`:
+Quando usuário pede uma feature nova via `/fp:plan`:
 1. Pegar a descrição
 2. Aplicar mesmo algoritmo (extract terms -> search -> classify)
 3. Se match com feature existente:

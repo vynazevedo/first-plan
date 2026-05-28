@@ -4,7 +4,7 @@ argument-hint: <descrição da feature>
 allowed-tools: [Read, Glob, Grep, Bash, Task]
 ---
 
-# /first-plan:check
+# /fp:check
 
 Verificação ad-hoc de duplicidade para uma feature antes de plan.
 
@@ -65,7 +65,7 @@ Caso 1 - feature realmente nova:
 "<descrição>" parece ser feature nova - sem evidência de implementação ou spec.
 
 Status sugerido se planejar: NOT_STARTED
-Próximo passo: /first-plan:plan "<descrição>"
+Próximo passo: /fp:plan "<descrição>"
 ```
 
 Caso 2 - feature existente que não estava na matriz (matrix stale):
@@ -80,7 +80,7 @@ Status inferido: IMPLEMENTED (confidence 0.78)
 
 Sugestão:
 - Não duplicar - feature parece já existir
-- Atualize a matriz: /first-plan:refresh 09-features
+- Atualize a matriz: /fp:refresh 09-features
 - Se quer modificar a feature existente, especifique melhor o que deseja
 ```
 

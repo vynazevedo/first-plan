@@ -49,4 +49,4 @@ Após reabrir o Claude Code, o entry point é este arquivo. Claude deve:
 1. Ler `phase`
 2. Se `awaiting_approval`: mostrar o plano em `plans/<active_plan>` e pedir decisão
 3. Se `executing` ou `paused`: relatar último passo executado e proxima ação
-4. Se `discovered`: pronto para `/first-plan:plan <feature>`
+4. Se `discovered`: pronto para `/fp:plan <feature>`

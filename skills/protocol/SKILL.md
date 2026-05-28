@@ -1,12 +1,12 @@
 ---
 name: first-plan-protocol
-description: Esta skill DEVE ser carregada em qualquer comando do plugin first-plan. Define o protocolo PLAN-FIRST (Discovery -> Plan -> Approval -> Execution -> Report), as 7 regras invioláveis e o comportamento esperado em cada fase. Ative quando o usuário invocar /first-plan:* ou mencionar "first-plan", "context compilation", "discovery layer", "spec-code reconciliation".
+description: Esta skill DEVE ser carregada em qualquer comando do plugin first-plan. Define o protocolo PLAN-FIRST (Discovery -> Plan -> Approval -> Execution -> Report), as 7 regras invioláveis e o comportamento esperado em cada fase. Ative quando o usuário invocar /fp:* ou mencionar "first-plan", "context compilation", "discovery layer", "spec-code reconciliation".
 version: 0.1.0
 ---
 
 # Protocol - first-plan
 
-Skill base obrigatória do plugin. Toda execução de comando `/first-plan:*` carrega esta skill.
+Skill base obrigatória do plugin. Toda execução de comando `/fp:*` carrega esta skill.
 
 ## Filosofia
 
@@ -22,7 +22,7 @@ Fases bloqueantes. Cada uma só inicia quando a anterior estiver concluída e va
 
 ### Fase 1 - Discovery
 
-Disparada por `/first-plan:init`. Resultado: `.first-plan/` populado.
+Disparada por `/fp:init`. Resultado: `.first-plan/` populado.
 
 Mapear:
 - Topologia (stacks, arquitetura, boundaries, deployment)
@@ -38,7 +38,7 @@ Cada finding tem `confidence: 0.0-1.0`. Findings com `confidence < 0.7` viram en
 
 ### Fase 2 - Plan
 
-Disparada por `/first-plan:plan <feature>`. Resultado: `.first-plan/07-state/plans/<slug>.md`.
+Disparada por `/fp:plan <feature>`. Resultado: `.first-plan/07-state/plans/<slug>.md`.
 
 Antes de escrever o plano:
 1. Consultar `.first-plan/09-features/` - **a feature ja existe?**
@@ -52,14 +52,14 @@ O plano deve seguir o template em `${CLAUDE_PLUGIN_ROOT}/meta-templates/plan.md`
 Estado: `awaiting_approval` em `.first-plan/07-state/STATE.md`.
 
 Aguardar:
-- `/first-plan:execute` → prossegue
+- `/fp:execute` → prossegue
 - Mensagem com mudança → reescreve plano e volta a aguardar
 
 **Não executa nada antes da aprovação.** Não há atalho.
 
 ### Fase 4 - Execution
 
-Disparada por `/first-plan:execute`. Resultado: código modificado conforme plano + atualização do STATE.
+Disparada por `/fp:execute`. Resultado: código modificado conforme plano + atualização do STATE.
 
 Durante:
 - Seguir o plano à risca, na ordem definida
@@ -78,7 +78,7 @@ Incluir:
 - Riscos remanescentes
 - Sugestões fora do escopo
 
-Recomendar `/first-plan:refresh` para atualizar a camada.
+Recomendar `/fp:refresh` para atualizar a camada.
 
 ## 7 Regras invioláveis
 
@@ -117,7 +117,7 @@ Respeitar o nível de tipagem do projeto. Nada de `any` / `interface{}` / `dynam
 Quando confidence < 0.7 em qualquer finding crítico para uma decisão:
 1. Não assumir
 2. Adicionar entrada em `08-meta/questions.md` com hipóteses
-3. Em `/first-plan:plan`, listar as perguntas pendentes na seção "Riscos e ambiguidades" do plano
+3. Em `/fp:plan`, listar as perguntas pendentes na seção "Riscos e ambiguidades" do plano
 4. Aguardar resposta humana antes de prosseguir com partes que dependem da pergunta
 
 ## Estado entre sessões
@@ -154,7 +154,7 @@ Quando NÃO usar:
 
 ## Detecção de invalidação durante execução
 
-Se durante `/first-plan:execute` Claude perceber que:
+Se durante `/fp:execute` Claude perceber que:
 - Um arquivo que o plano assumia existir não existe
 - Um símbolo que o plano referenciava tem assinatura diferente
 - Um teste que deveria passar mostra comportamento inesperado

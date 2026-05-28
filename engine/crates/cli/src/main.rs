@@ -31,6 +31,8 @@ enum Command {
     Compress(commands::compress::Args),
     /// Language Server Protocol operations (references, definition, symbols, hover).
     Lsp(commands::lsp::Args),
+    /// Quick project glance (stacks, symbols, git activity) in <60s. Lighter than full discovery.
+    Quick(commands::quick::Args),
 }
 
 fn main() -> Result<()> {
@@ -43,5 +45,6 @@ fn main() -> Result<()> {
         Command::Watch(args) => commands::watch::run(args),
         Command::Compress(args) => commands::compress::run(args),
         Command::Lsp(args) => commands::lsp::run(args),
+        Command::Quick(args) => commands::quick::run(args),
     }
 }

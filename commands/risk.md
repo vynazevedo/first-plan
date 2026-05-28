@@ -4,7 +4,7 @@ argument-hint: <path>
 allowed-tools: [Read, Grep, Bash]
 ---
 
-# /first-plan:risk
+# /fp:risk
 
 Riscos catalogados em `.first-plan/05-risks/` para um path específico.
 
@@ -73,5 +73,5 @@ Isso pode significar:
 - Path realmente seguro
 - Discovery não cobriu este path (ver 08-meta/coverage.md)
 
-Para garantir: /first-plan:refresh
+Para garantir: /fp:refresh
 ```

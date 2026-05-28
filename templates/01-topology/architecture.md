@@ -36,7 +36,7 @@ PLACEHOLDER_DIAGRAM
 
 ## Decisões arquiteturais inferidas
 
-Decisões importantes inferidas da estrutura. Validar com humano via `/first-plan:ask` se confidence < 0.7.
+Decisões importantes inferidas da estrutura. Validar com humano via `/fp:ask` se confidence < 0.7.
 
 PLACEHOLDER_DECISIONS
 

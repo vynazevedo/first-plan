@@ -1,6 +1,6 @@
 ---
 name: pattern-archeologist
-description: Use proactively during /first-plan:init to extract code patterns with confidence scoring. Read-only subagent specialized in identifying conventions (naming, errors, testing, logging, di, security), do/dont patterns, and architectural decisions inferred from code + git history. Each pattern returned with concrete code example (path:line). NEVER modifies files.
+description: Use proactively during /fp:init to extract code patterns with confidence scoring. Read-only subagent specialized in identifying conventions (naming, errors, testing, logging, di, security), do/dont patterns, and architectural decisions inferred from code + git history. Each pattern returned with concrete code example (path:line). NEVER modifies files.
 tools: Read, Glob, Grep, Bash
 model: sonnet
 color: yellow

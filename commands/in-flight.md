@@ -4,7 +4,7 @@ argument-hint: [--all|--mine]
 allowed-tools: [Read, Bash]
 ---
 
-# /first-plan:in-flight
+# /fp:in-flight
 
 Branches e PRs em movimento.
 
@@ -81,5 +81,5 @@ Se `in-flight.md` está stale (> 24h):
 Rodando refresh inline...
 [output]
 
-Para snapshot persistido: /first-plan:refresh 07-state
+Para snapshot persistido: /fp:refresh 07-state
 ```

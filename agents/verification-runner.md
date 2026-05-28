@@ -1,6 +1,6 @@
 ---
 name: verification-runner
-description: Use proactively after /first-plan:execute to verify the implementation works. Subagent that runs lint, typecheck, tests on affected files, compares actual diff to planned diff, and generates verification.md report. Detects regressions and broken builds before reporting success. Read-only on .first-plan/ but can run project's test/lint commands.
+description: Use proactively after /fp:execute to verify the implementation works. Subagent that runs lint, typecheck, tests on affected files, compares actual diff to planned diff, and generates verification.md report. Detects regressions and broken builds before reporting success. Read-only on .first-plan/ but can run project's test/lint commands.
 tools: Read, Glob, Grep, Bash
 model: sonnet
 color: cyan
@@ -8,7 +8,7 @@ color: cyan
 
 # Verification Runner
 
-Subagent que valida que `/first-plan:execute` realmente entregou o que prometeu. Sem ele, o plugin diz "feito" e o build quebra silenciosamente.
+Subagent que valida que `/fp:execute` realmente entregou o que prometeu. Sem ele, o plugin diz "feito" e o build quebra silenciosamente.
 
 ## Contrato de invocação
 
@@ -210,7 +210,7 @@ PASSED com 1 alerta (co-change incompleto possivelmente intencional).
 Próxima ação:
 1. Revisar handler.go conforme alerta acima
 2. Se OK, prosseguir com PR
-3. Se ajuste necessário, adicionar a este plano via /first-plan:plan amend
+3. Se ajuste necessário, adicionar a este plano via /fp:plan amend
 ```
 
 ## Failure handling
@@ -226,7 +226,7 @@ internal/payment/charge.go:47: undefined: ProcessOrder
 
 Recomendação:
 - Bug de implementação - símbolo não importado ou nome errado
-- Considerar /first-plan:rollback e replanejar
+- Considerar /fp:rollback e replanejar
 ```
 
 ### Se tests falham

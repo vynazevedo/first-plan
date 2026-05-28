@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.6.1-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.7.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -54,7 +54,11 @@
 </p>
 
 <p align="center">
-  first-plan compiles complex projects into a structured context layer (<code>.first-plan/</code>) that lets Claude Code operate with absolute adherence to existing project patterns. It solves blind re-implementation, phantom features, spec drift, cross-session amnesia, and duplicated in-flight work - without inventing rules or imposing external best practices.
+  <b>Stop Claude Code from inventing new patterns.</b> Make it follow your codebase's existing conventions, on cold session start, with absolute adherence.
+</p>
+
+<p align="center">
+  first-plan compiles your project into a structured context layer (<code>.first-plan/</code>) - so Claude knows your stacks, conventions, idioms, hot files, and which features are real vs phantom <i>before it writes a single line of code</i>.
 </p>
 
 ---
@@ -65,23 +69,41 @@ Install via the Claude Code plugin marketplace:
 
 ```bash
 /plugin marketplace add vynazevedo/first-plan
-/plugin install first-plan
+/plugin install fp
 ```
 
-For local development:
+### See value in 5 seconds: `/fp:quick`
+
+```bash
+/fp:quick
+```
+
+In ~1-5 seconds, generates `.first-plan/quick/00-glance.md` with:
+
+- Stacks detected (Cargo.toml, go.mod, package.json, etc - root + 1 level deep)
+- Entry points (`main.*`, `index.*`, `server.*`)
+- Top symbols (heuristic sample, kind-aware)
+- Recent commits + hot files (90d) + active authors
+- Naming convention detected (snake_case vs camelCase vs kebab-case)
+- Test framework detected
+- Suggested build/test commands
+
+That's the **first impression** - enough context for Claude to start helping immediately, without waiting.
+
+### Then go deep: `/fp:init`
+
+```bash
+/fp:init
+```
+
+In ~3-8 minutes, generates the full 10-layer IR: stack lens analysis, reuse index, spec-code reconciliation, co-change graph, provenance tracking, living layer. **This is what makes the difference** between Claude inventing a new auth pattern vs Claude using your `internal/auth/jwt.go` as the template.
+
+### For local development
 
 ```bash
 /plugin marketplace add /local/path/to/first-plan
-/plugin install first-plan@first-plan
+/plugin install fp@first-plan
 ```
-
-Inside the target project, first run:
-
-```bash
-/first-plan:init
-```
-
-In ~3-8 minutes (depending on project size) it generates a complete `.first-plan/` with discovery, conventions, reuse index, spec-code reconciliation and git intelligence.
 
 ### Core capabilities
 
@@ -196,7 +218,7 @@ Starting with v0.3.0, the plugin ships a **native Rust binary** (`first-plan-eng
 
 ### Engine installation
 
-**Auto (recommended):** On the first invocation of `/first-plan:cochange` or `/first-plan:refresh`, the plugin offers an automatic download:
+**Auto (recommended):** On the first invocation of `/fp:cochange` or `/fp:refresh`, the plugin offers an automatic download:
 
 ```
 Native engine not detected. Download? (~5MB, 10-100x speedup)
@@ -236,7 +258,7 @@ If the engine is unavailable (no network, restricted environment, opt-out), all 
 
 ## Real-World Example
 
-Output of `/first-plan:init` on a Bash dotfiles repo (~50 scripts):
+Output of `/fp:init` on a Bash dotfiles repo (~50 scripts):
 
 ```
 Detected stacks: Bash (pure)
@@ -254,13 +276,13 @@ Open questions: 8 (in 08-meta/questions.md)
 Suggested next actions:
 1. Review phantom feature: F03 (README claims "200+ aliases", actually: 54)
 2. Technical drift: F07 (`air` installed twice in golang.sh)
-3. Answer questions Q2-Q8 with /first-plan:ask
+3. Answer questions Q2-Q8 with /fp:ask
 ```
 
 ### Reuse Index examples
 
 ```bash
-$ /first-plan:reuse "I need to detect the Linux distro"
+$ /fp:reuse "I need to detect the Linux distro"
 ```
 
 Returns:
@@ -283,7 +305,7 @@ distro_detection (confidence 0.99):
 ### Spec-Code Reconciliation example
 
 ```bash
-$ /first-plan:check "CSV export endpoint"
+$ /fp:check "CSV export endpoint"
 ```
 
 Returns:
@@ -311,7 +333,7 @@ README.md
 - README.md (modified at 2026-05-04T22:02) - affects: 09-features
 ```
 
-You don't need to do anything - the hook detected it. When you run `/first-plan:refresh`, only those sections get re-analyzed.
+You don't need to do anything - the hook detected it. When you run `/fp:refresh`, only those sections get re-analyzed.
 
 ---
 
@@ -368,9 +390,9 @@ You don't need to do anything - the hook detected it. When you run `/first-plan:
 
 | Command | Purpose |
 |---------|---------|
-| `/first-plan:init` | Full compilation - creates `.first-plan/` |
-| `/first-plan:refresh [section]` | Incremental refresh |
-| `/first-plan:status [--verbose]` | Current layer state |
+| `/fp:init` | Full compilation - creates `.first-plan/` |
+| `/fp:refresh [section]` | Incremental refresh |
+| `/fp:status [--verbose]` | Current layer state |
 
 ### Plan-First workflow
 
@@ -380,8 +402,8 @@ You don't need to do anything - the hook detected it. When you run `/first-plan:
 
 | Command | Purpose |
 |---------|---------|
-| `/first-plan:plan <feature>` | Generate plan (Phase 2), pause for approval |
-| `/first-plan:execute [--dry-run]` | Execute approved plan (Phase 3), generate report |
+| `/fp:plan <feature>` | Generate plan (Phase 2), pause for approval |
+| `/fp:execute [--dry-run]` | Execute approved plan (Phase 3), generate report |
 
 ### Query commands
 
@@ -391,18 +413,18 @@ You don't need to do anything - the hook detected it. When you run `/first-plan:
 
 | Command | Purpose |
 |---------|---------|
-| `/first-plan:why <symbol\|path>` | "Why does X exist?" |
-| `/first-plan:reuse <intent>` | "What should I reuse for X?" |
-| `/first-plan:risk <path>` | Catalogued risks |
-| `/first-plan:ask` | Open questions for the human |
-| `/first-plan:features [filter]` | Spec-Code Reconciliation matrix |
-| `/first-plan:check <feature>` | "Does this already exist?" |
-| `/first-plan:in-flight [--all\|--mine]` | Active branches/PRs |
-| `/first-plan:hot [--days N]` | Most active areas |
-| `/first-plan:owner <path>` | Who owns this file |
-| `/first-plan:cochange <path>` | (v0.2.0) Files that change together with this one |
-| `/first-plan:provenance <id>` | (v0.2.0) Provenance chain of a finding |
-| `/first-plan:rollback [--snapshot]` | (v0.2.0) Revert last execute |
+| `/fp:why <symbol\|path>` | "Why does X exist?" |
+| `/fp:reuse <intent>` | "What should I reuse for X?" |
+| `/fp:risk <path>` | Catalogued risks |
+| `/fp:ask` | Open questions for the human |
+| `/fp:features [filter]` | Spec-Code Reconciliation matrix |
+| `/fp:check <feature>` | "Does this already exist?" |
+| `/fp:in-flight [--all\|--mine]` | Active branches/PRs |
+| `/fp:hot [--days N]` | Most active areas |
+| `/fp:owner <path>` | Who owns this file |
+| `/fp:cochange <path>` | (v0.2.0) Files that change together with this one |
+| `/fp:provenance <id>` | (v0.2.0) Provenance chain of a finding |
+| `/fp:rollback [--snapshot]` | (v0.2.0) Revert last execute |
 
 ---
 
@@ -560,7 +582,7 @@ Features marked IMPLEMENTED in code but still showing as Open in the issue track
 <img src="https://img.shields.io/badge/signals-yes-blue?style=flat-square" alt="Signal only">
 </p>
 
-The `PostToolUse` hook watches edits via Edit/Write/MultiEdit and automatically marks affected `.first-plan/` sections as stale. **It does not regenerate** - it only signals. The user decides when to run `/first-plan:refresh`.
+The `PostToolUse` hook watches edits via Edit/Write/MultiEdit and automatically marks affected `.first-plan/` sections as stale. **It does not regenerate** - it only signals. The user decides when to run `/fp:refresh`.
 
 Modified file -> affected sections mapping:
 
@@ -594,7 +616,7 @@ Discovery -> Plan -> Approval -> Execution -> Report
 ### Phase 1 - Discovery
 
 ```bash
-/first-plan:init
+/fp:init
 ```
 
 Result: `.first-plan/` populated. Read-only subagents run discovery in isolation and return structured findings, which are written into the target project.
@@ -602,7 +624,7 @@ Result: `.first-plan/` populated. Read-only subagents run discovery in isolation
 ### Phase 2 - Plan
 
 ```bash
-/first-plan:plan <feature description>
+/fp:plan <feature description>
 ```
 
 Result: `.first-plan/07-state/plans/<slug>.md` containing:
@@ -618,12 +640,12 @@ Result: `.first-plan/07-state/plans/<slug>.md` containing:
 
 ### Phase 3 - Approval
 
-State: `awaiting_approval` in `STATE.md`. Nothing executes. The user approves with `/first-plan:execute` or asks for adjustments.
+State: `awaiting_approval` in `STATE.md`. Nothing executes. The user approves with `/fp:execute` or asks for adjustments.
 
 ### Phase 4 - Execution
 
 ```bash
-/first-plan:execute
+/fp:execute
 ```
 
 Follows the plan precisely. Stops if any premise becomes invalid - **does not improvise**. Updates STATE every step.
@@ -673,7 +695,7 @@ Every finding has `confidence: 0.0-1.0`. Default threshold: 0.7.
 | `0.5-0.7` | medium confidence, circumstantial evidence |
 | `< 0.5` | low confidence, becomes a question in `08-meta/questions.md` |
 
-**The plugin does not invent - it asks.** When confidence is low, you are consulted via `/first-plan:ask`.
+**The plugin does not invent - it asks.** When confidence is low, you are consulted via `/fp:ask`.
 
 ---
 
@@ -720,7 +742,7 @@ To prevent changes to specific paths from triggering invalidation, edit `hooks/i
 Git intelligence is cached for 24h by default in `08-meta/cache.json`. To force a refresh:
 
 ```bash
-/first-plan:refresh --all
+/fp:refresh --all
 ```
 
 ---
@@ -752,9 +774,9 @@ first-plan/
 
 ```bash
 /plugin marketplace add /local/path/to/first-plan
-/plugin install first-plan@first-plan
+/plugin install fp@first-plan
 cd /some/project
-/first-plan:init
+/fp:init
 ```
 
 To iterate, edit plugin files and run `/plugin reload` (or restart Claude Code).
@@ -774,7 +796,7 @@ cargo fmt --all -- --check
 
 ## Troubleshooting
 
-### `.first-plan/` not created after `/first-plan:init`
+### `.first-plan/` not created after `/fp:init`
 
 - Check that the current directory is a valid project (has a manifest)
 - Check that the plugin is installed: `/plugin list`
@@ -789,7 +811,7 @@ cargo fmt --all -- --check
 ### Discovery very slow on a large monorepo
 
 - Discovery applies automatic sampling for projects > 1000 files
-- Use `/first-plan:refresh <section>` to refresh a single section
+- Use `/fp:refresh <section>` to refresh a single section
 - Increase `time_budget_minutes` in `init` if needed
 
 ### False positives in DRIFTED
@@ -828,8 +850,8 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.6.1-current-brightgreen?style=flat-square" alt="v0.6.1 current">
-<img src="https://img.shields.io/badge/v0.7.0-next-blue?style=flat-square" alt="v0.7.0 next">
+<img src="https://img.shields.io/badge/v0.7.0-current-brightgreen?style=flat-square" alt="v0.7.0 current">
+<img src="https://img.shields.io/badge/v0.7.1-next-blue?style=flat-square" alt="v0.7.1 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
 
@@ -931,7 +953,7 @@ Workflow:
   - Plugin works 100% without any LSP server installed
   - `used_fallback: true` in JSON when LSP unavailable
 - **JSON-RPC 2.0 client** over stdio with Content-Length framing
-- New slash command `/first-plan:lsp-status` reports project LSP coverage
+- New slash command `/fp:lsp-status` reports project LSP coverage
 - New skills `lsp-aware` (usage) and `lsp-bootstrap` (detection + install suggestions)
 - Subagents prefer LSP when available (discovery-analyst, pattern-archeologist, reconciliation-auditor)
 - Binary stays lean: 5.2 MB (+1 MB vs v0.5.3)
@@ -953,7 +975,7 @@ Workflow:
 
 - `cross-repo-mapping` skill
 - Detect cross-repo calls (OpenAPI, gRPC, schemas)
-- `/first-plan:blast-radius <symbol>` cross-service command
+- `/fp:blast-radius <symbol>` cross-service command
 - `~/.first-plan/repos.yaml` config registry of sister repos
 - **Multi-format document ingestion** in reconciliation
   - Inspired by OpenKB - markitdown integration to read PDF/Word/PowerPoint specs
@@ -967,7 +989,7 @@ Workflow:
 - **Cross-section contradiction detection**
   - Inspired by OpenKB - automatic flagging of conflicting findings
   - Example: `02-conventions/naming.md` says snake_case but `06-rationale/dont.md` lists snake_case as anti-pattern
-  - New `/first-plan:contradictions` command
+  - New `/fp:contradictions` command
 
 ### Long-term Vision (v1.0)
 

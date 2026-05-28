@@ -4,7 +4,7 @@ argument-hint: [--force]
 allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, Task]
 ---
 
-# /first-plan:init
+# /fp:init
 
 Compilação completa do contexto do projeto-alvo.
 
@@ -18,7 +18,7 @@ Compilação completa do contexto do projeto-alvo.
 
 1. Verificar diretório atual é um projeto (tem manifesto, código, etc) - **não rodar em $HOME ou diretório vazio**
 2. Verificar se ja existe `.first-plan/`:
-   - Se existe E não tem `--force`: avisar usuário e oferecer `/first-plan:refresh` em vez
+   - Se existe E não tem `--force`: avisar usuário e oferecer `/fp:refresh` em vez
    - Se existe E tem `--force`: backup em `.first-plan/.backup-<timestamp>/` antes de prosseguir
 3. Verificar git repo. Se sim, ativa Git Intelligence; se não, marcar seções correlatas como N/A.
 
@@ -30,7 +30,7 @@ Criar a estrutura `.first-plan/` copiando templates do plugin:
 mkdir -p .first-plan/{00-mission,01-topology,02-conventions,03-reuse,04-domain,05-risks,06-rationale,07-state/{plans,reports,sessions},08-meta,09-features}
 ```
 
-Copiar templates de `${CLAUDE_PLUGIN_ROOT}/templates/` para `.first-plan/` no projeto-alvo. **Não copiar `${CLAUDE_PLUGIN_ROOT}/meta-templates/`** - esses sao internos do plugin (usados por /first-plan:plan e /first-plan:execute para gerar plans/reports/features individuais; nao devem ir pro .first-plan/ do projeto). Substituir placeholders básicos:
+Copiar templates de `${CLAUDE_PLUGIN_ROOT}/templates/` para `.first-plan/` no projeto-alvo. **Não copiar `${CLAUDE_PLUGIN_ROOT}/meta-templates/`** - esses sao internos do plugin (usados por /fp:plan e /fp:execute para gerar plans/reports/features individuais; nao devem ir pro .first-plan/ do projeto). Substituir placeholders básicos:
 - `PLACEHOLDER_TIMESTAMP` -> ISO 8601 atual
 - `PLACEHOLDER_ROOT` -> caminho absoluto do projeto
 - `PLACEHOLDER_NAME` -> nome do projeto (de package.json/go.mod/etc, ou nome da pasta)
@@ -153,7 +153,7 @@ Atualizar `07-state/STATE.md`:
 Atualizar `INDEX.md` da raiz `.first-plan/`:
 - `overall_confidence` na frontmatter
 - Resumo de cobertura
-- Próxima ação sugerida (geralmente "responda perguntas em questions.md, depois /first-plan:plan <feature>")
+- Próxima ação sugerida (geralmente "responda perguntas em questions.md, depois /fp:plan <feature>")
 
 ### Passo 11 - Reportar
 
@@ -187,7 +187,7 @@ Perguntas abertas: 4
 Próximas ações:
 1. Revisar phantom features em .first-plan/09-features/INDEX.md (alerta!)
 2. Responder perguntas em .first-plan/08-meta/questions.md
-3. Quando pronto, /first-plan:plan <feature>
+3. Quando pronto, /fp:plan <feature>
 ```
 
 ## Tratamento de erros
@@ -199,5 +199,5 @@ Próximas ações:
 ## Após sucesso
 
 - O hook `PostToolUse` está ativo - edits posteriores marcam seções como stale automaticamente
-- Use `/first-plan:status` para ver estado atual
-- Use `/first-plan:refresh` quando código mudar
+- Use `/fp:status` para ver estado atual
+- Use `/fp:refresh` quando código mudar

@@ -4,7 +4,7 @@ argument-hint: ""
 allowed-tools: [Read, Bash]
 ---
 
-# /first-plan:lsp-status
+# /fp:lsp-status
 
 Inspeciona Language Server Protocol no ambiente atual. Reporta servers detectados em PATH, versoes, cobertura no projeto e sugestoes de instalacao.
 
@@ -17,7 +17,7 @@ Verificar se `first-plan-engine` esta disponivel:
 ```bash
 ENGINE=$(which first-plan-engine 2>/dev/null || echo "${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine")
 if [ ! -x "$ENGINE" ]; then
-  echo "Engine nao encontrado. /first-plan:lsp-status requer engine binario >= v0.6.0"
+  echo "Engine nao encontrado. /fp:lsp-status requer engine binario >= v0.6.0"
   exit 0
 fi
 ```

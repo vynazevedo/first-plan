@@ -28,6 +28,6 @@ PLACEHOLDER_ORPHANS
 
 ## Implicações pra Claude
 
-- Antes de fazer mudança grande em uma pasta, verificar quem domina (via `/first-plan:owner <path>`)
+- Antes de fazer mudança grande em uma pasta, verificar quem domina (via `/fp:owner <path>`)
 - Arquivos órfãos = alta chance de ter sido esquecido. Validar com humano se ainda é usado antes de assumir.
 - Arquivos sem ownership claro = padrões podem ter divergido. Olhar os commits recentes mais que histórico antigo.

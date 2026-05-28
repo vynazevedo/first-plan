@@ -4,7 +4,7 @@ argument-hint: [--dry-run]
 allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, MultiEdit, Task]
 ---
 
-# /first-plan:execute
+# /fp:execute
 
 Fase 3 - executa plano aprovado.
 
@@ -36,7 +36,7 @@ mkdir -p .first-plan/cache/snapshots/${SNAPSHOT_ID}
 cp -r .first-plan .first-plan/cache/snapshots/${SNAPSHOT_ID}/snapshot 2>/dev/null
 ```
 
-Habilita `/first-plan:rollback` se algo der errado.
+Habilita `/fp:rollback` se algo der errado.
 
 ### Passo 3 - Atualizar STATE
 
@@ -63,9 +63,9 @@ Se alguma premissa não bate:
   <output do check>
 
   Opções:
-  A) Replanejar: /first-plan:plan <feature> (refaz o plano com camada atualizada)
+  A) Replanejar: /fp:plan <feature> (refaz o plano com camada atualizada)
   B) Adaptar: descreva a alteração e prossiga
-  C) Abortar: /first-plan:status (volta para discovered)
+  C) Abortar: /fp:status (volta para discovered)
   ```
 - **Aguardar instrução humana.** Não improvisar.
 
@@ -144,8 +144,8 @@ Receber `overall_status: passed | failed | partial`:
   - <check_name>: <erro>
 
   Opções:
-  A) Corrigir os erros e rerun /first-plan:execute (continua daí)
-  B) /first-plan:rollback para reverter mudanças do execute
+  A) Corrigir os erros e rerun /fp:execute (continua daí)
+  B) /fp:rollback para reverter mudanças do execute
   C) Skip verification (não recomendado): edite STATE.md manualmente para 'done'
   ```
 - **Aguardar instrução humana.** Não improvisar correção.
@@ -180,9 +180,9 @@ Report completo: .first-plan/07-state/reports/<slug>.md
 
 Próxima ação:
 - Refresh recomendado pra atualizar a camada com o novo código:
-  /first-plan:refresh
+  /fp:refresh
 
-- Para próxima feature: /first-plan:plan <descrição>
+- Para próxima feature: /fp:plan <descrição>
 ```
 
 ## --dry-run

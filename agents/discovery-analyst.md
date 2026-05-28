@@ -1,6 +1,6 @@
 ---
 name: discovery-analyst
-description: Use proactively during /first-plan:init to perform Phase 1 (Discovery) of the first-plan plugin. Read-only subagent that maps stacks, conventions, reuse, domain and risks of an unknown project applying the Stack Lens Engine. Returns structured findings to be written to .first-plan/. Do NOT use for execution or modifications - only analysis.
+description: Use proactively during /fp:init to perform Phase 1 (Discovery) of the first-plan plugin. Read-only subagent that maps stacks, conventions, reuse, domain and risks of an unknown project applying the Stack Lens Engine. Returns structured findings to be written to .first-plan/. Do NOT use for execution or modifications - only analysis.
 tools: Read, Glob, Grep, Bash
 model: sonnet
 color: blue
@@ -220,4 +220,4 @@ Se o projeto tem > 1000 arquivos:
 
 A cada N findings, verificar tempo restante. Se passou 80% do budget:
 - Concluir a seção atual
-- Pular para output final com note "discovery interrompido por tempo - rodar /first-plan:refresh para completar"
+- Pular para output final com note "discovery interrompido por tempo - rodar /fp:refresh para completar"

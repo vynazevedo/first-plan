@@ -4,7 +4,7 @@ argument-hint: <intenção em texto livre>
 allowed-tools: [Read, Grep, Bash]
 ---
 
-# /first-plan:reuse
+# /fp:reuse
 
 Query do Reuse Index invertido.
 
@@ -84,8 +84,8 @@ Top items para "<intenção>"
 
 Se nenhum casa:
 - Considerar criar novo (justificar no plano)
-- Verificar adjacências: /first-plan:reuse "<intenção alternativa>"
-- Refresh do índice: /first-plan:refresh 03-reuse
+- Verificar adjacências: /fp:reuse "<intenção alternativa>"
+- Refresh do índice: /fp:refresh 03-reuse
 ```
 
 ### Passo 5 - Se vazio
@@ -98,8 +98,8 @@ Possíveis razões:
 - Intenção descrita de forma diferente do código
 
 Sugestão:
-- Tente termos alternativos: /first-plan:reuse "<sinônimo>"
-- Refresh: /first-plan:refresh
+- Tente termos alternativos: /fp:reuse "<sinônimo>"
+- Refresh: /fp:refresh
 - Se realmente não existe, ao planejar, justificar criação do zero no plano
 ```
 

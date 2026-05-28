@@ -4,7 +4,7 @@ argument-hint: [--days N]
 allowed-tools: [Read, Bash]
 ---
 
-# /first-plan:hot
+# /fp:hot
 
 Heatmap de atividade.
 
@@ -57,7 +57,7 @@ Frozen zones (sem commits > 180 dias):
 Implicações:
 - Padrões em hot zones podem estar em transição - olhar últimos commits, não histórico antigo
 - Frozen zones têm padrões antigos e estáveis
-- Mexer em hot zones = alta chance de conflito com PRs em flight (ver /first-plan:in-flight)
+- Mexer em hot zones = alta chance de conflito com PRs em flight (ver /fp:in-flight)
 ```
 
 ### Passo 4 - Conexão com outras camadas

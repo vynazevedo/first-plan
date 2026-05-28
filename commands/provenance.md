@@ -4,7 +4,7 @@ argument-hint: <finding-id>
 allowed-tools: [Read, Glob, Grep, Bash]
 ---
 
-# /first-plan:provenance
+# /fp:provenance
 
 Auditoria de proveniência de findings.
 
@@ -82,7 +82,7 @@ Health: HEALTHY
 
 Recommendations:
   - Acceptable to use as basis for new code
-  - Consider /first-plan:refresh 02-conventions/errors before deadline
+  - Consider /fp:refresh 02-conventions/errors before deadline
 ```
 
 ### Passo 5 - Casos especiais
@@ -95,7 +95,7 @@ Superseded by: F-go-errors-007 at 2026-05-01
 Reason: New pattern emerged using errors.Join (Go 1.20+)
 
 DO NOT USE THIS FINDING. Reference F-go-errors-007 instead.
-View it: /first-plan:provenance F-go-errors-007
+View it: /fp:provenance F-go-errors-007
 ```
 
 #### Finding invalidated
@@ -116,7 +116,7 @@ Expired at: 2026-05-15
 Current confidence: 0.45 (below 0.5 threshold)
 
 This finding was archived to .first-plan/08-meta/expired.md.
-Run /first-plan:refresh to re-extract this section if still relevant.
+Run /fp:refresh to re-extract this section if still relevant.
 ```
 
 ### Passo 6 - Mode batch
@@ -132,11 +132,11 @@ F-go-errors-007          pattern   active        0.95          02-conventions/er
 F-go-errors-001          pattern   superseded    -             02-conventions/errors (archived)
 F-go-context-001         pattern   active        0.92          02-conventions/errors
 
-Use /first-plan:provenance <id> para detalhes individuais.
+Use /fp:provenance <id> para detalhes individuais.
 ```
 
 ## Cuidados
 
-- Não modificar findings via este command (é read-only). Para alterar, editar arquivos diretamente ou rodar `/first-plan:refresh`.
+- Não modificar findings via este command (é read-only). Para alterar, editar arquivos diretamente ou rodar `/fp:refresh`.
 - Se finding usa MCP source (jira/github), confidence pode estar baixa porque MCP esteve offline - mencionar isso.
 - Sempre mostrar `commit_sha` extraído vs HEAD - se mudou muito (>20 commits), recomendar refresh.

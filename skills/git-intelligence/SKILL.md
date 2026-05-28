@@ -1,6 +1,6 @@
 ---
 name: first-plan-git-intelligence
-description: Skill que extrai inteligência do git history - heatmap de atividade, ownership, branches/PRs in-flight. Use durante Discovery e em /first-plan:hot, /first-plan:owner, /first-plan:in-flight. Tudo via comandos git read-only.
+description: Skill que extrai inteligência do git history - heatmap de atividade, ownership, branches/PRs in-flight. Use durante Discovery e em /fp:hot, /fp:owner, /fp:in-flight. Tudo via comandos git read-only.
 version: 0.1.0
 ---
 

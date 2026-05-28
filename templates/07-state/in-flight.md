@@ -38,5 +38,5 @@ PLACEHOLDER_POTENTIAL_CONFLICTS
 
 ## Implicações pra Claude
 
-- Antes de criar plano de feature, **rodar `/first-plan:in-flight`** para evitar duplicar trabalho
+- Antes de criar plano de feature, **rodar `/fp:in-flight`** para evitar duplicar trabalho
 - Se a feature pedida já tem PR aberto, recomendar continuar nele em vez de começar do zero

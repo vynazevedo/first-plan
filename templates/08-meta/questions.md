@@ -11,7 +11,7 @@ Findings com confidence < 0.7 viram perguntas aqui. Não inventar respostas - ag
 
 ## Como responder
 
-Edite este arquivo ou rode `/first-plan:ask` (mostra interativamente). Marque a pergunta como `answered: true` e adicione `answer: ...`. Refresh atualiza a camada com as respostas.
+Edite este arquivo ou rode `/fp:ask` (mostra interativamente). Marque a pergunta como `answered: true` e adicione `answer: ...`. Refresh atualiza a camada com as respostas.
 
 ## Perguntas
 

@@ -4,7 +4,7 @@ argument-hint: <descrição da feature em texto livre>
 allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, Task]
 ---
 
-# /first-plan:plan
+# /fp:plan
 
 Gera plano da Fase 2 - sempre pausa pedindo aprovação humana.
 
@@ -23,7 +23,7 @@ Gera plano da Fase 2 - sempre pausa pedindo aprovação humana.
 2. Verificar se já há plano ativo (`07-state/STATE.md` em `awaiting_approval` ou `executing`):
    - Se sim, perguntar: "Plano <slug> está <fase>. Substituir? (sim/não)"
    - Não prosseguir sem confirmação
-3. Verificar staleness: se muitos arquivos stale, recomendar `/first-plan:refresh` antes
+3. Verificar staleness: se muitos arquivos stale, recomendar `/fp:refresh` antes
 
 ### Passo 2 - Verificação de duplicidade
 
@@ -165,7 +165,7 @@ Mostrar o plano completo ao usuário e:
 Plano gerado em .first-plan/07-state/plans/<slug>.md
 
 Para aprovar e executar:
-/first-plan:execute
+/fp:execute
 
 Para ajustar, descreva a mudança e o plano será reescrito.
 
@@ -177,7 +177,7 @@ Para ajustar, descreva a mudança e o plano será reescrito.
 ## Cuidados criticos
 
 - **Nunca executar nada do plano dentro do plan command.** Apenas escrever o arquivo de plano.
-- **Sempre pausar** ao final - usuario tem que dar /first-plan:execute explicitamente.
+- **Sempre pausar** ao final - usuario tem que dar /fp:execute explicitamente.
 - Se durante o planning surgir pergunta crítica (premissa não validável), adicionar em `08-meta/questions.md` e mencionar na seção "Riscos e ambiguidades" do plano.
 - **Honrar as 7 regras invioláveis** da skill `protocol`:
   1. Reuse first

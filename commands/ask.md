@@ -4,7 +4,7 @@ argument-hint: [--answer Q<n> "resposta"]
 allowed-tools: [Read, Edit, Glob]
 ---
 
-# /first-plan:ask
+# /fp:ask
 
 Lista e gerencia perguntas abertas para o humano.
 
@@ -40,7 +40,7 @@ Q2 [errors]
    ...
 
 Para responder uma pergunta:
-/first-plan:ask --answer Q1 "snake_case é o padrão atual, camelCase é legacy a migrar"
+/fp:ask --answer Q1 "snake_case é o padrão atual, camelCase é legacy a migrar"
 ```
 
 ### Passo 3 - Mode --answer
@@ -52,11 +52,11 @@ Para responder uma pergunta:
    - `answer: "<texto da resposta>"`
    - `answered_at: <timestamp>`
 4. Atualizar contadores no frontmatter (`open_questions`, `answered_questions`)
-5. Confirmar: "Q<n> respondida. Considere /first-plan:refresh para aplicar a resposta nas seções afetadas."
+5. Confirmar: "Q<n> respondida. Considere /fp:refresh para aplicar a resposta nas seções afetadas."
 
 ### Passo 4 - Aplicar respostas em refresh
 
-A resposta não modifica automaticamente as seções do `.first-plan/`. O usuário deve rodar `/first-plan:refresh` em seguida, e os subagents vão considerar as respostas em `questions.md` quando reanalisar.
+A resposta não modifica automaticamente as seções do `.first-plan/`. O usuário deve rodar `/fp:refresh` em seguida, e os subagents vão considerar as respostas em `questions.md` quando reanalisar.
 
 ## Cuidados
 

@@ -4,7 +4,7 @@ argument-hint: [--verbose]
 allowed-tools: [Read, Glob, Bash]
 ---
 
-# /first-plan:status
+# /fp:status
 
 Estado da camada `.first-plan/` no projeto-alvo.
 
@@ -22,7 +22,7 @@ Verificar `.first-plan/` existe. Se não:
 ```
 .first-plan/ ainda não foi compilado neste projeto.
 
-Para começar: /first-plan:init
+Para começar: /fp:init
 ```
 
 ### Passo 2 - Ler estado
@@ -47,7 +47,7 @@ Fase atual: <phase>
 Cobertura: <X>% das seções preenchidas
 Confidence média: <Y> (threshold: 0.7)
 Perguntas abertas: <N>
-Stale: <K> arquivo(s) (rodar /first-plan:refresh)
+Stale: <K> arquivo(s) (rodar /fp:refresh)
 
 Features:
   IMPLEMENTED: <a>
@@ -98,14 +98,14 @@ Determinada por fase + estado:
 
 | Fase | Condição | Próxima ação sugerida |
 |------|----------|------------------------|
-| `discovered` | sem perguntas abertas | "Pronto para planejar feature: /first-plan:plan <feature>" |
-| `discovered` | com perguntas abertas | "Responda perguntas: /first-plan:ask" |
-| `discovered` | com stale | "Refresh recomendado: /first-plan:refresh" |
+| `discovered` | sem perguntas abertas | "Pronto para planejar feature: /fp:plan <feature>" |
+| `discovered` | com perguntas abertas | "Responda perguntas: /fp:ask" |
+| `discovered` | com stale | "Refresh recomendado: /fp:refresh" |
 | `planning` | em andamento | "Plano em construção - aguarde" |
-| `awaiting_approval` | - | "Plano <slug> aguarda aprovação. Veja .first-plan/07-state/plans/<slug>.md. Aprove com /first-plan:execute ou peça ajustes" |
+| `awaiting_approval` | - | "Plano <slug> aguarda aprovação. Veja .first-plan/07-state/plans/<slug>.md. Aprove com /fp:execute ou peça ajustes" |
 | `executing` | - | "Execução em andamento - acompanhe progresso ou pause" |
 | `paused` | - | "Execução pausada por <razão>. Veja STATE.md. Decisão: replanejar / abortar / continuar" |
-| `done` | - | "Última feature concluída. Próxima: /first-plan:plan <feature>" |
+| `done` | - | "Última feature concluída. Próxima: /fp:plan <feature>" |
 
 ### Passo 6 - Alertas
 

@@ -1,6 +1,6 @@
 ---
 name: first-plan-semantic-reuse
-description: Skill que faz busca semantica via BM25 sobre o indice de simbolos do projeto. Substitui grep do reuse-index quando o engine nativo esta disponivel. Encontra "preciso de validacao de email" mesmo se a funcao se chama validateEmailRFC. Use durante /first-plan:reuse e /first-plan:plan para identificar componentes reusaveis com matching semantico.
+description: Skill que faz busca semantica via BM25 sobre o indice de simbolos do projeto. Substitui grep do reuse-index quando o engine nativo esta disponivel. Encontra "preciso de validacao de email" mesmo se a funcao se chama validateEmailRFC. Use durante /fp:reuse e /fp:plan para identificar componentes reusaveis com matching semantico.
 version: 0.4.0
 ---
 
@@ -73,14 +73,14 @@ Output JSON `first-plan-search-v1`:
 
 ### Passo 4 - Renderizar para usuario
 
-Para `/first-plan:reuse <intencao>`, mostrar top 5 com:
+Para `/fp:reuse <intencao>`, mostrar top 5 com:
 - Nome + path:line
 - Signature
 - Doc resumida
 - Score (ajuda o usuario calibrar relevancia)
 - Matched tokens (transparencia sobre o ranking)
 
-Para `/first-plan:plan` (verificacao automatica de reuse), filtrar score >= 5.0 (threshold empirico) e listar candidatos no plano.
+Para `/fp:plan` (verificacao automatica de reuse), filtrar score >= 5.0 (threshold empirico) e listar candidatos no plano.
 
 ## Quando usar BM25 vs grep
 

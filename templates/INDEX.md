@@ -102,5 +102,5 @@ find .first-plan/ -name "*.md" | sort
 
 ## Como atualizar
 
-- Mudou código? Rode `/first-plan:refresh`. O hook `PostToolUse` ja marcou as seções afetadas como stale em [[08-meta/coverage]].
-- Quer recompilar do zero? Apague `.first-plan/cache/` e rode `/first-plan:init` novamente.
+- Mudou código? Rode `/fp:refresh`. O hook `PostToolUse` ja marcou as seções afetadas como stale em [[08-meta/coverage]].
+- Quer recompilar do zero? Apague `.first-plan/cache/` e rode `/fp:init` novamente.

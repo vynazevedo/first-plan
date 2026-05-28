@@ -94,7 +94,7 @@ PLACEHOLDER_OUT_OF_SCOPE
 Para aprovar este plano, responda exatamente:
 
 ```
-/first-plan:execute
+/fp:execute
 ```
 
 Para ajustar, responda com a mudança desejada e o plano será reescrito.

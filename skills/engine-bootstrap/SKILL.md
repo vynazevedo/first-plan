@@ -10,7 +10,7 @@ Skill que gerencia o lifecycle do binário nativo `first-plan-engine`.
 
 ## Quando ativar
 
-Qualquer command que se beneficia do engine (`/first-plan:cochange`, `/first-plan:refresh` quando recalcula co-change, `/first-plan:hot` em monorepo grande, etc) deve consultar esta skill antes de cair no fallback markdown.
+Qualquer command que se beneficia do engine (`/fp:cochange`, `/fp:refresh` quando recalcula co-change, `/fp:hot` em monorepo grande, etc) deve consultar esta skill antes de cair no fallback markdown.
 
 ## Detecção
 
@@ -42,7 +42,7 @@ done
 Se ausente e o command que precisou foi invocado, oferecer:
 
 ```
-O command /first-plan:<X> ficaria 10-100x mais rapido com o engine nativo (Rust binary).
+O command /fp:<X> ficaria 10-100x mais rapido com o engine nativo (Rust binary).
 Quer baixar agora? (~5MB, single-file static binary, opt-in)
 
 Opcoes:

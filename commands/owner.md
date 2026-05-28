@@ -4,7 +4,7 @@ argument-hint: <path>
 allowed-tools: [Read, Bash]
 ---
 
-# /first-plan:owner
+# /fp:owner
 
 Ownership inferido por path.
 
@@ -71,7 +71,7 @@ Path órfão (top contributor inativo):
 Top contributor (João Silva) não fez commits há 8 meses.
 
 Considerar:
-- Validar se este código ainda é usado (via co-change graph: /first-plan:cochange <path>)
+- Validar se este código ainda é usado (via co-change graph: /fp:cochange <path>)
 - Procurar outro mantenedor antes de mexer
 ```
 
