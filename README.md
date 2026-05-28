@@ -87,91 +87,91 @@ In ~3-8 minutes (depending on project size) it generates a complete `.first-plan
 
 <table>
 <tr>
-<td><img src="https://img.shields.io/badge/-CORE-blue?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-CORE-blue?style=for-the-badge" /></td>
 <td><strong>Context Compilation</strong> - structured multi-layer IR optimized for AI consumption</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-ENGINE-orange?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-ENGINE-orange?style=for-the-badge" /></td>
 <td><strong>Stack Lens Engine</strong> - pluggable detection and analysis per stack (Go, TS, PHP, Python, Rust, Terraform, Mobile)</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-INDEX-green?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-INDEX-green?style=for-the-badge" /></td>
 <td><strong>Inverted Reuse Index</strong> - "I need X, use Y at Z"</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-MATRIX-purple?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-MATRIX-purple?style=for-the-badge" /></td>
 <td><strong>Spec-Code Reconciliation</strong> - feature x status x evidence matrix</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-GIT-black?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-GIT-black?style=for-the-badge" /></td>
 <td><strong>Git Intelligence</strong> - heatmap, ownership, in-flight branches/PRs</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-LIVING-brightgreen?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-LIVING-brightgreen?style=for-the-badge" /></td>
 <td><strong>Living Layer</strong> - PostToolUse hook automatically marks sections as stale on edits</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-PROTOCOL-red?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-PROTOCOL-red?style=for-the-badge" /></td>
 <td><strong>Plan-First Protocol</strong> - explicit human gate before execution</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-SCORING-yellow?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-SCORING-yellow?style=for-the-badge" /></td>
 <td><strong>Confidence-Graded Knowledge</strong> - threshold 0.7, low-confidence findings become open questions</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-STATE-cyan?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-STATE-cyan?style=for-the-badge" /></td>
 <td><strong>Cross-Session State</strong> - today's session knows what yesterday's did</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-UNIVERSAL-lightgrey?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-UNIVERSAL-lightgrey?style=for-the-badge" /></td>
 <td><strong>Stack-Agnostic</strong> - generic fallback for any language</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-PROVENANCE-darkgreen?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-PROVENANCE-darkgreen?style=for-the-badge" /></td>
 <td><strong>Provenance Tracking</strong> (v0.2.0) - every finding has source/SHA/TTL/decay - audit where it came from</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-COCHANGE-darkblue?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-COCHANGE-darkblue?style=for-the-badge" /></td>
 <td><strong>Co-change Graph</strong> (v0.2.0) - "when X changes, Y also changes" - prevents incomplete PRs</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-VERIFY-magenta?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-VERIFY-magenta?style=for-the-badge" /></td>
 <td><strong>Verification Loop</strong> (v0.2.0) - automatic lint/typecheck/tests post-execute + rollback safety net</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-NATIVE-darkred?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-NATIVE-darkred?style=for-the-badge" /></td>
 <td><strong>Rust Engine</strong> (v0.3.0) - native binary first-plan-engine. Co-change graph for 50k commits in &lt;2s vs 5min via shell. Parallel hashing of 10k files. Zero Claude tokens for heavy lifting.</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-SEMANTIC-purple?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-SEMANTIC-purple?style=for-the-badge" /></td>
 <td><strong>BM25 Semantic Search</strong> (v0.4.0) - "I need email validation" finds <code>validateEmailRFC</code> even without an exact name match. Local SQLite index, &lt;10ms per query, 6 supported languages.</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-EMBEDDINGS-teal?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-EMBEDDINGS-teal?style=for-the-badge" /></td>
 <td><strong>ML Embeddings (Hybrid)</strong> (v0.4.1) - opt-in build with BGE-small (ONNX). Hybrid search combines BM25 + cosine similarity for true semantic matches.</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-AST-darkblue?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-AST-darkblue?style=for-the-badge" /></td>
 <td><strong>Tree-sitter AST</strong> (v0.5.0) - opt-in build with exact parsing. +43% extraction precision over regex. Auto-detects methods inside class/impl/struct. 5 languages: Rust, Go, Python, TypeScript, Bash.</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-BASH-yellow?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-BASH-yellow?style=for-the-badge" /></td>
 <td><strong>Bash extractor</strong> (v0.5.0) - dotfiles and shell scripts now indexable. POSIX <code>name()</code> and <code>function name</code> forms. Detects <code>.bashrc</code>, <code>.zshrc</code>, etc.</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-WIKILINKS-purple?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-WIKILINKS-purple?style=for-the-badge" /></td>
 <td><strong>Obsidian Wikilinks</strong> (v0.5.0) - <code>[[section/file]]</code> syntax across .first-plan/. Open as Obsidian/Logseq vault for graph navigation.</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-WATCH-cyan?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-WATCH-cyan?style=for-the-badge" /></td>
 <td><strong>Watch mode</strong> (v0.5.1) - <code>first-plan-engine watch</code> monitors filesystem with debounced events. JSON line stream on stdout. Inspired by OpenKB (continuous compilation).</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-COMPRESS-darkgreen?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-COMPRESS-darkgreen?style=for-the-badge" /></td>
 <td><strong>Native Output Compression</strong> (v0.5.3) - <code>first-plan-engine compress --tool &lt;git/find/grep/cargo/etc&gt;</code>. 80-99% token savings on large outputs. No external dependency needed.</td>
 </tr>
 <tr>
-<td><img src="https://img.shields.io/badge/-LSP-purple?style=flat-square" /></td>
+<td width="220"><img src="https://img.shields.io/badge/-LSP-purple?style=for-the-badge" /></td>
 <td><strong>Polyglot LSP Integration</strong> (v0.6.0) - <code>first-plan-engine lsp &lt;refs|def|symbols|hover|wsymbols&gt;</code>. Semantic symbol resolution via 8 language servers (rust-analyzer, gopls, pyright, ts-lsp, intelephense, clangd, ruby-lsp, lua-ls). Auto-detects stack via manifests, suggests install commands for missing servers. Graceful fallback to tree-sitter + grep.</td>
 </tr>
 </table>
@@ -359,7 +359,7 @@ You don't need to do anything - the hook detected it. When you run `/first-plan:
 ### Essential commands
 
 <p>
-<img src="https://img.shields.io/badge/-CORE-blue?style=flat-square" />
+<img src="https://img.shields.io/badge/-CORE-blue?style=for-the-badge" />
 </p>
 
 | Command | Purpose |
@@ -371,7 +371,7 @@ You don't need to do anything - the hook detected it. When you run `/first-plan:
 ### Plan-First workflow
 
 <p>
-<img src="https://img.shields.io/badge/-PROTOCOL-red?style=flat-square" />
+<img src="https://img.shields.io/badge/-PROTOCOL-red?style=for-the-badge" />
 </p>
 
 | Command | Purpose |
@@ -382,7 +382,7 @@ You don't need to do anything - the hook detected it. When you run `/first-plan:
 ### Query commands
 
 <p>
-<img src="https://img.shields.io/badge/-QUERY-purple?style=flat-square" />
+<img src="https://img.shields.io/badge/-QUERY-purple?style=for-the-badge" />
 </p>
 
 | Command | Purpose |
