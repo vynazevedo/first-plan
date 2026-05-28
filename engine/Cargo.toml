@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/core", "crates/cli"]
 
 [workspace.package]
-version = "0.6.0"
+version = "0.6.1"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/vynazevedo/first-plan"
@@ -42,6 +42,7 @@ tokio = { version = "1.40", features = ["rt-multi-thread", "macros", "io-util", 
 lsp-types = "0.97"
 url = "2"
 which = "7"
+libc = "0.2"
 
 [profile.release]
 opt-level = 3

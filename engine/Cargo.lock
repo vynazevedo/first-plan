@@ -839,12 +839,13 @@ checksum = "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
 
 [[package]]
 name = "first-plan-core"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "anyhow",
  "chrono",
  "dirs 5.0.1",
  "fastembed",
+ "libc",
  "lsp-types",
  "notify",
  "notify-debouncer-mini",
@@ -872,7 +873,7 @@ dependencies = [
 
 [[package]]
 name = "first-plan-engine"
-version = "0.6.0"
+version = "0.6.1"
 dependencies = [
  "anyhow",
  "assert_cmd",

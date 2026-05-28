@@ -204,6 +204,100 @@ fn lsp_refs_falls_back_to_grep_when_no_lsp() {
 }
 
 #[test]
+fn lsp_daemon_status_when_not_running() {
+    let _ = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(["lsp", "daemon", "stop"])
+        .assert();
+
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(["lsp", "daemon", "status", "--json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["running"], false);
+    assert!(parsed["socket_path"].is_string());
+}
+
+#[test]
+fn lsp_daemon_start_then_status_then_stop() {
+    use std::process::{Command as StdCommand, Stdio};
+    use std::thread::sleep;
+    use std::time::Duration;
+
+    let _ = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(["lsp", "daemon", "stop"])
+        .assert();
+
+    let bin = assert_cmd::cargo::cargo_bin("first-plan-engine");
+    let tmp = TempDir::new().unwrap();
+    fs::write(tmp.path().join("Cargo.toml"), "[package]\nname='x'\n").unwrap();
+
+    let mut child = StdCommand::new(&bin)
+        .args([
+            "lsp",
+            "daemon",
+            "start",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--idle-minutes",
+            "1",
+        ])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .expect("spawn daemon");
+
+    let mut running = false;
+    for _ in 0..20 {
+        sleep(Duration::from_millis(100));
+        let out = Command::cargo_bin("first-plan-engine")
+            .unwrap()
+            .args(["lsp", "daemon", "status", "--json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+        if parsed["running"] == true {
+            running = true;
+            assert!(parsed["pid"].as_u64().unwrap() > 0);
+            assert!(parsed["uptime_seconds"].is_number());
+            break;
+        }
+    }
+    assert!(running, "daemon failed to come up within 2s");
+
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(["lsp", "daemon", "stop"])
+        .assert()
+        .success();
+
+    sleep(Duration::from_millis(300));
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(["lsp", "daemon", "status", "--json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["running"], false);
+
+    let _ = child.kill();
+    let _ = child.wait();
+}
+
+#[test]
 fn lsp_wsymbols_fallback_finds_function_definition() {
     let tmp = TempDir::new().unwrap();
     fs::write(tmp.path().join("lib.rs"), "pub fn unique_func_name() {}\n").unwrap();

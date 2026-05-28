@@ -9,9 +9,23 @@ use first_plan_core::lsp::{
     client::LspClient, daemon, detect_all, detect_server, fallback, ops, registry, server_for_path,
     servers_for_project, ServerId, ServerStatus,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
 use std::path::PathBuf;
 use std::time::Instant;
+
+async fn try_via_daemon<T: for<'de> Deserialize<'de>>(op: &str, args: Value) -> Option<T> {
+    if !daemon::is_running() {
+        return None;
+    }
+    let req = daemon::DaemonRequest {
+        id: 1,
+        op: op.into(),
+        args,
+    };
+    let v = daemon::send_request(&req).await.ok()?;
+    serde_json::from_value(v).ok()
+}
 
 #[derive(ClapArgs)]
 pub struct Args {
@@ -108,10 +122,29 @@ pub struct DaemonArgs {
 
 #[derive(Subcommand)]
 pub enum DaemonAction {
-    /// Show daemon status (running/stopped, socket path).
-    Status,
-    /// Stop the daemon if running.
+    /// Start the daemon in the foreground (block). Use `nohup ... &` or systemd to background it.
+    Start(DaemonStartArgs),
+    /// Show daemon status (running/stopped, warm servers, uptime, idle).
+    Status(DaemonStatusArgs),
+    /// Stop the daemon if running (graceful shutdown of all warm LSP clients).
     Stop,
+}
+
+#[derive(ClapArgs)]
+pub struct DaemonStartArgs {
+    /// Project root (used by LSP initialize for all spawned clients).
+    #[arg(long, default_value = ".")]
+    pub root: PathBuf,
+
+    /// Auto-shutdown after this many minutes of inactivity.
+    #[arg(long, default_value_t = 30)]
+    pub idle_minutes: u64,
+}
+
+#[derive(ClapArgs)]
+pub struct DaemonStatusArgs {
+    #[arg(long)]
+    pub json: bool,
 }
 
 #[derive(Serialize)]
@@ -138,7 +171,7 @@ async fn run_async(args: Args) -> Result<()> {
         Op::Hover(a) => run_hover(a).await,
         Op::Wsymbols(a) => run_wsymbols(a).await,
         Op::Status(a) => run_status(a),
-        Op::Daemon(a) => run_daemon(a),
+        Op::Daemon(a) => run_daemon(a).await,
     }
 }
 
@@ -200,6 +233,14 @@ async fn run_refs(a: PositionArgs) -> Result<()> {
 }
 
 async fn try_refs_with_lsp(sid: ServerId, a: &PositionArgs) -> Result<Vec<ops::Reference>> {
+    if let Some(r) = try_via_daemon::<Vec<ops::Reference>>(
+        "refs",
+        json!({"file": a.file, "line": a.line, "col": a.col, "include_declaration": true}),
+    )
+    .await
+    {
+        return Ok(r);
+    }
     let client = LspClient::spawn(sid, &a.root).await?;
     let result = ops::references(&client, &a.file, a.line, a.col, true).await;
     let _ = client.shutdown().await;
@@ -238,10 +279,20 @@ async fn run_def(a: PositionArgs) -> Result<()> {
             (defs, true)
         }
         Some(sid) => {
-            let client = LspClient::spawn(sid, &a.root).await?;
-            let r = ops::definition(&client, &a.file, a.line, a.col).await?;
-            let _ = client.shutdown().await;
-            (r, false)
+            let via_daemon = try_via_daemon::<Vec<ops::Location>>(
+                "def",
+                json!({"file": a.file, "line": a.line, "col": a.col}),
+            )
+            .await;
+            match via_daemon {
+                Some(r) => (r, false),
+                None => {
+                    let client = LspClient::spawn(sid, &a.root).await?;
+                    let r = ops::definition(&client, &a.file, a.line, a.col).await?;
+                    let _ = client.shutdown().await;
+                    (r, false)
+                }
+            }
         }
     };
 
@@ -294,10 +345,17 @@ async fn run_symbols(a: FileArgs) -> Result<()> {
             (syms, true)
         }
         Some(sid) => {
-            let client = LspClient::spawn(sid, &a.root).await?;
-            let r = ops::document_symbol(&client, &a.file).await?;
-            let _ = client.shutdown().await;
-            (r, false)
+            let via_daemon =
+                try_via_daemon::<Vec<ops::Symbol>>("symbols", json!({"file": a.file})).await;
+            match via_daemon {
+                Some(r) => (r, false),
+                None => {
+                    let client = LspClient::spawn(sid, &a.root).await?;
+                    let r = ops::document_symbol(&client, &a.file).await?;
+                    let _ = client.shutdown().await;
+                    (r, false)
+                }
+            }
         }
     };
 
@@ -348,10 +406,20 @@ async fn run_hover(a: PositionArgs) -> Result<()> {
             (snippet.unwrap_or_default(), true)
         }
         Some(sid) => {
-            let client = LspClient::spawn(sid, &a.root).await?;
-            let r = ops::hover(&client, &a.file, a.line, a.col).await?;
-            let _ = client.shutdown().await;
-            (r.map(|h| h.content).unwrap_or_default(), false)
+            let via_daemon = try_via_daemon::<Option<ops::HoverInfo>>(
+                "hover",
+                json!({"file": a.file, "line": a.line, "col": a.col}),
+            )
+            .await;
+            match via_daemon {
+                Some(r) => (r.map(|h| h.content).unwrap_or_default(), false),
+                None => {
+                    let client = LspClient::spawn(sid, &a.root).await?;
+                    let r = ops::hover(&client, &a.file, a.line, a.col).await?;
+                    let _ = client.shutdown().await;
+                    (r.map(|h| h.content).unwrap_or_default(), false)
+                }
+            }
         }
     };
 
@@ -401,10 +469,21 @@ async fn run_wsymbols(a: QueryArgs) -> Result<()> {
             true,
         ),
         Some(sid) => {
-            let client = LspClient::spawn(sid, &a.root).await?;
-            let r = ops::workspace_symbol(&client, &a.query).await?;
-            let _ = client.shutdown().await;
-            (r, false)
+            let server_name = registry::spec(sid).name.to_string();
+            let via_daemon = try_via_daemon::<Vec<ops::Symbol>>(
+                "wsymbols",
+                json!({"query": a.query, "server": server_name}),
+            )
+            .await;
+            match via_daemon {
+                Some(r) => (r, false),
+                None => {
+                    let client = LspClient::spawn(sid, &a.root).await?;
+                    let r = ops::workspace_symbol(&client, &a.query).await?;
+                    let _ = client.shutdown().await;
+                    (r, false)
+                }
+            }
         }
     };
 
@@ -526,31 +605,68 @@ fn run_status(a: StatusArgs) -> Result<()> {
     Ok(())
 }
 
-fn run_daemon(a: DaemonArgs) -> Result<()> {
+async fn run_daemon(a: DaemonArgs) -> Result<()> {
     match a.action {
-        DaemonAction::Status => {
-            let s = daemon::status();
-            print_header("Daemon status");
-            print_kv_bold(
-                "Running",
-                if s.running { "yes" } else { "no" },
-                if s.running {
-                    Color::Green
-                } else {
-                    Color::DarkGrey
-                },
-            );
-            print_kv("Socket", &s.socket_path, Color::DarkGrey);
-            print_kv("PID file", &s.pid_file, Color::DarkGrey);
-            flush();
-            Ok(())
-        }
+        DaemonAction::Start(args) => run_daemon_start(args).await,
+        DaemonAction::Status(args) => run_daemon_status(args).await,
         DaemonAction::Stop => {
-            daemon::stop()?;
+            daemon::stop().await?;
             println!("Daemon stopped (if running)");
             Ok(())
         }
     }
+}
+
+async fn run_daemon_start(args: DaemonStartArgs) -> Result<()> {
+    use std::time::Duration;
+    let root = args
+        .root
+        .canonicalize()
+        .unwrap_or_else(|_| args.root.clone());
+    eprintln!(
+        "first-plan daemon starting: root={}, idle_timeout={}m",
+        root.display(),
+        args.idle_minutes
+    );
+    let d = daemon::Daemon::new(root, Duration::from_secs(args.idle_minutes * 60));
+    d.run().await
+}
+
+async fn run_daemon_status(args: DaemonStatusArgs) -> Result<()> {
+    let s = daemon::status().await;
+    if args.json {
+        println!("{}", serde_json::to_string_pretty(&s)?);
+        return Ok(());
+    }
+    print_header("Daemon status");
+    print_kv_bold(
+        "Running",
+        if s.running { "yes" } else { "no" },
+        if s.running {
+            Color::Green
+        } else {
+            Color::DarkGrey
+        },
+    );
+    if let Some(pid) = s.pid {
+        print_kv("PID", &pid.to_string(), Color::DarkGrey);
+    }
+    if let Some(up) = s.uptime_seconds {
+        print_kv("Uptime", &format!("{}s", up), Color::DarkGrey);
+    }
+    if let Some(idle) = s.idle_seconds {
+        print_kv("Idle", &format!("{}s", idle), Color::DarkGrey);
+    }
+    print_kv("Socket", &s.socket_path, Color::DarkGrey);
+    print_kv("PID file", &s.pid_file, Color::DarkGrey);
+    if !s.warm_servers.is_empty() {
+        print_section("Warm LSP clients");
+        for w in &s.warm_servers {
+            println!("  {} {}", "ok".with(Color::Green), w.as_str().bold());
+        }
+    }
+    flush();
+    Ok(())
 }
 
 fn server_installed(id: ServerId) -> bool {

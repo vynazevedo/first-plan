@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-05-26
+
+### Added
+
+- **LSP Daemon Mode** - elimina cold start de 3-15s a partir da segunda chamada
+  - Novo subcomando `first-plan-engine lsp daemon start --root <path> [--idle-minutes 30]`
+  - Mantem pool de `LspClient` warm (HashMap<ServerId, Arc<LspClient>>)
+  - Lazy spawn por server: primeira request por server type paga cold start, demais respondem em <100ms
+  - Auto-shutdown apos `--idle-minutes` minutos sem requests (default 30)
+- **IPC sobre Unix socket** com protocolo JSON line-delimited
+  - Request: `{"id": N, "op": "refs|def|symbols|hover|wsymbols|status|shutdown", "args": {...}}`
+  - Response: `{"id": N, "result": <Value>}` ou `{"id": N, "error": "msg"}`
+  - Socket em `${XDG_RUNTIME_DIR}/first-plan-engine.sock`
+  - Pid file em `${XDG_RUNTIME_DIR}/first-plan-engine.pid` (com check via `kill -0` em Unix)
+- **Auto-routing transparente** - todas as ops LSP (`refs`, `def`, `symbols`, `hover`, `wsymbols`) checam `daemon::is_running()` antes de spawn fresh
+  - Se daemon ativo: roteia via socket
+  - Se daemon offline ou erro de IPC: fallback automatico para spawn direto
+  - Skills/subagents nao precisam saber se daemon esta ativo - transparente
+- **Status enriquecido** - `lsp daemon status` reporta:
+  - `running`, `pid`, `uptime_seconds`, `idle_seconds`
+  - `warm_servers` (lista de ServerId ja vivos no pool)
+  - `socket_path`, `pid_file`
+- **Stop gracioso** - `lsp daemon stop` envia request shutdown via socket
+  - Daemon faz `LspClient::shutdown()` em cada client warm antes de exit
+  - Fallback: SIGTERM via pid se socket nao responder em 2s
+
+### Changed
+
+- Workspace bumped to 0.6.1
+- Engine deps: `libc 0.2` (target unix) para `kill(pid, 0)` check
+- Skill `lsp-aware` atualizada com secao Daemon mode + lifecycle + recomendacoes
+- Slash command `/first-plan:lsp-status` mostra daemon status no relatorio
+
+### Performance
+
+- Binary: 5.2 MB (sem mudanca significativa vs v0.6.0)
+- LSP op com daemon warm: **<100ms** (vs 3-15s cold start direto)
+- Overhead de IPC sobre Unix socket: ~1-2ms por request
+- Daemon idle RAM (sem servers spawned): ~10 MB
+- Daemon com rust-analyzer + gopls warm: ~500MB-1.5GB (depende do tamanho do projeto)
+
+### Architecture
+
+- Daemon usa `tokio::net::UnixListener` + `oneshot::channel` para shutdown signal
+- Background task verifica idle timeout a cada 30s
+- Connection handler: read 1 linha JSON, dispatch, write 1 linha JSON, close
+- Single instance enforced via pid file + `kill -0` check
+- Sem detach manual: usuario backgrounding com `nohup ... &` ou systemd unit
+
+### Limitations
+
+- Apenas Unix (Linux/macOS). Windows fica para v0.7 (named pipes)
+- 1 daemon por usuario (socket path fixo). Multi-root requer kill + restart com novo root
+- Sem reconnect automatico: se servidor LSP morre, daemon mantem o erro ate restart
+- Sem health check periodico nos LspClients warm (futuro: ping `$/cancelRequest` ou similar)
+
 ## [0.6.0] - 2026-05-19
 
 ### Added
@@ -364,7 +420,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/vynazevedo/first-plan/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/vynazevedo/first-plan/compare/v0.5.3...v0.6.0
 [0.5.3]: https://github.com/vynazevedo/first-plan/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/vynazevedo/first-plan/compare/v0.5.1...v0.5.2

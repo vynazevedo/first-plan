@@ -26,6 +26,7 @@ fi
 
 ```bash
 "$ENGINE" lsp status --root "$PWD" --json > /tmp/lsp-status.json
+"$ENGINE" lsp daemon status --json > /tmp/lsp-daemon.json
 ```
 
 JSON retornado:
@@ -98,7 +99,30 @@ Sem LSP, operacoes seguem funcionando via tree-sitter + grep
 (precisao ~70% vs 100% com LSP).
 ```
 
-### Passo 5 - Engine ausente
+### Passo 5 - Daemon mode (v0.6.1+)
+
+Se daemon esta rodando, mostrar ao final:
+
+```
+Daemon LSP: ativo (pid 8228)
+  uptime: 12m 34s
+  idle:   23s
+  warm servers: rust-analyzer, typescript-language-server
+  (operacoes LSP retornam em <100ms)
+```
+
+Se nao esta rodando:
+
+```
+Daemon LSP: nao iniciado
+
+Para sessoes longas, recomendado iniciar:
+  nohup first-plan-engine lsp daemon start --root "$PWD" --idle-minutes 30 > /tmp/fp-daemon.log 2>&1 &
+
+Sem daemon, primeira invocacao por server paga cold start (3-15s).
+```
+
+### Passo 6 - Engine ausente
 
 Se engine binario nao existe:
 

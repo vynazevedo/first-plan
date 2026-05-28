@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.6.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.6.1-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -173,6 +173,10 @@ Em ~3-8 minutos (dependendo do tamanho do projeto), gera `.first-plan/` completo
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-LSP-purple?style=for-the-badge" /></td>
 <td><strong>Integração LSP Polyglot</strong> (v0.6.0) - <code>first-plan-engine lsp &lt;refs|def|symbols|hover|wsymbols&gt;</code>. Resolução semântica de símbolos via 8 language servers (rust-analyzer, gopls, pyright, ts-lsp, intelephense, clangd, ruby-lsp, lua-ls). Auto-detecção de stack via manifests, sugere comandos de instalação para servers faltantes. Fallback gracioso para tree-sitter + grep.</td>
+</tr>
+<tr>
+<td width="220"><img src="https://img.shields.io/badge/-DAEMON-magenta?style=for-the-badge" /></td>
+<td><strong>LSP Daemon Mode</strong> (v0.6.1) - <code>first-plan-engine lsp daemon start</code>. Pool de warm-servers sobre Unix socket elimina cold start de 3-15s. Chamadas subsequentes retornam em &lt;100ms. Auto-routing: todas as ops LSP usam o daemon transparentemente quando ativo, fallback para spawn direto caso contrário.</td>
 </tr>
 </table>
 
@@ -795,8 +799,8 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.6.0-current-brightgreen?style=flat-square" alt="v0.6.0 current">
-<img src="https://img.shields.io/badge/v0.6.1-next-blue?style=flat-square" alt="v0.6.1 next">
+<img src="https://img.shields.io/badge/v0.6.1-current-brightgreen?style=flat-square" alt="v0.6.1 current">
+<img src="https://img.shields.io/badge/v0.7.0-next-blue?style=flat-square" alt="v0.7.0 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>
 
@@ -887,7 +891,7 @@ Workflow:
 - Sem dependência externa (alternativa a ferramentas como rtk)
 - Medição real: 1.5MB `find` -> 1.7KB (99.9%), 21KB `grep` -> 1.3KB (94%)
 
-#### v0.6.0 - Integração LSP Polyglot (current)
+#### v0.6.0 - Integração LSP Polyglot
 
 - **`first-plan-engine lsp <op>`** - resolução semântica de símbolos via Language Server Protocol
   - Operações: refs, def, symbols, hover, wsymbols, status, daemon
@@ -903,13 +907,18 @@ Workflow:
 - Subagents preferem LSP quando disponível (discovery-analyst, pattern-archeologist, reconciliation-auditor)
 - Binário permanece lean: 5.2 MB (+1 MB vs v0.5.3)
 
+#### v0.6.1 - LSP daemon mode (current)
+
+- **`first-plan-engine lsp daemon start --root <path>`** - pool de warm servers via Unix socket
+- Elimina cold start de 3-15s a partir da segunda chamada
+- Todas as ops LSP roteiam pelo daemon automaticamente quando ativo (transparente para skills/subagents)
+- Lazy spawn: primeira request por server type paga cold start, demais em <100ms
+- Auto-shutdown após `--idle-minutes` (default 30) de inatividade
+- Shutdown gracioso de todos LspClients warm no stop
+- IPC: JSON line-delimited sobre Unix socket
+- 76 testes passando (67 unit + 9 integration)
+
 ### Planejado
-
-#### v0.6.1 - LSP daemon mode
-
-- Pool de warm servers via Unix socket
-- Mitiga cold start (3-15s para rust-analyzer/gopls)
-- Queries instantâneas após primeiro spawn
 
 #### v0.7.0 - Multi-Repo Awareness + Multi-format docs
 
