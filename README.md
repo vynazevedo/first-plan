@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.7.1-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.8.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -199,6 +199,10 @@ In ~3-8 minutes, generates the full 10-layer IR: stack lens analysis, reuse inde
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-DAEMON-magenta?style=for-the-badge" /></td>
 <td><strong>LSP Daemon Mode</strong> (v0.6.1) - <code>first-plan-engine lsp daemon start</code>. Warm-server pool over Unix socket eliminates 3-15s cold start. Subsequent calls return in &lt;100ms. Auto-routing: all LSP ops transparently use daemon when running, fall back to direct spawn otherwise.</td>
+</tr>
+<tr>
+<td width="220"><img src="https://img.shields.io/badge/-QUALITY-red?style=for-the-badge" /></td>
+<td><strong>Quality / Validation Layer</strong> (v0.8.0) - <code>first-plan-engine quality</code>. CI workflows parsed (GitHub Actions, GitLab CI, CircleCI, Jenkins), coverage reports parsed (lcov, cobertura, jacoco, jest, go cover), flaky tests detected via git history mining. Produces <code>.first-plan/11-quality/</code> so AI knows what runs, what's tested, what's unstable before suggesting changes.</td>
 </tr>
 </table>
 
@@ -850,7 +854,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.7.1-current-brightgreen?style=flat-square" alt="v0.7.1 current">
+<img src="https://img.shields.io/badge/v0.8.0-current-brightgreen?style=flat-square" alt="v0.8.0 current">
 <img src="https://img.shields.io/badge/v0.7.1-next-blue?style=flat-square" alt="v0.7.1 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>

@@ -3,6 +3,7 @@ pub mod compress;
 pub mod hash;
 pub mod index;
 pub mod lsp;
+pub mod quality;
 pub mod quick;
 pub mod search;
 pub mod watch;

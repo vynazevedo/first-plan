@@ -33,6 +33,8 @@ enum Command {
     Lsp(commands::lsp::Args),
     /// Quick project glance (stacks, symbols, git activity) in <60s. Lighter than full discovery.
     Quick(commands::quick::Args),
+    /// Quality layer: CI workflows, test coverage, flaky test detection.
+    Quality(commands::quality::Args),
 }
 
 fn main() -> Result<()> {
@@ -46,5 +48,6 @@ fn main() -> Result<()> {
         Command::Compress(args) => commands::compress::run(args),
         Command::Lsp(args) => commands::lsp::run(args),
         Command::Quick(args) => commands::quick::run(args),
+        Command::Quality(args) => commands::quality::run(args),
     }
 }

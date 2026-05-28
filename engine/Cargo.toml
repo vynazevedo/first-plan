@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/core", "crates/cli"]
 
 [workspace.package]
-version = "0.7.1"
+version = "0.8.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/vynazevedo/first-plan"
@@ -43,6 +43,9 @@ lsp-types = "0.97"
 url = "2"
 which = "7"
 libc = "0.2"
+# Quality layer (v0.8.0)
+serde_yaml = "0.9"
+quick-xml = { version = "0.36", features = ["serialize"] }
 
 [profile.release]
 opt-level = 3

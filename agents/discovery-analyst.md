@@ -41,6 +41,24 @@ first-plan-engine compress --tool grep -- -rn "pattern" src/
 
 Fallback automático se engine ausente.
 
+## Quality awareness (v0.8.0+)
+
+Após detecção de stacks, gerar quality IR pra dar ao planner informação sobre CI, coverage e flaky tests. Ver skill `quality-aware`.
+
+```bash
+first-plan-engine quality --root "$PWD"
+# escreve .first-plan/11-quality/ com:
+#   00-pipeline.md  (CI workflows detectados, jobs, triggers)
+#   01-coverage.md  (% por arquivo + ranges não cobertos)
+#   02-flaky.md     (candidatos flaky via mining git history)
+#   report.json     (estruturado pra Plan-First)
+```
+
+Incorporar 3 sinais no discovery output:
+- providers de CI detectados (ex: github-actions, gitlab-ci)
+- coverage overall do projeto (% global)
+- count de flaky candidates (alerta se > 0)
+
 ## LSP integration (v0.6.0+)
 
 Para descobrir símbolos com precisão semântica (não só grep), invocar `first-plan-engine lsp` quando os servidores estiverem instalados. Ver skill `lsp-aware`.

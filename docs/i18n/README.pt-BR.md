@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.7.1-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.8.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -199,6 +199,10 @@ Em ~3-8 minutos, gera o IR completo de 10 camadas: análise por stack lens, reus
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-DAEMON-magenta?style=for-the-badge" /></td>
 <td><strong>LSP Daemon Mode</strong> (v0.6.1) - <code>first-plan-engine lsp daemon start</code>. Pool de warm-servers sobre Unix socket elimina cold start de 3-15s. Chamadas subsequentes retornam em &lt;100ms. Auto-routing: todas as ops LSP usam o daemon transparentemente quando ativo, fallback para spawn direto caso contrário.</td>
+</tr>
+<tr>
+<td width="220"><img src="https://img.shields.io/badge/-QUALITY-red?style=for-the-badge" /></td>
+<td><strong>Camada Quality / Validação</strong> (v0.8.0) - <code>first-plan-engine quality</code>. Parsers nativos de CI workflows (GitHub Actions, GitLab CI, CircleCI, Jenkins), coverage reports (lcov, cobertura, jacoco, jest, go cover) e detecção de flaky tests via mining de git history. Produz <code>.first-plan/11-quality/</code> para que o AI saiba o que roda, o que está testado e o que é instável antes de sugerir mudanças.</td>
 </tr>
 </table>
 
@@ -821,7 +825,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.7.1-current-brightgreen?style=flat-square" alt="v0.7.1 current">
+<img src="https://img.shields.io/badge/v0.8.0-current-brightgreen?style=flat-square" alt="v0.8.0 current">
 <img src="https://img.shields.io/badge/v0.7.1-next-blue?style=flat-square" alt="v0.7.1 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>

@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-05-28
+
+### Added
+
+- **Quality/Validation Layer** - nova camada do IR que captura o estado de validação automática do projeto, primeira de uma sequência planejada de 4 capacidades (Quality v0.8, Schemas v0.9, Evolution v0.10, Runtime v0.11) que tornam first-plan indispensável para trabalho sério e antecipam o futuro de agentes autônomos.
+- **`first-plan-engine quality`** novo subcomando que produz `.first-plan/11-quality/` com três artefatos markdown densos mais um JSON estruturado: `00-pipeline.md` lista todos os providers de CI detectados com workflows, jobs, triggers e steps, `01-coverage.md` lista todos os arquivos do projeto ordenados por % de coverage com ranges de linhas não cobertas, `02-flaky.md` lista candidatos a flaky test com score de confidence e signals que justificam a classificação, `report.json` carrega tudo de forma estruturada para consumo programático por AI ou outros tools.
+- **CI workflows parser** com suporte nativo a quatro providers que cobrem mais de 90% dos projetos no mercado: GitHub Actions parseando `.github/workflows/*.yml` extraindo jobs com runs-on, steps com summary, triggers identificados como push/PR/schedule/release/workflow_dispatch, GitLab CI parseando `.gitlab-ci.yml` com jobs e stages, CircleCI parseando `.circleci/config.yml` com docker/machine executors, Jenkinsfile com parsing limitado de pipeline declarativo extraindo stages como jobs.
+- **Coverage reports parser** com cinco formatos suportados que cobrem todos os ecossistemas principais: lcov info para Node e Rust via grcov e C/C++, Cobertura XML para Python e Java e JavaScript, JaCoCo XML para Java e Kotlin, jest coverage-summary.json para Node e TypeScript, go test coverprofile para Go. Cada arquivo coverage detectado retorna porcentagem, lines covered, lines total e uncovered ranges agrupados em sequências contíguas para reduzir ruído.
+- **Flaky test detector via git history mining** usando três heurísticas combinadas em um score: edits isolados de arquivo de teste sem mudança correspondente em código não-test no mesmo commit, mensagens de commit com keywords suspeitas como flaky, race, timeout, intermittent, unstable, stabilize, retry, e commits revert que tocaram o test. Detecta automaticamente test files em todos os padrões comuns como `_test.go`, `_test.py`, `.test.ts`, `.spec.ts`, `_test.rs`, `test_*.py`, `_spec.rb`, paths em `tests/`, `__tests__/`, `spec/`.
+- **Nova skill `quality-aware`** documentando como AI deve consumir o quality IR em três fluxos: ao planejar mudança conferir quais checks de CI vão rodar, ao decidir refactor conferir coverage do arquivo alvo, ao tocar test files conferir se aparecem no flaky ranking. Skill inclui exemplos concretos de output de plan-first quality-informed.
+- **discovery-analyst subagent atualizado** para gerar quality IR após detecção de stacks e incorporar três sinais no discovery findings: providers de CI detectados, coverage overall do projeto, count de flaky candidates.
+
+### Changed
+
+- Workspace bumped to 0.8.0
+- Engine deps: `serde_yaml 0.9` para parsing de workflows YAML, `quick-xml 0.36` com feature serialize para parsing de Cobertura e JaCoCo XML
+- 15 unit tests novos cobrindo todos os parsers (4 CI providers, 5 coverage formats, flaky scoring e detection)
+
+### Performance
+
+- Quality scan em first-plan próprio: **1.25 segundos** com detecção completa de CI, zero coverage report disponível, e 36 commits analisados para flaky em janela de 180 dias
+- Binary impact desprezível com adição de yaml e XML parsers leves
+- Sem dependência externa cara, sem cliente API, sem SaaS integration - tudo local e offline
+
+### Architecture
+
+- Módulo `core::quality` com 3 submódulos isolados (ci, coverage, flaky) cada um auto-contido com testes próprios
+- Cada parser tem fallback graceful: ausência de provider de CI, ausência de coverage report, ausência de git history são tratados como cenários válidos com mensagens explicativas em vez de falhas
+- Output em três artefatos markdown densos otimizados para consumo por AI em vez de um arquivo monolítico, facilitando inclusão seletiva no contexto
+- Padrão de design replicável para próximas camadas planejadas (Schemas, Evolution, Runtime, Cross-repo)
+
+### Validação real
+
+- Rodando quality no próprio first-plan detectou automaticamente `engine/crates/cli/tests/cli_test.rs` como flaky com score 1.65 e signals corretos: três commits com keywords flaky/race/timeout e três edits isoladas. Esse é exatamente o teste do daemon que causou problemas em macOS runner ao longo desta semana, validando a precisão da heurística sem precisar de CI logs externos.
+
 ## [0.7.1] - 2026-05-28
 
 ### Fixed
@@ -529,7 +564,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/vynazevedo/first-plan/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/vynazevedo/first-plan/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/vynazevedo/first-plan/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/vynazevedo/first-plan/compare/v0.6.0...v0.6.1
