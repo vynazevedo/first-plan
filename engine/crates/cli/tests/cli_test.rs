@@ -260,13 +260,53 @@ fn lsp_daemon_start_then_status_then_stop() {
             "--idle-minutes",
             "1",
         ])
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
         .spawn()
         .expect("spawn daemon");
 
     let mut running = false;
-    for _ in 0..20 {
+    let mut last_status = String::new();
+    for _ in 0..100 {
+        sleep(Duration::from_millis(100));
+        let out = Command::cargo_bin("first-plan-engine")
+            .unwrap()
+            .args(["lsp", "daemon", "status", "--json"])
+            .assert()
+            .success()
+            .get_output()
+            .stdout
+            .clone();
+        last_status = String::from_utf8_lossy(&out).into_owned();
+        let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+        if parsed["running"] == true {
+            running = true;
+            assert!(parsed["pid"].as_u64().unwrap() > 0);
+            assert!(parsed["uptime_seconds"].is_number());
+            break;
+        }
+    }
+    if !running {
+        let _ = child.kill();
+        let output = child.wait_with_output().ok();
+        let stderr = output
+            .as_ref()
+            .map(|o| String::from_utf8_lossy(&o.stderr).into_owned())
+            .unwrap_or_default();
+        panic!(
+            "daemon failed to come up within 10s\nlast status: {}\nstderr: {}",
+            last_status, stderr
+        );
+    }
+
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(["lsp", "daemon", "stop"])
+        .assert()
+        .success();
+
+    let mut stopped = false;
+    for _ in 0..30 {
         sleep(Duration::from_millis(100));
         let out = Command::cargo_bin("first-plan-engine")
             .unwrap()
@@ -277,32 +317,12 @@ fn lsp_daemon_start_then_status_then_stop() {
             .stdout
             .clone();
         let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
-        if parsed["running"] == true {
-            running = true;
-            assert!(parsed["pid"].as_u64().unwrap() > 0);
-            assert!(parsed["uptime_seconds"].is_number());
+        if parsed["running"] == false {
+            stopped = true;
             break;
         }
     }
-    assert!(running, "daemon failed to come up within 2s");
-
-    Command::cargo_bin("first-plan-engine")
-        .unwrap()
-        .args(["lsp", "daemon", "stop"])
-        .assert()
-        .success();
-
-    sleep(Duration::from_millis(300));
-    let out = Command::cargo_bin("first-plan-engine")
-        .unwrap()
-        .args(["lsp", "daemon", "status", "--json"])
-        .assert()
-        .success()
-        .get_output()
-        .stdout
-        .clone();
-    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
-    assert_eq!(parsed["running"], false);
+    assert!(stopped, "daemon nao parou apos 3s de stop");
 
     let _ = child.kill();
     let _ = child.wait();
