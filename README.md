@@ -1,7 +1,7 @@
 <h1 align="center">
   <br>
   <a href="https://github.com/vynazevedo/first-plan">
-    <img src="https://raw.githubusercontent.com/vynazevedo/first-plan/main/logo.png" alt="First Plan" width="350">
+    <img src="https://raw.githubusercontent.com/vynazevedo/first-plan/main/assets/logo-fp-banner.svg" alt="first-plan" width="640">
   </a>
   <br>
 </h1>

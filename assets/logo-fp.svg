@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 120" shape-rendering="crispEdges">
+  <!-- first-plan FP monogram, SNES Mario All-Stars palette -->
+  <!-- Scale: 12 SVG units per "pixel". F glyph 5x7, P glyph 5x7. -->
+  <!-- Layers: drop shadow (red, +8,+8), outline (black, +1px), fill (gold), highlight (cream, top band) -->
+
+  <!-- DROP SHADOW (red, offset +8,+8) -->
+  <g fill="#DC2626">
+    <!-- F shadow pixels -->
+    <rect x="23" y="23" width="14" height="14"/>
+    <rect x="35" y="23" width="14" height="14"/>
+    <rect x="47" y="23" width="14" height="14"/>
+    <rect x="59" y="23" width="14" height="14"/>
+    <rect x="71" y="23" width="14" height="14"/>
+    <rect x="23" y="35" width="14" height="14"/>
+    <rect x="23" y="47" width="14" height="14"/>
+    <rect x="23" y="59" width="14" height="14"/>
+    <rect x="35" y="59" width="14" height="14"/>
+    <rect x="47" y="59" width="14" height="14"/>
+    <rect x="59" y="59" width="14" height="14"/>
+    <rect x="23" y="71" width="14" height="14"/>
+    <rect x="23" y="83" width="14" height="14"/>
+    <rect x="23" y="95" width="14" height="14"/>
+    <!-- P shadow pixels -->
+    <rect x="131" y="23" width="14" height="14"/>
+    <rect x="143" y="23" width="14" height="14"/>
+    <rect x="155" y="23" width="14" height="14"/>
+    <rect x="167" y="23" width="14" height="14"/>
+    <rect x="131" y="35" width="14" height="14"/>
+    <rect x="179" y="35" width="14" height="14"/>
+    <rect x="131" y="47" width="14" height="14"/>
+    <rect x="179" y="47" width="14" height="14"/>
+    <rect x="131" y="59" width="14" height="14"/>
+    <rect x="143" y="59" width="14" height="14"/>
+    <rect x="155" y="59" width="14" height="14"/>
+    <rect x="167" y="59" width="14" height="14"/>
+    <rect x="131" y="71" width="14" height="14"/>
+    <rect x="131" y="83" width="14" height="14"/>
+    <rect x="131" y="95" width="14" height="14"/>
+  </g>
+
+  <!-- BLACK OUTLINE (+1px around each filled pixel) -->
+  <g fill="#000000">
+    <!-- F outline pixels -->
+    <rect x="15" y="15" width="14" height="14"/>
+    <rect x="27" y="15" width="14" height="14"/>
+    <rect x="39" y="15" width="14" height="14"/>
+    <rect x="51" y="15" width="14" height="14"/>
+    <rect x="63" y="15" width="14" height="14"/>
+    <rect x="15" y="27" width="14" height="14"/>
+    <rect x="15" y="39" width="14" height="14"/>
+    <rect x="15" y="51" width="14" height="14"/>
+    <rect x="27" y="51" width="14" height="14"/>
+    <rect x="39" y="51" width="14" height="14"/>
+    <rect x="51" y="51" width="14" height="14"/>
+    <rect x="15" y="63" width="14" height="14"/>
+    <rect x="15" y="75" width="14" height="14"/>
+    <rect x="15" y="87" width="14" height="14"/>
+    <!-- P outline pixels -->
+    <rect x="123" y="15" width="14" height="14"/>
+    <rect x="135" y="15" width="14" height="14"/>
+    <rect x="147" y="15" width="14" height="14"/>
+    <rect x="159" y="15" width="14" height="14"/>
+    <rect x="123" y="27" width="14" height="14"/>
+    <rect x="171" y="27" width="14" height="14"/>
+    <rect x="123" y="39" width="14" height="14"/>
+    <rect x="171" y="39" width="14" height="14"/>
+    <rect x="123" y="51" width="14" height="14"/>
+    <rect x="135" y="51" width="14" height="14"/>
+    <rect x="147" y="51" width="14" height="14"/>
+    <rect x="159" y="51" width="14" height="14"/>
+    <rect x="123" y="63" width="14" height="14"/>
+    <rect x="123" y="75" width="14" height="14"/>
+    <rect x="123" y="87" width="14" height="14"/>
+  </g>
+
+  <!-- GOLD FILL (main letter color) -->
+  <g fill="#FCD34D">
+    <!-- F fill pixels -->
+    <rect x="16" y="16" width="12" height="12"/>
+    <rect x="28" y="16" width="12" height="12"/>
+    <rect x="40" y="16" width="12" height="12"/>
+    <rect x="52" y="16" width="12" height="12"/>
+    <rect x="64" y="16" width="12" height="12"/>
+    <rect x="16" y="28" width="12" height="12"/>
+    <rect x="16" y="40" width="12" height="12"/>
+    <rect x="16" y="52" width="12" height="12"/>
+    <rect x="28" y="52" width="12" height="12"/>
+    <rect x="40" y="52" width="12" height="12"/>
+    <rect x="52" y="52" width="12" height="12"/>
+    <rect x="16" y="64" width="12" height="12"/>
+    <rect x="16" y="76" width="12" height="12"/>
+    <rect x="16" y="88" width="12" height="12"/>
+    <!-- P fill pixels -->
+    <rect x="124" y="16" width="12" height="12"/>
+    <rect x="136" y="16" width="12" height="12"/>
+    <rect x="148" y="16" width="12" height="12"/>
+    <rect x="160" y="16" width="12" height="12"/>
+    <rect x="124" y="28" width="12" height="12"/>
+    <rect x="172" y="28" width="12" height="12"/>
+    <rect x="124" y="40" width="12" height="12"/>
+    <rect x="172" y="40" width="12" height="12"/>
+    <rect x="124" y="52" width="12" height="12"/>
+    <rect x="136" y="52" width="12" height="12"/>
+    <rect x="148" y="52" width="12" height="12"/>
+    <rect x="160" y="52" width="12" height="12"/>
+    <rect x="124" y="64" width="12" height="12"/>
+    <rect x="124" y="76" width="12" height="12"/>
+    <rect x="124" y="88" width="12" height="12"/>
+  </g>
+
+  <!-- CREAM HIGHLIGHT (top 3 units of each top-exposed pixel) -->
+  <g fill="#FEF3C7">
+    <!-- F highlight: top edge of all top-row pixels + top edge of middle bar pixels -->
+    <rect x="16" y="16" width="12" height="3"/>
+    <rect x="28" y="16" width="12" height="3"/>
+    <rect x="40" y="16" width="12" height="3"/>
+    <rect x="52" y="16" width="12" height="3"/>
+    <rect x="64" y="16" width="12" height="3"/>
+    <rect x="28" y="52" width="12" height="3"/>
+    <rect x="40" y="52" width="12" height="3"/>
+    <rect x="52" y="52" width="12" height="3"/>
+    <!-- P highlight: top-row pixels + bowl-right top + middle bar tops -->
+    <rect x="124" y="16" width="12" height="3"/>
+    <rect x="136" y="16" width="12" height="3"/>
+    <rect x="148" y="16" width="12" height="3"/>
+    <rect x="160" y="16" width="12" height="3"/>
+    <rect x="172" y="28" width="12" height="3"/>
+    <rect x="136" y="52" width="12" height="3"/>
+    <rect x="148" y="52" width="12" height="3"/>
+    <rect x="160" y="52" width="12" height="3"/>
+  </g>
+</svg>
