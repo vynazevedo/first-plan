@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-05-28
+
+### Fixed
+
+- **Windows build/release agora compila** - daemon module estava usando
+  `tokio::net::{UnixListener, UnixStream}` sem cfg-gate, quebrando build
+  no target `x86_64-pc-windows-msvc` desde v0.6.1 (release workflow falhou
+  silenciosamente em v0.6.1 e v0.7.0 - **nenhum binario foi publicado**
+  entre v0.6.0 e v0.7.0, esta release restaura o cross-platform publish).
+- **Daemon API cross-platform** - estruturas (`DaemonRequest`,
+  `DaemonResponse`, `DaemonStatus`) e funcoes utilitarias (`socket_path`,
+  `pid_path`, `read_pid`) agora compilam em qualquer plataforma. Logica
+  Unix-only isolada em `#[cfg(unix)] mod unix_impl`, com stub
+  `#[cfg(not(unix))]` retornando erro descritivo no Windows.
+- **clippy 1.96 compat** - `sort_by(|a,b| b.1.cmp(&a.1))` substituido por
+  `sort_by_key(|x| std::cmp::Reverse(x.1))` em `quick.rs` (novo lint
+  `unnecessary_sort_by` em Rust 1.96 estava bloqueando o lint workflow).
+- **Tests daemon platform-aware** - `lsp_daemon_status_when_not_running` e
+  `lsp_daemon_start_then_status_then_stop` agora `#[cfg(unix)]` (Windows
+  pula esses testes ja que daemon eh unix-only). Status check usa retry
+  loop de 30 tentativas para evitar race condition com daemon residual de
+  outros jobs CI paralelos (macOS runners flutuam mais).
+
+### Changed
+
+- Workspace bumped to 0.7.1
+- Sem mudancas funcionais vs v0.7.0 - esta release existe apenas para
+  destravar o pipeline de publicacao de binarios
+
+### Migration
+
+Nada a fazer. Quem usou v0.7.0 (via plugin install ou build from source
+em Linux/macOS) ja tem todo o funcional. v0.7.1 apenas garante que os
+binarios pre-compilados sao publicados no GitHub Releases.
+
 ## [0.7.0] - 2026-05-28
 
 ### BREAKING CHANGES
@@ -494,7 +529,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/vynazevedo/first-plan/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/vynazevedo/first-plan/compare/v0.6.1...v0.7.0
 [0.6.1]: https://github.com/vynazevedo/first-plan/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/vynazevedo/first-plan/compare/v0.5.3...v0.6.0
