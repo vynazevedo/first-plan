@@ -344,7 +344,7 @@ fn git_summary(root: &Path) -> Option<GitActivity> {
         }
     }
     let mut hot: Vec<(String, u32)> = file_counts.into_iter().collect();
-    hot.sort_by(|a, b| b.1.cmp(&a.1));
+    hot.sort_by_key(|h| std::cmp::Reverse(h.1));
     hot.truncate(5);
     let hot_files: Vec<HotFile> = hot
         .into_iter()
@@ -364,7 +364,7 @@ fn git_summary(root: &Path) -> Option<GitActivity> {
         }
     }
     let mut authors: Vec<(String, u32)> = author_counts.into_iter().collect();
-    authors.sort_by(|a, b| b.1.cmp(&a.1));
+    authors.sort_by_key(|a| std::cmp::Reverse(a.1));
     authors.truncate(5);
     let active_authors: Vec<AuthorActivity> = authors
         .into_iter()
