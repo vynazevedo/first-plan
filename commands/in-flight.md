@@ -1,6 +1,6 @@
 ---
 description: Mostra branches e PRs ativos no repositório. Use antes de planejar para evitar duplicação ou conflito com trabalho em andamento.
-argument-hint: [--all|--mine]
+argument-hint: "[--all|--mine]"
 allowed-tools: [Read, Bash]
 ---
 

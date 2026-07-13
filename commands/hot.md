@@ -1,6 +1,6 @@
 ---
 description: Mostra hot zones do projeto - áreas com mais commits recentes. Útil para entender onde o time está investindo agora.
-argument-hint: [--days N]
+argument-hint: "[--days N]"
 allowed-tools: [Read, Bash]
 ---
 

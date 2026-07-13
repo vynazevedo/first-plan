@@ -1,6 +1,6 @@
 ---
 description: Atualiza incrementalmente .first-plan/ baseado nos arquivos marcados como stale pelo hook PostToolUse. Mais barato que /fp:init - só recompila o que mudou.
-argument-hint: [section|--all]
+argument-hint: "[section|--all]"
 allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, Task]
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: Mostra estado atual da camada .first-plan/ - fase, plano ativo, perguntas abertas, cobertura, confidence, e próxima ação sugerida.
-argument-hint: [--verbose]
+argument-hint: "[--verbose]"
 allowed-tools: [Read, Glob, Bash]
 ---
 
