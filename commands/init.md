@@ -1,6 +1,6 @@
 ---
 description: Compila contexto completo do projeto-alvo gerando .first-plan/. Roda Discovery (stacks, conventions, reuse, domain, risks), Spec-Code Reconciliation e Git Intelligence. Idempotente - pode rodar múltiplas vezes.
-argument-hint: [--force]
+argument-hint: "[--force]"
 allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, Task]
 ---
 

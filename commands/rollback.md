@@ -1,6 +1,6 @@
 ---
 description: Reverte as mudanças do último /fp:execute. Restaura snapshot do .first-plan/ e oferece git operations para reverter o working tree. Safety net para experimentação.
-argument-hint: [--dry-run|--snapshot <id>]
+argument-hint: "[--dry-run|--snapshot <id>]"
 allowed-tools: [Read, Glob, Bash]
 ---
 

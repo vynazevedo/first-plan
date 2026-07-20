@@ -1,6 +1,6 @@
 ---
 description: Executa o plano aprovado em .first-plan/07-state/plans/. Segue o plano à risca, para se algo invalidar premissa, gera relatório ao final.
-argument-hint: [--dry-run]
+argument-hint: "[--dry-run]"
 allowed-tools: [Read, Glob, Grep, Bash, Write, Edit, MultiEdit, Task]
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: Mostra a matriz de features × status × evidência consolidada em 09-features/INDEX.md. Filtragem por status disponível.
-argument-hint: [status:IMPLEMENTED|IN_PROGRESS|SPEC_ONLY|NOT_STARTED|DRIFTED|ABANDONED]
+argument-hint: "[status:IMPLEMENTED|IN_PROGRESS|SPEC_ONLY|NOT_STARTED|DRIFTED|ABANDONED]"
 allowed-tools: [Read, Glob, Grep]
 ---
 
