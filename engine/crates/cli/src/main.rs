@@ -35,6 +35,8 @@ enum Command {
     Quick(commands::quick::Args),
     /// Quality layer: CI workflows, test coverage, flaky test detection.
     Quality(commands::quality::Args),
+    /// Contracts layer: OpenAPI, Protobuf, GraphQL spec-code reconciliation.
+    Contracts(commands::contracts::Args),
 }
 
 fn main() -> Result<()> {
@@ -49,5 +51,6 @@ fn main() -> Result<()> {
         Command::Lsp(args) => commands::lsp::run(args),
         Command::Quick(args) => commands::quick::run(args),
         Command::Quality(args) => commands::quality::run(args),
+        Command::Contracts(args) => commands::contracts::run(args),
     }
 }

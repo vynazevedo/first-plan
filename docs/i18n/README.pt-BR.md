@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.8.1-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.9.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -203,6 +203,10 @@ Em ~3-8 minutos, gera o IR completo de 10 camadas: análise por stack lens, reus
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-QUALITY-red?style=for-the-badge" /></td>
 <td><strong>Camada Quality / Validação</strong> (v0.8.0) - <code>first-plan-engine quality</code>. Parsers nativos de CI workflows (GitHub Actions, GitLab CI, CircleCI, Jenkins), coverage reports (lcov, cobertura, jacoco, jest, go cover) e detecção de flaky tests via mining de git history. Produz <code>.first-plan/11-quality/</code> para que o AI saiba o que roda, o que está testado e o que é instável antes de sugerir mudanças.</td>
+</tr>
+<tr>
+<td width="220"><img src="https://img.shields.io/badge/-CONTRACTS-teal?style=for-the-badge" /></td>
+<td><strong>Camada Contracts</strong> (v0.9.0) - <code>first-plan-engine contracts</code>. Parse de OpenAPI 3.x, Protobuf e GraphQL SDL com cross-reference no código. Cada endpoint, RPC ou operation classificada como IMPLEMENTED, CANDIDATE ou PHANTOM. Produz <code>.first-plan/12-contracts/</code> para que o AI nunca sugira código que quebre contrato nem implemente o que já existe.</td>
 </tr>
 </table>
 
@@ -825,7 +829,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.8.1-current-brightgreen?style=flat-square" alt="v0.8.1 current">
+<img src="https://img.shields.io/badge/v0.9.0-current-brightgreen?style=flat-square" alt="v0.9.0 current">
 <img src="https://img.shields.io/badge/v0.7.1-next-blue?style=flat-square" alt="v0.7.1 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>

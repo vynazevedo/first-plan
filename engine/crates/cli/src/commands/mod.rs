@@ -1,5 +1,6 @@
 pub mod cochange;
 pub mod compress;
+pub mod contracts;
 pub mod hash;
 pub mod index;
 pub mod lsp;

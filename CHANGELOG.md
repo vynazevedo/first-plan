@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-20
+
+### Added
+
+- **Contracts Layer** - segunda camada nova da sequência planejada de 4 (Quality v0.8, Contracts v0.9, Evolution v0.10, Runtime v0.11) que capturam realidades diferentes sobre o codebase para dar ao AI base semântica de decisão. Detecta contratos formais entre componentes (OpenAPI, Protobuf, GraphQL) e faz cross-reference com o código real para classificar cada endpoint, RPC ou operation como IMPLEMENTED com forte evidência, CANDIDATE com evidência fraca requerendo validação humana, ou PHANTOM quando spec declara mas código não implementa.
+- **`first-plan-engine contracts`** novo subcomando que produz `.first-plan/12-contracts/` com quatro artefatos markdown mais um JSON estruturado: `00-openapi.md` lista endpoints OpenAPI com status de implementação, `01-protobuf.md` lista services e RPCs Protobuf com status, `02-graphql.md` lista operations GraphQL com status de resolver, `03-drift.md` traz o summary consolidado com phantoms e candidates prontos para triagem, `report.json` carrega tudo estruturado para consumo programático.
+- **OpenAPI 3.x parser** (via crate `openapiv3`) que detecta e parseia `openapi.yaml`, `openapi.json`, `swagger.yaml`, `api-docs.yaml` em locais comuns como root, `docs/`, `api/`, `spec/`, `openapi/`, `docs/api/`. Extrai title, version, todos os endpoints com method + path + operationId + summary + tags. Suporta formato YAML e JSON com conversão via serde_yaml transparente.
+- **Protobuf parser regex-based** (sem dependência no binário protoc que complicaria CI e ambientes air-gapped) que extrai package, service names, RPC methods com request/response types e streaming type (Unary, ClientStream, ServerStream, Bidi), message count. Suficiente para cross-referenciar identificadores com código.
+- **GraphQL SDL parser** (via crate `graphql-parser`) que detecta `*.graphql` e `*.gql` em qualquer diretório do projeto, extrai operations top-level (Query, Mutation, Subscription fields) e types (Object, Interface, Union, Enum, Input, Scalar). Cada operation top-level vira uma entity que crossref busca no código como resolver esperado.
+- **Cross-reference engine** que pega cada endpoint OpenAPI (operationId + path), cada RPC Protobuf (serviceName.rpcName), cada operation GraphQL (name) e faz busca multi-pattern no código-fonte com word-boundary matching e filtro para paths genéricos (`/health`, `/status`). Classificação: 3+ ocorrências como IMPLEMENTED, 1-2 como CANDIDATE, zero como PHANTOM. Multi-language aware, reconhece patterns em Rust, Go, Python, TypeScript, JavaScript, Java, Kotlin, Ruby, PHP, C#.
+- **Nova skill `contracts-aware`** documentando como AI deve consumir contracts IR em Plan-First: antes de implementar endpoint checar se está na spec, antes de mudar assinatura checar consumers, antes de remover código verificar se implementa contrato, detectar phantoms antes de compromissos públicos. Semântica dos três status documentada com ação recomendada para cada.
+
+### Changed
+
+- Workspace bumped to 0.9.0
+- Engine deps: `openapiv3` 2.x e `graphql-parser` 0.4 adicionados
+- 15 unit tests novos cobrindo os 4 submódulos (openapi, protobuf, graphql, crossref)
+
+### Performance
+
+- Contracts scan em first-plan próprio: 329ms (sem specs para parsear)
+- Contracts scan em projeto sintético com OpenAPI 5-endpoints + código: 4ms
+- Detecta phantoms corretamente em teste sintético: `notImplementedYet` declarado mas sem função no código foi classificado como PHANTOM, `listUsers` e `createUser` com função dedicada como IMPLEMENTED, `deleteUser` com apenas menção em roteamento como CANDIDATE
+
+### Architecture
+
+- Módulo `core::contracts` com 4 submódulos isolados (openapi, protobuf, graphql, crossref) cada um com testes próprios
+- Padrão de design idêntico ao Quality Layer: análise local, sem dependência externa cara, output em múltiplos markdown densos + JSON, fallback graceful quando specs ausentes
+- Cross-referencer usa word-boundary matching evitando falsos positivos de identifiers similares (`listUsers` vs `listUsersFast`)
+- Preparação para Evolution Layer (v0.10) que precisará dessa base para validar migrations de spec
+
+### Limitations
+
+- Cross-repo: contratos em repo separado do handler não são detectados. Multi-repo awareness planejada para v0.12.
+- Naming diferente: se handler chama `getUserById` mas operationId é `getUser`, vira Candidate. Convenção do time ajuda.
+- Type-level drift: crossref detecta existência, não valida se request/response types batem. Ferramentas dedicadas como spectral ou buf complementam.
+- Deprecated endpoints: não detectados nesta versão. Evolution Layer v0.10 cobrirá.
+
 ## [0.8.1] - 2026-07-20
 
 ### Added
@@ -581,7 +619,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.8.1...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/vynazevedo/first-plan/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/vynazevedo/first-plan/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/vynazevedo/first-plan/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/vynazevedo/first-plan/compare/v0.7.0...v0.7.1
