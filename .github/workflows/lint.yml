@@ -46,3 +46,16 @@ jobs:
         run: sudo apt-get install -y shellcheck
       - name: shellcheck
         run: find hooks -name "*.sh" -exec shellcheck {} +
+
+  frontmatter:
+    name: validate skill/agent/command frontmatter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: install pyyaml
+        run: pip install pyyaml
+      - name: validate frontmatter
+        run: python3 tools/validate_frontmatter.py

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-07-20
+
+### Added
+
+- **Validador automático de YAML frontmatter no CI** (`tools/validate_frontmatter.py` + novo job `frontmatter` em `.github/workflows/lint.yml`) que parseia frontmatter de todos os skills, agents e commands e valida tipos e campos obrigatórios. Motivado pelo bug reportado por @thejesh23 na issue #1 onde `argument-hint: [foo]` sem aspas era interpretado como flow-sequence YAML e silenciosamente descartado por loaders estritos como GitHub Copilot CLI >= 1.0.65. Validador roda 46 arquivos em milissegundos, previne regressão desta classe de bug para sempre.
+- **CONTRIBUTORS.md** listando primeira contribuição externa ao projeto por @thejesh23. Versão PT-BR em `docs/i18n/CONTRIBUTORS.pt-BR.md`.
+- **CONTRIBUTING.md** com guidelines de contribuição, ritual de checks locais espelhando o CI, formato correto de frontmatter para skills, commands e agents com o bug do thejesh23 como exemplo canônico de por que as regras importam, code style rules, template de bug report. Versão PT-BR em `docs/i18n/CONTRIBUTING.pt-BR.md`.
+
+### Fixed
+
+- **`commands/ask.md`** tinha o mesmo bug de `argument-hint` como array não-quotado que o PR #2 do thejesh23 corrigiu em 8 outros arquivos. Foi capturado pelo validador novo. Comando agora carrega corretamente em GitHub Copilot CLI >= 1.0.65.
+- **`skills/quality-aware/SKILL.md`** tinha YAML inválido no frontmatter (colon dentro de string sem aspas). Também capturado pelo validador. Skill agora parseia sem erro.
+
+### Contributors
+
+- [@thejesh23](https://github.com/thejesh23) - primeira contribuição externa: fix de compatibilidade cross-tool (#2 fecha #1)
+
 ## [0.8.0] - 2026-05-28
 
 ### Added
@@ -564,7 +581,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/vynazevedo/first-plan/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/vynazevedo/first-plan/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/vynazevedo/first-plan/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/vynazevedo/first-plan/compare/v0.6.1...v0.7.0

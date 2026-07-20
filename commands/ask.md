@@ -1,6 +1,6 @@
 ---
 description: Lista perguntas abertas em 08-meta/questions.md que precisam de resposta humana antes da camada considerar findings com confidence completa.
-argument-hint: [--answer Q<n> "resposta"]
+argument-hint: "[--answer Q<n> resposta]"
 allowed-tools: [Read, Edit, Glob]
 ---
 
