@@ -20,6 +20,7 @@ pub mod index;
 pub mod init;
 pub mod llm;
 pub mod lsp;
+pub mod multirepo;
 pub mod output;
 pub mod quality;
 pub mod quick;

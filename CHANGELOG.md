@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-01
+
+### Added
+
+- **Cross-repo awareness** - Novo subcommand `first-plan-engine multi <op>` para times que trabalham em múltiplos repos relacionados (backend + frontend + mobile + infra, monorepos multi-projeto, arquiteturas multi-service). Operações: `register` adiciona um sibling repo em `.first-plan/multi.yaml`, `list` mostra repos registrados com status (existe, tem IR), `scan --parent <dir>` autodetecta sibling repos em um diretório-pai varrendo dirs com `.git/` (flag `--register-all` registra tudo detectado), `aggregate` produz `.first-plan/multi/OVERVIEW.md` com tabela de repos e excerptos de `mission/purpose` e `topology/stacks` de cada um, `remove --name <n>` remove entry do registro.
+- **Módulo `core::multirepo`** com submódulos `config` (schema YAML versionado + IO), `scan` (autodetecção via `walkdir`), `aggregate` (agrega IR de todos os repos com tabela markdown e excerptos por repo).
+- **Config `.first-plan/multi.yaml`** persistida por projeto, formato versionado com `version: 1`, permite migrações futuras. Cada `RepoEntry` tem name, path relativo ou absoluto, tags e notes opcionais.
+- **Overview cross-repo** em `.first-plan/multi/OVERVIEW.md` inclui frontmatter YAML padrão, tabela de repos com status, seção por repo com excerptos das layers principais (`00-mission/purpose.md` e `01-topology/stacks.md`) truncados em 400 chars, aviso quando repo não tem `.first-plan/`.
+- **4 novos integration tests**: `multi_list_returns_empty_when_no_config`, `multi_register_then_list_persists_entry`, `multi_register_rejects_duplicate_name`, `multi_aggregate_produces_overview_markdown`. Total agora 128 unit + 21 integration.
+
+### Changed
+
+- Workspace bumped para 1.2.0
+- Total de subcommands do engine: 16 (adicionado `multi`)
+- Base para próximas versões: resolução de referências cross-repo, diff de contratos, alertas quando um repo consome API que outro repo mudou
+
 ## [1.1.0] - 2026-08-01
 
 ### Added

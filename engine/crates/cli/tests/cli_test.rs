@@ -608,3 +608,158 @@ fn llm_providers_lists_three_supported() {
     assert!(names.contains(&"anthropic".to_string()));
     assert!(names.contains(&"ollama".to_string()));
 }
+
+#[test]
+fn multi_list_returns_empty_when_no_config() {
+    let tmp = TempDir::new().unwrap();
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "multi",
+            "list",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["$schema"], "first-plan-multi-list-v1");
+    assert_eq!(parsed["total_repos"], 0);
+    assert_eq!(parsed["repos"].as_array().unwrap().len(), 0);
+}
+
+#[test]
+fn multi_register_then_list_persists_entry() {
+    let tmp = TempDir::new().unwrap();
+    let sibling = TempDir::new().unwrap();
+    fs::write(sibling.path().join(".gitkeep"), "").unwrap();
+
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "multi",
+            "register",
+            "--name",
+            "backend",
+            "--path",
+            sibling.path().to_str().unwrap(),
+            "--tag",
+            "rust",
+            "--tag",
+            "service",
+            "--root",
+            tmp.path().to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let cfg_path = tmp.path().join(".first-plan/multi.yaml");
+    assert!(cfg_path.exists(), "multi.yaml deveria existir");
+    let content = fs::read_to_string(&cfg_path).unwrap();
+    assert!(
+        content.contains("name: backend"),
+        "yaml deve conter 'name: backend'"
+    );
+
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "multi",
+            "list",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["total_repos"], 1);
+    let repo = &parsed["repos"][0];
+    assert_eq!(repo["name"], "backend");
+    let tags = repo["tags"].as_array().unwrap();
+    assert!(tags.iter().any(|t| t == "rust"));
+    assert!(tags.iter().any(|t| t == "service"));
+    assert_eq!(repo["exists"], true);
+}
+
+#[test]
+fn multi_register_rejects_duplicate_name() {
+    let tmp = TempDir::new().unwrap();
+    let sibling = TempDir::new().unwrap();
+    let base = [
+        "multi",
+        "register",
+        "--name",
+        "dup",
+        "--path",
+        sibling.path().to_str().unwrap(),
+        "--root",
+        tmp.path().to_str().unwrap(),
+    ];
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(base)
+        .assert()
+        .success();
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(base)
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("já registrado"));
+}
+
+#[test]
+fn multi_aggregate_produces_overview_markdown() {
+    let root = TempDir::new().unwrap();
+    let sibling = TempDir::new().unwrap();
+
+    let mission_dir = sibling.path().join(".first-plan/00-mission");
+    fs::create_dir_all(&mission_dir).unwrap();
+    fs::write(
+        mission_dir.join("purpose.md"),
+        "---\nsection: mission/purpose\n---\n\n# Purpose\n\nEste repo faz coisas importantes.\n",
+    )
+    .unwrap();
+
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "multi",
+            "register",
+            "--name",
+            "svc",
+            "--path",
+            sibling.path().to_str().unwrap(),
+            "--root",
+            root.path().to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "multi",
+            "aggregate",
+            "--root",
+            root.path().to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+
+    let overview = root.path().join(".first-plan/multi/OVERVIEW.md");
+    assert!(overview.exists(), "OVERVIEW.md deveria ter sido criado");
+    let content = fs::read_to_string(&overview).unwrap();
+    assert!(content.contains("section: multi/overview"));
+    assert!(content.contains("## svc"));
+    assert!(content.contains("Este repo faz coisas importantes"));
+    assert!(content.contains("| svc |"));
+}

@@ -35,6 +35,8 @@ enum Command {
     Llm(commands::llm::Args),
     /// Gera `.first-plan/` completo via LLM-agnostic init (sem depender de Claude Code). v1.1.0+.
     Init(commands::init::Args),
+    /// Cross-repo awareness: registra sibling repos e agrega IR (v1.2.0+).
+    Multi(commands::multi::Args),
     /// Quick project glance (stacks, symbols, git activity) in <60s. Lighter than full discovery.
     Quick(commands::quick::Args),
     /// Quality layer: CI workflows, test coverage, flaky test detection.
@@ -61,6 +63,7 @@ fn main() -> Result<()> {
         Command::Lsp(args) => commands::lsp::run(args),
         Command::Llm(args) => commands::llm::run(args),
         Command::Init(args) => commands::init::run(args),
+        Command::Multi(args) => commands::multi::run(args),
         Command::Quick(args) => commands::quick::run(args),
         Command::Quality(args) => commands::quality::run(args),
         Command::Contracts(args) => commands::contracts::run(args),

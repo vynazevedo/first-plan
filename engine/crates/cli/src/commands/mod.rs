@@ -8,6 +8,7 @@ pub mod index;
 pub mod init;
 pub mod llm;
 pub mod lsp;
+pub mod multi;
 pub mod quality;
 pub mod quick;
 pub mod runtime;
