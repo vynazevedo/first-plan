@@ -863,8 +863,8 @@ Workflow:
 
 <p>
 <img src="https://img.shields.io/badge/v0.10.0-current-brightgreen?style=flat-square" alt="v0.10.0 current">
-<img src="https://img.shields.io/badge/v0.7.1-next-blue?style=flat-square" alt="v0.7.1 next">
-<img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
+<img src="https://img.shields.io/badge/v0.11.0-next-blue?style=flat-square" alt="v0.11.0 next">
+<img src="https://img.shields.io/badge/v1.0-framework%20pivot-lightgrey?style=flat-square" alt="v1.0 framework pivot">
 </p>
 
 ### Shipped
@@ -970,40 +970,84 @@ Workflow:
 - Subagents prefer LSP when available (discovery-analyst, pattern-archeologist, reconciliation-auditor)
 - Binary stays lean: 5.2 MB (+1 MB vs v0.5.3)
 
-#### v0.6.1 - LSP daemon mode (current)
+#### v0.6.1 - LSP daemon mode
 
 - **`first-plan-engine lsp daemon start --root <path>`** - warm-server pool over Unix socket
 - Eliminates cold start of 3-15s from second call onwards
 - All LSP ops auto-route through daemon when running (transparent to skills/subagents)
 - Lazy spawn: first request per server type pays cold start, rest are <100ms
 - Auto-shutdown after `--idle-minutes` (default 30) of inactivity
-- Graceful shutdown of all warm LspClients on stop
 - IPC: line-delimited JSON over Unix socket
-- 76 tests passing (67 unit + 9 integration)
+
+#### v0.7.0 - Plugin rename to `/fp` + `/fp:quick`
+
+- Slash commands `/first-plan:*` renamed to `/fp:*` (breaking, migration in CHANGELOG)
+- New `/fp:quick` command produces 1-page glance in 1-5 seconds
+- Engine `quick` subcommand: stacks + entry points + top symbols + git activity + conventions + suggested commands
+- README hero pivot: "See value in 5 seconds, then go deep"
+
+#### v0.7.1 - Windows build unblock + macOS test isolation
+
+- Daemon module gated `#[cfg(unix)]` with stub for Windows (was silently failing cross-platform builds since v0.6.1)
+- Daemon integration tests marked linux-only (macOS CI runners flaky)
+- All 5 cross-platform binaries publishing correctly again
+
+#### v0.8.0 - Quality / Validation Layer
+
+- **`first-plan-engine quality`** - captures state of automated validation
+- CI workflows parsed: GitHub Actions, GitLab CI, CircleCI, Jenkins
+- Coverage reports parsed: lcov, cobertura, jacoco, jest, go coverprofile
+- Flaky test detection via git history mining (3 heuristics scored)
+- Output `.first-plan/11-quality/` so AI knows what runs, what's tested, what's unstable
+
+#### v0.8.1 - Frontmatter validator + first external contribution
+
+- YAML frontmatter validator in CI (motivated by @thejesh23 bug report #1)
+- `commands/ask.md` + `skills/quality-aware/SKILL.md` fixed by validator
+- New CONTRIBUTORS.md and CONTRIBUTING.md (EN + PT-BR)
+
+#### v0.9.0 - Contracts Layer
+
+- **`first-plan-engine contracts`** - spec-code reconciliation
+- OpenAPI 3.x parser (YAML + JSON, 6 candidate locations)
+- Protobuf parser regex-based (no protoc dependency)
+- GraphQL SDL parser
+- Cross-referencer multi-language classifying each entity IMPLEMENTED / CANDIDATE / PHANTOM
+- Output `.first-plan/12-contracts/` for AI to never break contracts nor duplicate implementations
+
+#### v0.10.0 - Evolution Layer (current)
+
+- **`first-plan-engine evolution`** - deprecation and migration ledger
+- In-code deprecations detected cross-language (Rust `#[deprecated]`, Java `@Deprecated`, JS/TS `@deprecated`, universal `TODO(remove-after)`)
+- CHANGELOG parser (Keep-a-Changelog format)
+- Breaking commits detected via git history (5 kinds: ConventionalBreaking, BreakingChangeFooter, RefactorKeyword, MigrateKeyword, RewriteKeyword)
+- Replacement pairs inferred when removed + added files share similar names
+- Output `.first-plan/13-evolution/` so AI stops suggesting patterns the team already replaced
 
 ### Planned
 
-#### v0.7.0 - Multi-Repo Awareness + Multi-format docs
+#### v0.11.0 - Runtime Layer (production state link)
 
-- `cross-repo-mapping` skill
-- Detect cross-repo calls (OpenAPI, gRPC, schemas)
-- `/fp:blast-radius <symbol>` cross-service command
+- Reads git tags/releases to know what version is deployed
+- Optional integration with Sentry, Datadog webhooks for real telemetry
+- Answers "is this bug in production?" and "what commit range is affected?"
+- Foundation for AI-driven incident response workflows
+
+#### v0.12.0 - Cross-Repo Awareness
+
 - `~/.first-plan/repos.yaml` config registry of sister repos
-- **Multi-format document ingestion** in reconciliation
-  - Inspired by OpenKB - markitdown integration to read PDF/Word/PowerPoint specs
-  - Critical for corporate environments where specs aren't markdown
+- Cross-service call detection (OpenAPI/Protobuf/gRPC across repos)
+- `/fp:blast-radius <symbol>` command for microservices impact analysis
+- Combined with Quality + Contracts + Runtime = full downstream impact view
 
-#### v0.8.0 - CI/CD State + Contradiction detection
+#### v1.0.0 - Framework pivot (multi-tool)
 
-- Reads `.github/workflows/`, `.gitlab-ci.yml` (knows which checks run)
-- Detects flaky tests from history
-- Tags/releases comparison: "merged but not shipped"
-- **Cross-section contradiction detection**
-  - Inspired by OpenKB - automatic flagging of conflicting findings
-  - Example: `02-conventions/naming.md` says snake_case but `06-rationale/dont.md` lists snake_case as anti-pattern
-  - New `/fp:contradictions` command
+- `first-plan-engine generate --tool <claude|codex|cursor|copilot|generic>` outputs tool-specific instruction files from IR
+- LLM-agnostic init: `first-plan-engine init --llm <openai|anthropic|ollama|qwen>` for users without Claude Code
+- Claude Code plugin remains the deep integration; other tools consume generated files
+- IR schema formalized as specification document
 
-### Long-term Vision (v1.0)
+### Long-term Vision (v1.5+)
 
 Complete Cognitive Infrastructure:
 

@@ -136,11 +136,10 @@ fn render_pretty(report: &EvolutionReport, out_dir: &std::path::Path) {
 
         for bc in report.migrations.breaking_commits.iter().take(5) {
             let kind_str = format!("{:?}", bc.kind);
+            let sha_short = bc.sha[..7.min(bc.sha.len())].to_string();
             println!(
                 "  {} {} {} {}",
-                &bc.sha[..7.min(bc.sha.len())]
-                    .to_string()
-                    .with(Color::DarkGrey),
+                sha_short.with(Color::DarkGrey),
                 kind_str.as_str().with(Color::Yellow),
                 bc.subject.as_str().bold(),
                 format!("({} files)", bc.files_affected).dim()

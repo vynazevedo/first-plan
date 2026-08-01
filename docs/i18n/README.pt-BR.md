@@ -941,40 +941,84 @@ Workflow:
 - Subagents preferem LSP quando disponível (discovery-analyst, pattern-archeologist, reconciliation-auditor)
 - Binário permanece lean: 5.2 MB (+1 MB vs v0.5.3)
 
-#### v0.6.1 - LSP daemon mode (current)
+#### v0.6.1 - LSP daemon mode
 
 - **`first-plan-engine lsp daemon start --root <path>`** - pool de warm servers via Unix socket
 - Elimina cold start de 3-15s a partir da segunda chamada
 - Todas as ops LSP roteiam pelo daemon automaticamente quando ativo (transparente para skills/subagents)
 - Lazy spawn: primeira request por server type paga cold start, demais em <100ms
 - Auto-shutdown após `--idle-minutes` (default 30) de inatividade
-- Shutdown gracioso de todos LspClients warm no stop
 - IPC: JSON line-delimited sobre Unix socket
-- 76 testes passando (67 unit + 9 integration)
+
+#### v0.7.0 - Rename para `/fp` + `/fp:quick`
+
+- Slash commands `/first-plan:*` renomeados para `/fp:*` (breaking, migration no CHANGELOG)
+- Novo `/fp:quick` produz 1-page glance em 1-5 segundos
+- Engine `quick` subcommand: stacks + entry points + top símbolos + atividade git + convenções + comandos sugeridos
+- README hero pivot: "See value in 5 seconds, then go deep"
+
+#### v0.7.1 - Windows build unblock + macOS test isolation
+
+- Daemon module gated `#[cfg(unix)]` com stub para Windows (estava falhando silenciosamente cross-platform desde v0.6.1)
+- Daemon integration tests marcados linux-only (macOS CI runners flaky)
+- Todos 5 binários cross-platform publicando corretamente novamente
+
+#### v0.8.0 - Camada Quality / Validação
+
+- **`first-plan-engine quality`** - captura estado de validação automática
+- CI workflows parseados: GitHub Actions, GitLab CI, CircleCI, Jenkins
+- Coverage reports parseados: lcov, cobertura, jacoco, jest, go coverprofile
+- Detecção de flaky tests via mining de git history (3 heurísticas com score)
+- Output `.first-plan/11-quality/` para o AI saber o que roda, o que está testado, o que é instável
+
+#### v0.8.1 - Validador de frontmatter + primeira contribuição externa
+
+- Validador YAML de frontmatter no CI (motivado pelo bug report do @thejesh23 #1)
+- `commands/ask.md` + `skills/quality-aware/SKILL.md` corrigidos pelo validador
+- Novos CONTRIBUTORS.md e CONTRIBUTING.md (EN + PT-BR)
+
+#### v0.9.0 - Camada Contracts
+
+- **`first-plan-engine contracts`** - reconciliação spec-código
+- OpenAPI 3.x parser (YAML + JSON, 6 locais candidatos)
+- Protobuf parser regex-based (sem dependência do protoc)
+- GraphQL SDL parser
+- Cross-referencer multi-language classificando cada entity IMPLEMENTED / CANDIDATE / PHANTOM
+- Output `.first-plan/12-contracts/` para o AI nunca quebrar contratos nem duplicar implementações
+
+#### v0.10.0 - Camada Evolution (current)
+
+- **`first-plan-engine evolution`** - ledger de depreciações e migrações
+- Deprecations em código detectadas cross-language (Rust `#[deprecated]`, Java `@Deprecated`, JS/TS `@deprecated`, universal `TODO(remove-after)`)
+- CHANGELOG parser (formato Keep-a-Changelog)
+- Breaking commits detectados via git history (5 kinds: ConventionalBreaking, BreakingChangeFooter, RefactorKeyword, MigrateKeyword, RewriteKeyword)
+- Replacement pairs inferidos quando arquivo removido + adicionado compartilham nomes similares
+- Output `.first-plan/13-evolution/` para o AI parar de sugerir padrões que o time já substituiu
 
 ### Planejado
 
-#### v0.7.0 - Multi-Repo Awareness + Multi-format docs
+#### v0.11.0 - Camada Runtime (link com produção)
 
-- Skill `cross-repo-mapping`
-- Detecção de calls cross-repo (OpenAPI, gRPC, schemas)
-- Comando `/fp:blast-radius <símbolo>` cross-service
+- Lê git tags/releases para saber qual versão está deployed
+- Integração opcional com Sentry, Datadog via webhooks para telemetria real
+- Responde "esse bug está em produção?" e "qual range de commits afetado?"
+- Foundation para workflows de AI-driven incident response
+
+#### v0.12.0 - Cross-Repo Awareness
+
 - Config `~/.first-plan/repos.yaml` registry de sister repos
-- **Ingestao de documentos multi-formato** no reconciliation
-  - Inspirado em OpenKB - markitdown integration para ler PDF/Word/PowerPoint specs
-  - Critico em ambientes corp onde specs nao sao markdown
+- Detecção de calls cross-service (OpenAPI/Protobuf/gRPC entre repos)
+- Comando `/fp:blast-radius <símbolo>` para análise de impacto em microservices
+- Combinado com Quality + Contracts + Runtime = visão downstream completa
 
-#### v0.8.0 - CI/CD State + Contradiction detection
+#### v1.0.0 - Framework pivot (multi-tool)
 
-- Lê `.github/workflows/`, `.gitlab-ci.yml` (sabe checks que rodam)
-- Detecta flaky tests do histórico
-- Tags/releases comparison: "merged but not shipped"
-- **Deteccao de contradicoes cross-section**
-  - Inspirado em OpenKB - flagging automatico de findings conflitantes
-  - Exemplo: `02-conventions/naming.md` diz snake_case mas `06-rationale/dont.md` lista snake_case como anti-pattern
-  - Novo comando `/fp:contradictions`
+- `first-plan-engine generate --tool <claude|codex|cursor|copilot|generic>` gera arquivos de instrução tool-specific a partir do IR
+- Init LLM-agnostic: `first-plan-engine init --llm <openai|anthropic|ollama|qwen>` para users sem Claude Code
+- Plugin Claude Code continua sendo a integração profunda; outras ferramentas consomem arquivos gerados
+- Schema do IR formalizado como documento de especificação
 
-### Long-term Vision (v1.0)
+### Long-term Vision (v1.5+)
 
 Cognitive Infrastructure completa:
 
