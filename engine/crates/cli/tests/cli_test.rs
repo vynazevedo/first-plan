@@ -367,3 +367,115 @@ fn lsp_wsymbols_fallback_finds_function_definition() {
         .collect();
     assert!(names.iter().any(|n| n == "unique_func_name"));
 }
+
+#[test]
+fn generate_lists_all_adapters() {
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(["generate", "--list", "--json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    let arr = parsed.as_array().expect("expected array of adapters");
+    assert_eq!(arr.len(), 5, "expected 5 adapters, got {}", arr.len());
+    let names: Vec<String> = arr
+        .iter()
+        .map(|a| a["name"].as_str().unwrap_or("").to_string())
+        .collect();
+    assert!(names.contains(&"codex".to_string()));
+    assert!(names.contains(&"cursor".to_string()));
+    assert!(names.contains(&"copilot".to_string()));
+    assert!(names.contains(&"cline".to_string()));
+    assert!(names.contains(&"generic".to_string()));
+}
+
+#[test]
+fn generate_codex_without_ir_falls_back_gracefully() {
+    let tmp = TempDir::new().unwrap();
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "generate",
+            "--tool",
+            "codex",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--json",
+        ])
+        .assert()
+        .success();
+
+    let agents_md = tmp.path().join("AGENTS.md");
+    assert!(agents_md.exists(), "AGENTS.md should be created");
+    let content = fs::read_to_string(&agents_md).unwrap();
+    assert!(content.contains("first-plan-engine"));
+    assert!(
+        content.contains("No `.first-plan/`") || content.contains("run `first-plan-engine init`")
+    );
+}
+
+#[test]
+fn generate_all_creates_files_for_every_adapter() {
+    let tmp = TempDir::new().unwrap();
+    let ir_dir = tmp.path().join(".first-plan").join("02-conventions");
+    fs::create_dir_all(&ir_dir).unwrap();
+    fs::write(
+        ir_dir.join("naming.md"),
+        "# Naming\n\nUse snake_case for files.\n",
+    )
+    .unwrap();
+
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "generate",
+            "--tool",
+            "all",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--json",
+        ])
+        .assert()
+        .success();
+
+    assert!(tmp.path().join("AGENTS.md").exists());
+    assert!(tmp.path().join(".cursorrules").exists());
+    assert!(tmp
+        .path()
+        .join(".cursor/rules/first-plan-context.mdc")
+        .exists());
+    assert!(tmp.path().join(".github/copilot-instructions.md").exists());
+    assert!(tmp.path().join(".clinerules").exists());
+    assert!(tmp.path().join("CONVENTIONS.md").exists());
+}
+
+#[test]
+fn generate_cursor_produces_valid_mdc_frontmatter() {
+    let tmp = TempDir::new().unwrap();
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "generate",
+            "--tool",
+            "cursor",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--json",
+        ])
+        .assert()
+        .success();
+
+    let mdc = tmp.path().join(".cursor/rules/first-plan-context.mdc");
+    assert!(mdc.exists());
+    let content = fs::read_to_string(&mdc).unwrap();
+    assert!(
+        content.starts_with("---"),
+        "mdc should start with frontmatter"
+    );
+    assert!(content.contains("description:"));
+    assert!(content.contains("alwaysApply:"));
+}

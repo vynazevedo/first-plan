@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-08-01
+
+### Added
+
+- **4 integration tests para generate** cobrindo: `generate --list` retornando 5 adapters, `generate --tool codex` sem IR com fallback graceful, `generate --tool all` criando arquivos em todos os 5 adapters, validação de frontmatter YAML em arquivo Cursor .mdc gerado.
+- Total agora: 128 unit + 13 integration tests passando.
+
 ## [1.0.1] - 2026-08-01
 
 ### Fixed
@@ -762,7 +769,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/vynazevedo/first-plan/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/vynazevedo/first-plan/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/vynazevedo/first-plan/compare/v0.11.0...v1.0.0
 [0.11.0]: https://github.com/vynazevedo/first-plan/compare/v0.10.0...v0.11.0
