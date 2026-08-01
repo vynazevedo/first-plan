@@ -31,6 +31,8 @@ enum Command {
     Compress(commands::compress::Args),
     /// Language Server Protocol operations (references, definition, symbols, hover).
     Lsp(commands::lsp::Args),
+    /// LLM provider abstraction (chat + providers listing). v1.1.0+.
+    Llm(commands::llm::Args),
     /// Quick project glance (stacks, symbols, git activity) in <60s. Lighter than full discovery.
     Quick(commands::quick::Args),
     /// Quality layer: CI workflows, test coverage, flaky test detection.
@@ -55,6 +57,7 @@ fn main() -> Result<()> {
         Command::Watch(args) => commands::watch::run(args),
         Command::Compress(args) => commands::compress::run(args),
         Command::Lsp(args) => commands::lsp::run(args),
+        Command::Llm(args) => commands::llm::run(args),
         Command::Quick(args) => commands::quick::run(args),
         Command::Quality(args) => commands::quality::run(args),
         Command::Contracts(args) => commands::contracts::run(args),

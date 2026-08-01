@@ -17,6 +17,7 @@ pub mod generate;
 pub mod git;
 pub mod hash;
 pub mod index;
+pub mod llm;
 pub mod lsp;
 pub mod output;
 pub mod quality;

@@ -51,6 +51,9 @@ openapiv3 = "2"
 graphql-parser = "0.4"
 # Framework pivot (v1.0.0)
 tera = "1.20"
+# LLM providers (v1.1.0)
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+async-trait = "0.1"
 
 [profile.release]
 opt-level = 3
