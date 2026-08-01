@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-01
+
+### Added
+
+- **LLM-agnostic init** - Novo subcommand `first-plan-engine init --llm <provider>` gera `.first-plan/` completo sem depender de Claude Code. Suporta OpenAI (também compatível com Ollama, LM Studio, vLLM e qualquer endpoint OpenAI-compatible via `--base-url`) e Anthropic (Messages API). Config via env vars `FIRST_PLAN_LLM_PROVIDER`, `FIRST_PLAN_LLM_MODEL`, `FIRST_PLAN_LLM_BASE_URL`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`. Cada layer gerada recebe frontmatter YAML padrão com provider, model e generated_at.
+- **Módulo `core::llm`** com trait `LlmProvider` assíncrono, implementações `OpenAiProvider` e `AnthropicProvider`, factory `build` que resolve provider a partir de env ou argumentos, tipos `ChatMessage` e `Role`.
+- **Módulo `core::init`** com coleta de sinais do projeto (README, manifests, tree, git activity, stacks detectadas), definição declarativa de 8 layers curadas (`mission/purpose`, `topology/stacks`, `topology/architecture`, `conventions/naming`, `conventions/testing`, `domain/glossary`, `risks/fragile`, `state/current`), orquestração `run_init` que gera todas as layers em pipeline.
+- **Subcommand `llm`** com operações `chat` (envia mensagem para o provider configurado, aceita prompt inline, arquivo ou stdin, output JSON opcional) e `providers` (lista providers suportados com defaults).
+- **Subcommand `init`** com flags `--llm`, `--model`, `--base-url`, `--layer` (repetível, filtra layers), `--overwrite`, `--dry-run` (coleta sinais e imprime sem chamar LLM), `--list-layers`, `--json`.
+- **4 novos integration tests**: `init_list_layers_returns_expected_set`, `init_dry_run_collects_signals_without_llm_call`, `init_dry_run_respects_layer_filter`, `llm_providers_lists_three_supported`. Total agora 128 unit + 17 integration.
+- Dependências novas: `reqwest 0.12` com rustls-tls (mantém builds musl reprodutíveis), `async-trait 0.1`.
+
+### Changed
+
+- Workspace bumped para 1.1.0
+- Desbloqueia adoção do first-plan em contextos que não usam Claude Code (Codex CLI, Cursor, Cline standalone, Aider, agentes custom)
+
 ## [1.0.2] - 2026-08-01
 
 ### Added

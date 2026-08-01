@@ -5,6 +5,7 @@ pub mod evolution;
 pub mod generate;
 pub mod hash;
 pub mod index;
+pub mod init;
 pub mod llm;
 pub mod lsp;
 pub mod quality;

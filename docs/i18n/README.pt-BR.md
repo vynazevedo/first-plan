@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-1.0.2-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.1.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -845,7 +845,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v1.0.2-current-brightgreen?style=flat-square" alt="v1.0.2 current">
+<img src="https://img.shields.io/badge/v1.1.0-current-brightgreen?style=flat-square" alt="v1.1.0 current">
 <img src="https://img.shields.io/badge/v1.1.0-next-blue?style=flat-square" alt="v1.1.0 next">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>

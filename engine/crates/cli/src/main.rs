@@ -33,6 +33,8 @@ enum Command {
     Lsp(commands::lsp::Args),
     /// LLM provider abstraction (chat + providers listing). v1.1.0+.
     Llm(commands::llm::Args),
+    /// Gera `.first-plan/` completo via LLM-agnostic init (sem depender de Claude Code). v1.1.0+.
+    Init(commands::init::Args),
     /// Quick project glance (stacks, symbols, git activity) in <60s. Lighter than full discovery.
     Quick(commands::quick::Args),
     /// Quality layer: CI workflows, test coverage, flaky test detection.
@@ -58,6 +60,7 @@ fn main() -> Result<()> {
         Command::Compress(args) => commands::compress::run(args),
         Command::Lsp(args) => commands::lsp::run(args),
         Command::Llm(args) => commands::llm::run(args),
+        Command::Init(args) => commands::init::run(args),
         Command::Quick(args) => commands::quick::run(args),
         Command::Quality(args) => commands::quality::run(args),
         Command::Contracts(args) => commands::contracts::run(args),

@@ -479,3 +479,132 @@ fn generate_cursor_produces_valid_mdc_frontmatter() {
     assert!(content.contains("description:"));
     assert!(content.contains("alwaysApply:"));
 }
+
+#[test]
+fn init_list_layers_returns_expected_set() {
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(["init", "--list-layers", "--json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["$schema"], "first-plan-init-layers-v1");
+    let layers = parsed["layers"].as_array().unwrap();
+    assert!(
+        layers.len() >= 5,
+        "esperava >= 5 layers, got {}",
+        layers.len()
+    );
+    let names: Vec<String> = layers
+        .iter()
+        .map(|l| l["name"].as_str().unwrap_or("").to_string())
+        .collect();
+    assert!(names.contains(&"mission/purpose".to_string()));
+    assert!(names.contains(&"topology/stacks".to_string()));
+}
+
+#[test]
+fn init_dry_run_collects_signals_without_llm_call() {
+    let tmp = TempDir::new().unwrap();
+    fs::write(
+        tmp.path().join("README.md"),
+        "# Meu Projeto\n\nUm projeto de exemplo.\n",
+    )
+    .unwrap();
+    fs::write(
+        tmp.path().join("Cargo.toml"),
+        "[package]\nname = \"exemplo\"\nversion = \"0.1.0\"\n",
+    )
+    .unwrap();
+
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "init",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--dry-run",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["$schema"], "first-plan-init-dry-v1");
+    assert_eq!(parsed["dry_run"], true);
+    let signals = &parsed["signals"];
+    assert!(signals["readme"].is_string());
+    let manifests = signals["manifests"].as_array().unwrap();
+    assert!(
+        manifests.iter().any(|m| m["path"] == "Cargo.toml"),
+        "esperava Cargo.toml em manifests"
+    );
+    let stacks = signals["detected_stacks"].as_array().unwrap();
+    assert!(
+        stacks.iter().any(|s| s == "rust"),
+        "esperava rust em detected_stacks"
+    );
+    let selected = parsed["layers_selected"].as_array().unwrap();
+    assert!(!selected.is_empty(), "esperava layers selecionadas");
+}
+
+#[test]
+fn init_dry_run_respects_layer_filter() {
+    let tmp = TempDir::new().unwrap();
+
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "init",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--dry-run",
+            "--layer",
+            "mission/purpose",
+            "--layer",
+            "topology/stacks",
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    let selected = parsed["layers_selected"].as_array().unwrap();
+    assert_eq!(selected.len(), 2);
+    assert!(selected.iter().any(|s| s == "mission/purpose"));
+    assert!(selected.iter().any(|s| s == "topology/stacks"));
+}
+
+#[test]
+fn llm_providers_lists_three_supported() {
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args(["llm", "providers", "--json"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["$schema"], "first-plan-llm-providers-v1");
+    let providers = parsed["providers"].as_array().unwrap();
+    assert_eq!(providers.len(), 3);
+    let names: Vec<String> = providers
+        .iter()
+        .map(|p| p["name"].as_str().unwrap_or("").to_string())
+        .collect();
+    assert!(names.contains(&"openai".to_string()));
+    assert!(names.contains(&"anthropic".to_string()));
+    assert!(names.contains(&"ollama".to_string()));
+}
