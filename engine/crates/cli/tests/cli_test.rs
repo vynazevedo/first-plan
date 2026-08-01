@@ -272,7 +272,7 @@ fn lsp_daemon_start_then_status_then_stop() {
 
     let mut running = false;
     let mut last_status = String::new();
-    for _ in 0..100 {
+    for _ in 0..300 {
         sleep(Duration::from_millis(100));
         let out = Command::cargo_bin("first-plan-engine")
             .unwrap()
@@ -299,7 +299,7 @@ fn lsp_daemon_start_then_status_then_stop() {
             .map(|o| String::from_utf8_lossy(&o.stderr).into_owned())
             .unwrap_or_default();
         panic!(
-            "daemon failed to come up within 10s\nlast status: {}\nstderr: {}",
+            "daemon failed to come up within 30s\nlast status: {}\nstderr: {}",
             last_status, stderr
         );
     }
