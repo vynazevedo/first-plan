@@ -55,7 +55,7 @@ impl Adapter for CodexAdapter {
     }
     fn render(&self, ir: &IrContext, output_base: &Path) -> Result<Vec<(PathBuf, String)>> {
         let ctx = build_tera_context(ir);
-        let template = include_str!("../../../../../adapters/codex/AGENTS.md.tera");
+        let template = include_str!("../../adapters/codex/AGENTS.md.tera");
         let content = render_template(template, &ctx)?;
         Ok(vec![(output_base.join("AGENTS.md"), content)])
     }
@@ -80,8 +80,8 @@ impl Adapter for CursorAdapter {
     }
     fn render(&self, ir: &IrContext, output_base: &Path) -> Result<Vec<(PathBuf, String)>> {
         let ctx = build_tera_context(ir);
-        let legacy = include_str!("../../../../../adapters/cursor/cursorrules.tera");
-        let modern = include_str!("../../../../../adapters/cursor/rules.mdc.tera");
+        let legacy = include_str!("../../adapters/cursor/cursorrules.tera");
+        let modern = include_str!("../../adapters/cursor/rules.mdc.tera");
         Ok(vec![
             (
                 output_base.join(".cursorrules"),
@@ -110,7 +110,7 @@ impl Adapter for CopilotAdapter {
     }
     fn render(&self, ir: &IrContext, output_base: &Path) -> Result<Vec<(PathBuf, String)>> {
         let ctx = build_tera_context(ir);
-        let template = include_str!("../../../../../adapters/copilot/copilot-instructions.md.tera");
+        let template = include_str!("../../adapters/copilot/copilot-instructions.md.tera");
         let content = render_template(template, &ctx)?;
         Ok(vec![(
             output_base.join(".github/copilot-instructions.md"),
@@ -134,7 +134,7 @@ impl Adapter for ClineAdapter {
     }
     fn render(&self, ir: &IrContext, output_base: &Path) -> Result<Vec<(PathBuf, String)>> {
         let ctx = build_tera_context(ir);
-        let template = include_str!("../../../../../adapters/cline/clinerules.tera");
+        let template = include_str!("../../adapters/cline/clinerules.tera");
         let content = render_template(template, &ctx)?;
         Ok(vec![(output_base.join(".clinerules"), content)])
     }
@@ -155,7 +155,7 @@ impl Adapter for GenericAdapter {
     }
     fn render(&self, ir: &IrContext, output_base: &Path) -> Result<Vec<(PathBuf, String)>> {
         let ctx = build_tera_context(ir);
-        let template = include_str!("../../../../../adapters/generic/CONVENTIONS.md.tera");
+        let template = include_str!("../../adapters/generic/CONVENTIONS.md.tera");
         let content = render_template(template, &ctx)?;
         Ok(vec![(output_base.join("CONVENTIONS.md"), content)])
     }

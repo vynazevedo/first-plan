@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-08-01
+
+### Fixed
+
+- **Cross-platform release builds** - templates dos adapters moviam-se para `engine/crates/core/adapters/` para funcionar com `cross` builds musl que rodam em Docker sem acesso a paths acima da crate. Antes: `include_str!("../../../../../adapters/...")` quebrava em cross builds. Agora: `include_str!("../../adapters/...")` funciona em todos targets.
+- **Directory `adapters/` no root** transformado em pointer README que aponta para localização real dos templates, mantendo discoverability para contributors sem duplicação.
+
+### Added
+
+- Repo GitHub description e topics atualizados para refletir positioning multi-tool
+- Topics adicionados: ai-coding, multi-tool, framework, codex, cursor, copilot, cline, aider, claude-code, rust, git-intelligence
+
 ## [1.0.0] - 2026-08-01
 
 ### BREAKING / STRATEGIC PIVOT
@@ -750,7 +762,9 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/vynazevedo/first-plan/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/vynazevedo/first-plan/compare/v0.11.0...v1.0.0
 [0.11.0]: https://github.com/vynazevedo/first-plan/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/vynazevedo/first-plan/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/vynazevedo/first-plan/compare/v0.8.1...v0.9.0
