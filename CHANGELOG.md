@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-01
+
+### Added
+
+- **Runtime Layer** - quarta camada da sequência planejada (Quality v0.8, Contracts v0.9, Evolution v0.10, Runtime v0.11) que agora completa 4 dimensões críticas sobre o codebase para dar ao AI grounding semântico real. Runtime layer captura o link entre IR e o que está vivo em produção via git tags e commits pending, respondendo perguntas críticas como "esse bug está na versão deployed?" e "esse fix requer release nova?".
+- **`first-plan-engine runtime`** novo subcomando que produz `.first-plan/14-runtime/` com quatro artefatos markdown mais um JSON estruturado: `00-releases.md` traz histórico completo de release tags com dates commit-counts author-counts e cross-reference com CHANGELOG entries, `01-file-releases.md` mapeia cada arquivo source para release onde foi introduzido e última release onde foi modificado, `02-unreleased.md` lista commits pending após latest tag com breaking marker detection e files touched, `03-summary.md` traz visão geral acionável com estado released vs unreleased.
+- **Releases parser** que detecta git tags via `git for-each-ref` com sort-by-creatordate, calcula commit-count e author-count entre tags via `git rev-list`, faz cross-reference com CHANGELOG.md no formato Keep-a-Changelog identificando entries matched, marca cada release como semver ou não via `looks_like_semver` heurística, ordena versões corretamente reconhecendo semver com sufixos pre-release.
+- **Unreleased detector** que faz `git log <latest-tag>..HEAD` para listar commits pending release, detecta breaking markers em subject line (feat!, fix!, refactor!, BREAKING CHANGE), agrupa authors com commit-count individual, lista files touched com touch-count individual, marca has-breaking flag para próxima release ser major.
+- **File releases mapper** paralelizado com rayon para mapear cada arquivo source para release onde foi introduzido (first commit) e last-modified (mais recente commit), determina is-unreleased quando last-modified não caiu em nenhuma tag, calcula introduced-by-release para ranking de qual release adicionou mais arquivos, usa cache in-memory HashMap SHA para release ao invés de git tag --contains per file (11x speedup: de 158s para 14s no first-plan próprio).
+- **Nova skill `runtime-aware`** documentando como AI deve consumir runtime IR em Plan-First para 4 cenários: fix de bug de produção decidindo se código alvo é released ou unreleased, refactor grande considerando quantas releases ao longo o código é production-stable, timing de release nova baseado em commits pending e breaking flag, audit "esse código está em produção?" com jq queries prontas.
+
+### Changed
+
+- Workspace bumped to 0.11.0
+- 11 unit tests novos totalizando 124 unit tests passando
+- Rayon usado para paralelizar git log --follow per file no file_releases scan
+- Sem dependências novas (usa git CLI + rayon já presente)
+
+### Performance
+
+- Runtime scan em first-plan próprio: 13.8 segundos analisando 15 releases + 500 arquivos source em paralelo
+- Antes da otimização com rayon: 158 segundos serial, depois paralelo: 14 segundos, 11x speedup
+- CHANGELOG matched: 15/15 releases (100% match rate no próprio projeto)
+- Latest tag detectado corretamente como v0.10.0 com 1 commit pending após last tag
+
+### Architecture
+
+- Módulo `core::runtime` com 3 submódulos isolados (releases, unreleased, file_releases) cada um com testes próprios
+- Padrão de design idêntico às camadas anteriores: análise local, sem dependência externa cara, output em múltiplos markdown densos + JSON, fallback graceful sem git ou sem tags
+- Paralelização via rayon para operações git CLI-bound (cada git log --follow é independente)
+- Cache in-memory de SHA-to-release mapping evita per-file git tag --contains calls
+
+### Limitations
+
+- Sem tags git: runtime layer fica vazio. Recomendado adotar semver antes.
+- Tags não-semver detectadas mas ordenação por creatordate (não por versão)
+- Rebases ou force-push mudam SHAs, IR reflete estado atual não histórico verdadeiro
+- Rename de arquivos: git log --follow tenta rastrear mas pode perder em renames complexos
+- MAX_FILES 500 para manter performance razoável em monorepos, configurável em versão futura
+
+### Milestone
+
+**Sequência de 4 camadas concluída**: Quality (v0.8) + Contracts (v0.9) + Evolution (v0.10) + Runtime (v0.11). Total de 15 layers de IR no `.first-plan/` (00-09 legacy + 11-14 novas). Próxima parada v0.12 Cross-repo awareness ou v1.0 framework pivot conforme prioridade estratégica.
+
 ## [0.10.0] - 2026-08-01
 
 ### Added
@@ -656,7 +700,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/vynazevedo/first-plan/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/vynazevedo/first-plan/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/vynazevedo/first-plan/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/vynazevedo/first-plan/compare/v0.8.0...v0.8.1

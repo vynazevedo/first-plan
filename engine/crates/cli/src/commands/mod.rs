@@ -7,5 +7,6 @@ pub mod index;
 pub mod lsp;
 pub mod quality;
 pub mod quick;
+pub mod runtime;
 pub mod search;
 pub mod watch;

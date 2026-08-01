@@ -20,6 +20,7 @@ pub mod lsp;
 pub mod output;
 pub mod quality;
 pub mod quick;
+pub mod runtime;
 pub mod search;
 pub mod symbols;
 pub mod tokenize;

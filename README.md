@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.10.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.11.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -211,6 +211,10 @@ In ~3-8 minutes, generates the full 10-layer IR: stack lens analysis, reuse inde
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-EVOLUTION-darkorange?style=for-the-badge" /></td>
 <td><strong>Evolution Layer</strong> (v0.10.0) - <code>first-plan-engine evolution</code>. Deprecations detected in code (@deprecated, TODO(remove-after), #[deprecated]) and CHANGELOG (Keep-a-Changelog format). Breaking commits via git history mining (feat!, BREAKING CHANGE, migrate/refactor keywords). Replacement pairs auto-inferred. Produces <code>.first-plan/13-evolution/</code> so AI stops suggesting patterns the team already deprecated.</td>
+</tr>
+<tr>
+<td width="220"><img src="https://img.shields.io/badge/-RUNTIME-firebrick?style=for-the-badge" /></td>
+<td><strong>Runtime Layer</strong> (v0.11.0) - <code>first-plan-engine runtime</code>. Release history via git tags cross-referenced with CHANGELOG. Unreleased commits post latest tag with breaking-change detection. File-to-release mapping (paralelized via rayon, 11x speedup). Produces <code>.first-plan/14-runtime/</code> so AI answers "is this bug in production?" and "does this fix need a new release?".</td>
 </tr>
 </table>
 
@@ -862,8 +866,8 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.10.0-current-brightgreen?style=flat-square" alt="v0.10.0 current">
-<img src="https://img.shields.io/badge/v0.11.0-next-blue?style=flat-square" alt="v0.11.0 next">
+<img src="https://img.shields.io/badge/v0.11.0-current-brightgreen?style=flat-square" alt="v0.11.0 current">
+<img src="https://img.shields.io/badge/v0.12.0-next-blue?style=flat-square" alt="v0.12.0 next">
 <img src="https://img.shields.io/badge/v1.0-framework%20pivot-lightgrey?style=flat-square" alt="v1.0 framework pivot">
 </p>
 
@@ -1015,7 +1019,7 @@ Workflow:
 - Cross-referencer multi-language classifying each entity IMPLEMENTED / CANDIDATE / PHANTOM
 - Output `.first-plan/12-contracts/` for AI to never break contracts nor duplicate implementations
 
-#### v0.10.0 - Evolution Layer (current)
+#### v0.10.0 - Evolution Layer
 
 - **`first-plan-engine evolution`** - deprecation and migration ledger
 - In-code deprecations detected cross-language (Rust `#[deprecated]`, Java `@Deprecated`, JS/TS `@deprecated`, universal `TODO(remove-after)`)
@@ -1024,14 +1028,16 @@ Workflow:
 - Replacement pairs inferred when removed + added files share similar names
 - Output `.first-plan/13-evolution/` so AI stops suggesting patterns the team already replaced
 
+#### v0.11.0 - Runtime Layer (current)
+
+- **`first-plan-engine runtime`** - link between IR and production state
+- Release history via git tags with commit-count/author-count/CHANGELOG cross-reference
+- Unreleased commits post latest tag with breaking-change detection
+- File-to-release mapping (introduced_in + last_modified_in per source file)
+- Paralelized with rayon (11x speedup: 158s → 14s)
+- Answers "is this bug in production?" and "does this fix need a new release?"
+
 ### Planned
-
-#### v0.11.0 - Runtime Layer (production state link)
-
-- Reads git tags/releases to know what version is deployed
-- Optional integration with Sentry, Datadog webhooks for real telemetry
-- Answers "is this bug in production?" and "what commit range is affected?"
-- Foundation for AI-driven incident response workflows
 
 #### v0.12.0 - Cross-Repo Awareness
 

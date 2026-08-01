@@ -39,6 +39,8 @@ enum Command {
     Contracts(commands::contracts::Args),
     /// Evolution layer: deprecation ledger, migrations, replacement tracking.
     Evolution(commands::evolution::Args),
+    /// Runtime layer: release history, unreleased commits, file-to-release mapping.
+    Runtime(commands::runtime::Args),
 }
 
 fn main() -> Result<()> {
@@ -55,5 +57,6 @@ fn main() -> Result<()> {
         Command::Quality(args) => commands::quality::run(args),
         Command::Contracts(args) => commands::contracts::run(args),
         Command::Evolution(args) => commands::evolution::run(args),
+        Command::Runtime(args) => commands::runtime::run(args),
     }
 }
