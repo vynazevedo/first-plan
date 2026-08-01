@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.9.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.10.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -207,6 +207,10 @@ In ~3-8 minutes, generates the full 10-layer IR: stack lens analysis, reuse inde
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-CONTRACTS-teal?style=for-the-badge" /></td>
 <td><strong>Contracts Layer</strong> (v0.9.0) - <code>first-plan-engine contracts</code>. OpenAPI 3.x, Protobuf, GraphQL SDL parsed and cross-referenced with code. Each endpoint, RPC or operation classified as IMPLEMENTED, CANDIDATE or PHANTOM. Produces <code>.first-plan/12-contracts/</code> so AI never suggests code that breaks a contract nor implements what already exists.</td>
+</tr>
+<tr>
+<td width="220"><img src="https://img.shields.io/badge/-EVOLUTION-darkorange?style=for-the-badge" /></td>
+<td><strong>Evolution Layer</strong> (v0.10.0) - <code>first-plan-engine evolution</code>. Deprecations detected in code (@deprecated, TODO(remove-after), #[deprecated]) and CHANGELOG (Keep-a-Changelog format). Breaking commits via git history mining (feat!, BREAKING CHANGE, migrate/refactor keywords). Replacement pairs auto-inferred. Produces <code>.first-plan/13-evolution/</code> so AI stops suggesting patterns the team already deprecated.</td>
 </tr>
 </table>
 
@@ -858,7 +862,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.9.0-current-brightgreen?style=flat-square" alt="v0.9.0 current">
+<img src="https://img.shields.io/badge/v0.10.0-current-brightgreen?style=flat-square" alt="v0.10.0 current">
 <img src="https://img.shields.io/badge/v0.7.1-next-blue?style=flat-square" alt="v0.7.1 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>

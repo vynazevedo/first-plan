@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-01
+
+### Added
+
+- **Evolution Layer** - terceira camada nova da sequência planejada (Quality v0.8, Contracts v0.9, Evolution v0.10, Runtime v0.11) que captura como o codebase mudou ao longo do tempo. Detecta padrões depreciados marcados em código ou CHANGELOG, breaking commits do git history via conventional commits e keywords de migração, e replacement pairs quando arquivo removido é substituído por arquivo com nome similar no mesmo commit. Serve para AI evitar sugerir padrões que o time já substituiu meses atrás porque training data envelhece rápido enquanto codebases evoluem toda semana.
+- **`first-plan-engine evolution`** novo subcomando que produz `.first-plan/13-evolution/` com quatro artefatos markdown mais um JSON estruturado: `00-deprecations.md` lista deprecations em código ordenadas por severity com replacement e datas de remoção quando conhecidas, `01-migrations.md` lista breaking commits do git history com kind de marker que triggerou detecção, `02-replacements.md` lista pares (arquivo removido + arquivo adicionado com nome similar) com confidence score, `03-summary.md` traz visão geral com actionable warnings de itens com prazo firme de remoção.
+- **Deprecations parser cross-language** que detecta annotations Rust `#[deprecated(since, note)]`, Python `@deprecated` e `DeprecationWarning`, Java e Kotlin `@Deprecated`, JavaScript e TypeScript `@deprecated` JSDoc, mais markers universais como `TODO(deprecate)`, `TODO(remove-after: DATE)`, `DEPRECATED:`, `// deprecated`. Extrai automaticamente replacement quando presente via patterns como `use X instead`, `replaced by X`, `prefer X`, mais since version e remove-after date. Classifica em três níveis de severity: Critical quando tem prazo firme, Warning quando tem replacement conhecido, Info quando marker isolado.
+- **CHANGELOG parser** compatível com formato Keep-a-Changelog que extrai entries das seções Deprecated, Removed e Changed com versão associada. Suporta CHANGELOG.md, CHANGES.md e HISTORY.md como candidatos.
+- **Migrations detector via git history mining** que identifica commits breaking através de cinco heurísticas em kind separado para cada uma: ConventionalBreaking para `feat!`, `fix!`, `refactor!` etc, BreakingChangeFooter quando body ou subject contém `BREAKING CHANGE`, RefactorKeyword para commits com `refactor:` prefix ou `replace` keyword, MigrateKeyword para commits com `migrate` ou `migration`, RewriteKeyword para commits com `rewrite`. Analisa até 365 dias por default.
+- **Replacement pairs inference** que detecta quando arquivo removido no commit é acompanhado de arquivo adicionado com nome similar (jaccard similarity de stem tokens + bônus se mesmo diretório). Threshold 0.5, ordena por confidence, mostra top 50. Ajuda AI a entender que se vai tocar arquivo removido, o replacement adicionado provavelmente tem código relevante.
+- **Nova skill `evolution-aware`** documentando como AI deve consumir evolution IR em Plan-First: ler summary primeiro, checar se padrão a tocar aparece em deprecations, verificar replacements recentes antes de criar arquivo novo, priorizar itens Critical com prazo próximo. Semântica dos três severity levels e dos cinco kinds de breaking commit documentada.
+
+### Changed
+
+- Workspace bumped to 0.10.0
+- 13 unit tests novos totalizando 113 unit tests passando
+- Sem dependências novas (usa git CLI + walkdir + regex já presentes)
+
+### Performance
+
+- Evolution scan em first-plan próprio: 2172ms analisando 5000 arquivos source e 36 commits em janela de 365 dias
+- Detectou 19 in-code deprecation markers, 44 CHANGELOG entries de deprecação, 1 replacement pair candidato
+- Autotest: no próprio codebase encontrou 2 items Critical (documentação mostrando exemplos de `TODO(remove-after: DATE)` que o parser corretamente identifica mesmo sendo documentação)
+
+### Architecture
+
+- Módulo `core::evolution` com 2 submódulos isolados (deprecations, migrations) cada um com testes próprios
+- Padrão de design idêntico às camadas anteriores: análise local, sem dependência externa cara, output em múltiplos markdown densos + JSON, fallback graceful sem git ou sem CHANGELOG
+- Foundation para Runtime Layer v0.11 que precisará dessa base para validar quais deprecations foram removidas em produção
+
+### Limitations
+
+- Falsos positivos em documentação: comentários que documentam a existência de markers de deprecation podem trigger (ex: `//! detecta @deprecated como marker`). AI precisa investigar contexto antes de agir.
+- Sem git history: migrations vira vazio. Deprecations em código e CHANGELOG ainda funcionam.
+- Similarity score de replacement pairs baseado em nome de arquivo apenas: migracões com renaming brutal podem passar despercebidas.
+- CHANGELOG parser assume Keep-a-Changelog format: outras convenções (com seções em português, ou sem `## [version]` headers) podem não ser detectadas.
+
 ## [0.9.0] - 2026-07-20
 
 ### Added
@@ -619,7 +656,8 @@ Linguagens nao listadas caem no fallback grep ate v0.5.0 (tree-sitter).
 - 41 templates for the `.first-plan/` structure
 - PostToolUse hook for Living Layer (marks sections stale on edits)
 
-[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/vynazevedo/first-plan/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/vynazevedo/first-plan/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/vynazevedo/first-plan/compare/v0.8.1...v0.9.0
 [0.8.1]: https://github.com/vynazevedo/first-plan/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/vynazevedo/first-plan/compare/v0.7.1...v0.8.0

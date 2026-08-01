@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.9.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-0.10.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -207,6 +207,10 @@ Em ~3-8 minutos, gera o IR completo de 10 camadas: análise por stack lens, reus
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-CONTRACTS-teal?style=for-the-badge" /></td>
 <td><strong>Camada Contracts</strong> (v0.9.0) - <code>first-plan-engine contracts</code>. Parse de OpenAPI 3.x, Protobuf e GraphQL SDL com cross-reference no código. Cada endpoint, RPC ou operation classificada como IMPLEMENTED, CANDIDATE ou PHANTOM. Produz <code>.first-plan/12-contracts/</code> para que o AI nunca sugira código que quebre contrato nem implemente o que já existe.</td>
+</tr>
+<tr>
+<td width="220"><img src="https://img.shields.io/badge/-EVOLUTION-darkorange?style=for-the-badge" /></td>
+<td><strong>Camada Evolution</strong> (v0.10.0) - <code>first-plan-engine evolution</code>. Detecção de depreciações em código (@deprecated, TODO(remove-after), #[deprecated]) e CHANGELOG (formato Keep-a-Changelog). Breaking commits via mining de git history (feat!, BREAKING CHANGE, keywords migrate/refactor). Replacement pairs inferidos automaticamente. Produz <code>.first-plan/13-evolution/</code> para que o AI pare de sugerir padrões que o time já depreciou.</td>
 </tr>
 </table>
 
@@ -829,7 +833,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.9.0-current-brightgreen?style=flat-square" alt="v0.9.0 current">
+<img src="https://img.shields.io/badge/v0.10.0-current-brightgreen?style=flat-square" alt="v0.10.0 current">
 <img src="https://img.shields.io/badge/v0.7.1-next-blue?style=flat-square" alt="v0.7.1 next">
 <img src="https://img.shields.io/badge/v1.0-vision-lightgrey?style=flat-square" alt="v1.0 vision">
 </p>

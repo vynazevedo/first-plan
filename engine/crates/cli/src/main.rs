@@ -37,6 +37,8 @@ enum Command {
     Quality(commands::quality::Args),
     /// Contracts layer: OpenAPI, Protobuf, GraphQL spec-code reconciliation.
     Contracts(commands::contracts::Args),
+    /// Evolution layer: deprecation ledger, migrations, replacement tracking.
+    Evolution(commands::evolution::Args),
 }
 
 fn main() -> Result<()> {
@@ -52,5 +54,6 @@ fn main() -> Result<()> {
         Command::Quick(args) => commands::quick::run(args),
         Command::Quality(args) => commands::quality::run(args),
         Command::Contracts(args) => commands::contracts::run(args),
+        Command::Evolution(args) => commands::evolution::run(args),
     }
 }
