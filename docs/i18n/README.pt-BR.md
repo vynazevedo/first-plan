@@ -133,6 +133,31 @@ first-plan-engine init --list-layers
 
 Config via env vars: `FIRST_PLAN_LLM_PROVIDER`, `FIRST_PLAN_LLM_MODEL`, `FIRST_PLAN_LLM_BASE_URL`. 8 layers curadas em v1.1.0, com expansão em versões futuras. Cada arquivo gerado recebe frontmatter YAML com provider, model e timestamp para provenance.
 
+### Cross-repo awareness (v1.2.0+): `multi`
+
+Times que trabalham em múltiplos repos relacionados (backend + frontend + mobile + infra, ou monorepo com múltiplos projetos) podem registrar sibling repos e agregar o IR de cada um em um overview cross-repo:
+
+```bash
+# Autodetectar sibling repos em um diretório-pai e registrar todos
+first-plan-engine multi scan --parent ../ --register-all
+
+# Ou registrar manualmente com tags
+first-plan-engine multi register --name backend --path ../backend --tag rust --tag api
+first-plan-engine multi register --name frontend --path ../frontend --tag typescript --tag ui
+
+# Listar repos registrados com status (path existe? IR presente?)
+first-plan-engine multi list
+
+# Gerar overview cross-repo agregando mission e stacks de cada repo
+first-plan-engine multi aggregate
+# grava .first-plan/multi/OVERVIEW.md
+
+# Remover um repo do registro
+first-plan-engine multi remove --name frontend
+```
+
+Config persiste em `.first-plan/multi.yaml`. O overview agregado mostra tabela de repos (path, tags, presença de IR) mais excerptos por repo de `mission/purpose.md` e `topology/stacks.md`, dando a qualquer AI tool contexto cross-repo em um único arquivo.
+
 ### Para desenvolvimento local
 
 ```bash
