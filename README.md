@@ -105,7 +105,38 @@ first-plan-engine generate --tool all        # all of the above
 first-plan-engine generate --list            # see all available adapters
 ```
 
-Once IR is generated (via Claude Code `/fp:init` or future v1.1 LLM-agnostic init), any AI tool consumes the tool-specific file natively.
+Once IR is generated (see next section), any AI tool consumes the tool-specific file natively.
+
+### Generate IR without Claude Code (v1.1.0+): `init --llm`
+
+The engine now includes an LLM-agnostic init that generates `.first-plan/` layers by calling OpenAI, Anthropic, or any OpenAI-compatible endpoint (Ollama, LM Studio, vLLM) directly, so you can adopt first-plan even in projects that never touch Claude Code:
+
+```bash
+# OpenAI
+export OPENAI_API_KEY=sk-...
+first-plan-engine init --llm openai
+
+# Anthropic
+export ANTHROPIC_API_KEY=sk-ant-...
+first-plan-engine init --llm anthropic --model claude-sonnet-5
+
+# Ollama (local, no API key)
+first-plan-engine init --llm ollama --model qwen2.5-coder:latest
+
+# Any OpenAI-compatible server (LM Studio, vLLM, self-hosted)
+first-plan-engine init --llm openai --base-url http://localhost:8000/v1
+
+# Preview what will be generated (no LLM call, no writes)
+first-plan-engine init --dry-run
+
+# Generate only specific layers
+first-plan-engine init --llm openai --layer mission/purpose --layer topology/stacks
+
+# List all layers
+first-plan-engine init --list-layers
+```
+
+Config via env vars: `FIRST_PLAN_LLM_PROVIDER`, `FIRST_PLAN_LLM_MODEL`, `FIRST_PLAN_LLM_BASE_URL`. 8 layers curated in v1.1.0, expanding in later versions. Each generated file gets YAML frontmatter with provider, model, and timestamp for provenance.
 
 ### See value in 5 seconds (Claude Code): `/fp:quick`
 

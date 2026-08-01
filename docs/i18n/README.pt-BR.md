@@ -102,6 +102,37 @@ Essa é a **primeira impressão** - contexto suficiente pro Claude começar a aj
 
 Em ~3-8 minutos, gera o IR completo de 10 camadas: análise por stack lens, reuse index, reconciliation spec-código, co-change graph, provenance tracking, living layer. **É isso que faz a diferença** entre Claude inventar um novo padrão de auth vs Claude usar seu `internal/auth/jwt.go` como template.
 
+### Gerar IR sem Claude Code (v1.1.0+): `init --llm`
+
+O engine agora inclui um init LLM-agnostic que gera as layers do `.first-plan/` chamando OpenAI, Anthropic ou qualquer endpoint compatível com OpenAI (Ollama, LM Studio, vLLM) diretamente, permitindo adotar o first-plan em projetos que não usam Claude Code:
+
+```bash
+# OpenAI
+export OPENAI_API_KEY=sk-...
+first-plan-engine init --llm openai
+
+# Anthropic
+export ANTHROPIC_API_KEY=sk-ant-...
+first-plan-engine init --llm anthropic --model claude-sonnet-5
+
+# Ollama (local, sem API key)
+first-plan-engine init --llm ollama --model qwen2.5-coder:latest
+
+# Qualquer servidor OpenAI-compatível (LM Studio, vLLM, self-hosted)
+first-plan-engine init --llm openai --base-url http://localhost:8000/v1
+
+# Preview do que seria gerado (sem chamar LLM, sem gravar arquivos)
+first-plan-engine init --dry-run
+
+# Gerar apenas layers específicas
+first-plan-engine init --llm openai --layer mission/purpose --layer topology/stacks
+
+# Listar todas as layers
+first-plan-engine init --list-layers
+```
+
+Config via env vars: `FIRST_PLAN_LLM_PROVIDER`, `FIRST_PLAN_LLM_MODEL`, `FIRST_PLAN_LLM_BASE_URL`. 8 layers curadas em v1.1.0, com expansão em versões futuras. Cada arquivo gerado recebe frontmatter YAML com provider, model e timestamp para provenance.
+
 ### Para desenvolvimento local
 
 ```bash
