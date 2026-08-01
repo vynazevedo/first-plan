@@ -13,6 +13,7 @@ pub mod compress;
 pub mod contracts;
 pub mod embeddings;
 pub mod evolution;
+pub mod generate;
 pub mod git;
 pub mod hash;
 pub mod index;

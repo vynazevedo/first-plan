@@ -4,16 +4,16 @@
     "name": "Vinicius Azevedo"
   },
   "metadata": {
-    "description": "Camada compilada de contexto para Claude Code em projetos complexos",
+    "description": "Camada compilada de contexto para qualquer AI coding tool com deep integration Claude Code",
     "homepage": "https://github.com/vynazevedo/first-plan"
   },
   "plugins": [
     {
       "name": "fp",
       "displayName": "first-plan",
-      "version": "0.11.0",
+      "version": "1.0.0",
       "source": "./",
-      "description": "Camada compilada de contexto multi-layer para Claude Code. Compila projetos desconhecidos em uma estrutura .first-plan/ com discovery por stack, reuse index invertido, reconciliacao spec-codigo, git intelligence e estado vivo. Resolve re-implementacao cega, phantom features, drift e cross-session amnesia em projetos complexos.",
+      "description": "Camada compilada de contexto multi-layer que funciona com qualquer AI coding tool. Compila projetos em .first-plan/ com 15 camadas estruturadas e gera arquivos de instrução tool-specific (AGENTS.md, .cursorrules, .github/copilot-instructions.md, .clinerules, CONVENTIONS.md). Deep integration Claude Code via skills e agents. Resolve re-implementação cega, phantom features, drift de specs e cross-session amnesia.",
       "category": "development",
       "homepage": "https://github.com/vynazevedo/first-plan"
     }

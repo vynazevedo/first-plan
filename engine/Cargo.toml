@@ -3,7 +3,7 @@ resolver = "2"
 members = ["crates/core", "crates/cli"]
 
 [workspace.package]
-version = "0.11.0"
+version = "1.0.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/vynazevedo/first-plan"
@@ -49,6 +49,8 @@ quick-xml = { version = "0.36", features = ["serialize"] }
 # Contracts layer (v0.9.0)
 openapiv3 = "2"
 graphql-parser = "0.4"
+# Framework pivot (v1.0.0)
+tera = "1.20"
 
 [profile.release]
 opt-level = 3

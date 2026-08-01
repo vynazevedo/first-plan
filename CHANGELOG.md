@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-08-01
+
+### BREAKING / STRATEGIC PIVOT
+
+Esta é a primeira major release. Marca a transição de "Claude Code plugin" para "context layer for any AI coding tool". Não há mudanças breaking em APIs existentes - o pivot é aditivo: tudo que funcionava antes continua funcionando, mas agora o IR pode ser consumido por outras ferramentas via file generation.
+
+### Added
+
+- **Framework pivot completo (Fase 1)** - `first-plan-engine generate --tool <name>` agora gera arquivos de instrução tool-specific a partir do IR compilado, transformando first-plan de plugin de uma ferramenta específica para framework universal que qualquer AI coding tool pode consumir.
+- **5 adapters iniciais**: `codex` gera AGENTS.md para OpenAI Codex CLI e Cursor Chat, `cursor` gera `.cursorrules` legacy e `.cursor/rules/first-plan-context.mdc` moderno com frontmatter scoped, `copilot` gera `.github/copilot-instructions.md` para GitHub Copilot, `cline` gera `.clinerules` para extensão Cline no VS Code, `generic` gera `CONVENTIONS.md` universal que funciona com Aider Continue.dev e qualquer tool que leia docs de convenção.
+- **Módulo `core::generate`** com trait `Adapter` extensível para novos tools futuros, template engine Tera embedded, carregamento de IR context via `core::generate::context::load_ir` que agrega todas as 15 camadas do `.first-plan/`.
+- **Diretório `adapters/` no repo** com templates `.tera` versionados, um por tool, permite customização e contribuição da comunidade sem tocar Rust code.
+- **Suporte a `--tool all`** que gera output para todos os adapters de uma vez, útil para times multi-tool.
+- **Suporte a `--list`** que enumera adapters disponíveis com descrição e arquivos de output esperados, formatado JSON ou pretty.
+
+### Changed
+
+- Workspace bumped to 1.0.0 (major)
+- Nova dependência: `tera 1.20` para template engine
+- Sem breaking changes em APIs, subcommands ou IR format
+- 133+ tests passando (124 unit + 9 integration base + novos generate tests)
+
+### Positioning
+
+Antes desta release: "The context layer for Claude Code."
+Depois desta release: **"The context layer for any AI coding tool."**
+
+Multi-tool via file generation permite que qualquer dev com qualquer AI tool (Claude Code, Codex, Cursor, Copilot, Cline, Aider, Continue.dev, ou custom via `CONVENTIONS.md`) consuma o mesmo IR compilado. Remove objeção de adoção "não uso Claude Code" que limitava o TAM anterior.
+
+### Ainda planejado (roadmap pós v1.0)
+
+- **v1.1.0**: Fase 2 do framework pivot - `fp init --llm <provider>` para LLM-agnostic init sem depender de nenhum AI coding tool, chamando OpenAI/Anthropic/Ollama/Qwen APIs direto
+- **v1.2.0**: Cross-repo awareness (originalmente v0.12, adiado por priorização estratégica) - multi-service impact analysis, `~/.first-plan/repos.yaml` config
+- **v1.3.0**: LSP integration expansão + daemon warm pool completo, mais language servers
+- **v2.0.0+**: audit trail cryptográfico, compliance features, enterprise-focused capabilities
+
+### Architecture milestone
+
+Este release consolida a arquitetura em 3 camadas claras:
+
+1. **Engine layer**: Rust nativo, 12+ subcomandos (cochange, quality, contracts, evolution, runtime, lsp, generate, etc), produz JSON estruturado
+2. **IR layer**: `.first-plan/` com 15 camadas markdown (discovery, conventions, features, quality, contracts, evolution, runtime, etc), tool-agnostic por design
+3. **Output layer**: adapters que transformam IR em formato tool-specific, extensível via novos templates
+
+Cada camada é independente. Engine roda sem IR (gera vazio graceful). IR existe sem consumers (é markdown puro). Consumers leem IR sem depender do engine (arquivos gerados são standalone).
+
+### License continuity
+
+Mantida como **MIT**. Diferencial estratégico crítico versus outras ferramentas do nicho que usam AGPL-3.0 (banido em muitos ambientes enterprise proprietários).
+
 ## [0.11.0] - 2026-08-01
 
 ### Added

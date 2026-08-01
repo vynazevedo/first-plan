@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.11.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.0.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -54,11 +54,15 @@
 </p>
 
 <p align="center">
-  <b>Pare o Claude Code de inventar padrões novos.</b> Faça ele seguir as convenções existentes do seu codebase, mesmo em sessão fria, com aderência absoluta.
+  <b>Pare sua ferramenta de AI coding de inventar padrões novos.</b> Faça ela seguir as convenções existentes do seu codebase, mesmo em sessão fria, com aderência absoluta.
 </p>
 
 <p align="center">
-  first-plan compila seu projeto numa camada estruturada de contexto (<code>.first-plan/</code>) - assim o Claude conhece suas stacks, convenções, idiomas, hot files, e quais features são reais vs phantom <i>antes de escrever uma linha de código</i>.
+  first-plan compila seu projeto numa camada estruturada de contexto (<code>.first-plan/</code>) com 15 camadas de conhecimento, depois gera arquivos de instrução tool-specific para <b>qualquer AI coding tool</b> (Claude Code, Codex, Cursor, GitHub Copilot, Cline, Aider) saber suas stacks, convenções, idiomas, hot files, contratos, depreciações e estado de runtime <i>antes de escrever uma linha de código</i>.
+</p>
+
+<p align="center">
+  <sub>Deep integration para Claude Code (skills, agents, hooks). File generation tool-agnostic para todos os outros. Mesmo IR, consumo universal.</sub>
 </p>
 
 ---
@@ -215,6 +219,10 @@ Em ~3-8 minutos, gera o IR completo de 10 camadas: análise por stack lens, reus
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-RUNTIME-firebrick?style=for-the-badge" /></td>
 <td><strong>Camada Runtime</strong> (v0.11.0) - <code>first-plan-engine runtime</code>. Histórico de releases via git tags cross-referenced com CHANGELOG. Commits pendentes após ultima tag com detecção de breaking changes. Mapeamento arquivo-para-release (paralelizado com rayon, 11x speedup). Produz <code>.first-plan/14-runtime/</code> para o AI responder "esse bug está em produção?" e "esse fix requer release nova?".</td>
+</tr>
+<tr>
+<td width="220"><img src="https://img.shields.io/badge/-GENERATE-4B0082?style=for-the-badge" /></td>
+<td><strong>Multi-Tool Generate</strong> (v1.0.0) - <code>first-plan-engine generate --tool &lt;nome&gt;</code>. Renderiza o mesmo IR em 5 formatos tool-specific: AGENTS.md (Codex), .cursorrules + .cursor/rules/*.mdc (Cursor), .github/copilot-instructions.md (GitHub Copilot), .clinerules (Cline), CONVENTIONS.md (Aider/generic). Framework pivot: qualquer AI coding tool consome o mesmo contexto compilado.</td>
 </tr>
 </table>
 
@@ -837,9 +845,9 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.11.0-current-brightgreen?style=flat-square" alt="v0.11.0 current">
-<img src="https://img.shields.io/badge/v0.12.0-next-blue?style=flat-square" alt="v0.12.0 next">
-<img src="https://img.shields.io/badge/v1.0-framework%20pivot-lightgrey?style=flat-square" alt="v1.0 framework pivot">
+<img src="https://img.shields.io/badge/v1.0.0-current-brightgreen?style=flat-square" alt="v1.0.0 current">
+<img src="https://img.shields.io/badge/v1.1.0-next-blue?style=flat-square" alt="v1.1.0 next">
+<img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
 
 ### Shipped

@@ -1,0 +1,50 @@
+---
+description: Compiled context from first-plan for {{ project_name }}
+globs: "**/*"
+alwaysApply: true
+---
+
+# first-plan Context
+
+{% if not has_ir %}
+No `.first-plan/` IR found. Run `first-plan-engine init` first.
+{% else %}
+
+## Project stacks
+{% for stack in stacks %}
+{{ stack }}
+{% endfor %}
+
+## Conventions
+Follow patterns documented in `.first-plan/02-conventions/`. Do not invent new patterns.
+
+{% for conv in key_conventions %}
+{{ conv }}
+{% endfor %}
+
+## Feature awareness
+{% if features_summary %}
+{{ features_summary }}
+{% endif %}
+
+## Contracts
+{% if contracts_summary %}
+{{ contracts_summary }}
+{% endif %}
+
+## Deprecations to avoid
+{% if evolution_summary %}
+{{ evolution_summary }}
+{% endif %}
+
+## Runtime state
+{% if runtime_summary %}
+{{ runtime_summary }}
+{% endif %}
+
+## When making changes
+- Read `.first-plan/` for detailed context
+- Follow Plan-First: describe intent before implementing
+- Verify against quality/contracts/evolution/runtime layers
+
+{% endif %}

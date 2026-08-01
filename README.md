@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-0.11.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.0.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -54,25 +54,60 @@
 </p>
 
 <p align="center">
-  <b>Stop Claude Code from inventing new patterns.</b> Make it follow your codebase's existing conventions, on cold session start, with absolute adherence.
+  <b>Stop your AI coding tool from inventing new patterns.</b> Make it follow your codebase's existing conventions, on cold session start, with absolute adherence.
 </p>
 
 <p align="center">
-  first-plan compiles your project into a structured context layer (<code>.first-plan/</code>) - so Claude knows your stacks, conventions, idioms, hot files, and which features are real vs phantom <i>before it writes a single line of code</i>.
+  first-plan compiles your project into a structured context layer (<code>.first-plan/</code>) with 15 layers of knowledge, then generates tool-specific instruction files so <b>any AI coding tool</b> (Claude Code, Codex, Cursor, GitHub Copilot, Cline, Aider) knows your stacks, conventions, idioms, hot files, contracts, deprecations, and runtime state <i>before it writes a single line of code</i>.
+</p>
+
+<p align="center">
+  <sub>Deep integration for Claude Code (skills, agents, hooks). Tool-agnostic file generation for everyone else. Same IR, universal consumption.</sub>
 </p>
 
 ---
 
 ## Quick Start
 
-Install via the Claude Code plugin marketplace:
+### For Claude Code users (deep integration)
+
+Install via the plugin marketplace:
 
 ```bash
 /plugin marketplace add vynazevedo/first-plan
 /plugin install fp
 ```
 
-### See value in 5 seconds: `/fp:quick`
+Then in your project:
+
+```bash
+/fp:init          # generate the full .first-plan/ IR
+/fp:quick         # or a 1-page glance in 5 seconds
+```
+
+### For any other AI coding tool (Codex, Cursor, Copilot, Cline, Aider, etc)
+
+Install the engine standalone via cargo or binary download from releases:
+
+```bash
+cargo install --git https://github.com/vynazevedo/first-plan --path engine/crates/cli
+```
+
+Then generate instruction files for your tool of choice:
+
+```bash
+first-plan-engine generate --tool codex      # AGENTS.md
+first-plan-engine generate --tool cursor     # .cursorrules + .cursor/rules/
+first-plan-engine generate --tool copilot    # .github/copilot-instructions.md
+first-plan-engine generate --tool cline      # .clinerules
+first-plan-engine generate --tool generic    # CONVENTIONS.md (universal)
+first-plan-engine generate --tool all        # all of the above
+first-plan-engine generate --list            # see all available adapters
+```
+
+Once IR is generated (via Claude Code `/fp:init` or future v1.1 LLM-agnostic init), any AI tool consumes the tool-specific file natively.
+
+### See value in 5 seconds (Claude Code): `/fp:quick`
 
 ```bash
 /fp:quick
@@ -215,6 +250,10 @@ In ~3-8 minutes, generates the full 10-layer IR: stack lens analysis, reuse inde
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-RUNTIME-firebrick?style=for-the-badge" /></td>
 <td><strong>Runtime Layer</strong> (v0.11.0) - <code>first-plan-engine runtime</code>. Release history via git tags cross-referenced with CHANGELOG. Unreleased commits post latest tag with breaking-change detection. File-to-release mapping (paralelized via rayon, 11x speedup). Produces <code>.first-plan/14-runtime/</code> so AI answers "is this bug in production?" and "does this fix need a new release?".</td>
+</tr>
+<tr>
+<td width="220"><img src="https://img.shields.io/badge/-GENERATE-4B0082?style=for-the-badge" /></td>
+<td><strong>Multi-Tool Generate</strong> (v1.0.0) - <code>first-plan-engine generate --tool &lt;name&gt;</code>. Renders the same IR into 5 tool-specific formats: AGENTS.md (Codex), .cursorrules + .cursor/rules/*.mdc (Cursor), .github/copilot-instructions.md (GitHub Copilot), .clinerules (Cline), CONVENTIONS.md (Aider/generic). Framework pivot: any AI coding tool consumes the same compiled context.</td>
 </tr>
 </table>
 
@@ -866,9 +905,9 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v0.11.0-current-brightgreen?style=flat-square" alt="v0.11.0 current">
-<img src="https://img.shields.io/badge/v0.12.0-next-blue?style=flat-square" alt="v0.12.0 next">
-<img src="https://img.shields.io/badge/v1.0-framework%20pivot-lightgrey?style=flat-square" alt="v1.0 framework pivot">
+<img src="https://img.shields.io/badge/v1.0.0-current-brightgreen?style=flat-square" alt="v1.0.0 current">
+<img src="https://img.shields.io/badge/v1.1.0-next-blue?style=flat-square" alt="v1.1.0 next">
+<img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
 
 ### Shipped
@@ -1028,7 +1067,7 @@ Workflow:
 - Replacement pairs inferred when removed + added files share similar names
 - Output `.first-plan/13-evolution/` so AI stops suggesting patterns the team already replaced
 
-#### v0.11.0 - Runtime Layer (current)
+#### v0.11.0 - Runtime Layer
 
 - **`first-plan-engine runtime`** - link between IR and production state
 - Release history via git tags with commit-count/author-count/CHANGELOG cross-reference
@@ -1037,9 +1076,26 @@ Workflow:
 - Paralelized with rayon (11x speedup: 158s → 14s)
 - Answers "is this bug in production?" and "does this fix need a new release?"
 
+#### v1.0.0 - Framework Pivot (current)
+
+- **`first-plan-engine generate --tool <name>`** - renders IR into tool-specific format
+- 5 adapters: codex (AGENTS.md), cursor (.cursorrules + .cursor/rules/), copilot (.github/copilot-instructions.md), cline (.clinerules), generic (CONVENTIONS.md)
+- Trait-based adapter architecture for community-contributed templates
+- Tera template engine, versioned templates in `adapters/` directory
+- Removes "I don't use Claude Code" objection - any AI coding tool consumes the same IR
+- **Positioning change**: "The context layer for Claude Code" → "The context layer for any AI coding tool"
+
 ### Planned
 
-#### v0.12.0 - Cross-Repo Awareness
+#### v1.1.0 - LLM-agnostic init (Phase 2 of framework pivot)
+
+- **`first-plan-engine init --llm <provider>`** - discovery + patterns + reconciliation using any LLM
+- Providers: OpenAI, Anthropic, Ollama, Qwen (via OpenAI-compatible API)
+- Prompts embedded in binary, no dependency on Claude Code skills
+- Enables full first-plan usage without any AI coding tool - just the engine + API key
+- Enterprise scenarios: air-gapped with local Ollama, CI/CD pipelines, batch processing
+
+#### v1.2.0 - Cross-Repo Awareness
 
 - `~/.first-plan/repos.yaml` config registry of sister repos
 - Cross-service call detection (OpenAPI/Protobuf/gRPC across repos)

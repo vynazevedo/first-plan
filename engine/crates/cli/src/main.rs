@@ -41,6 +41,8 @@ enum Command {
     Evolution(commands::evolution::Args),
     /// Runtime layer: release history, unreleased commits, file-to-release mapping.
     Runtime(commands::runtime::Args),
+    /// Generate tool-specific instruction files from IR (codex, cursor, copilot, cline, generic).
+    Generate(commands::generate::Args),
 }
 
 fn main() -> Result<()> {
@@ -58,5 +60,6 @@ fn main() -> Result<()> {
         Command::Contracts(args) => commands::contracts::run(args),
         Command::Evolution(args) => commands::evolution::run(args),
         Command::Runtime(args) => commands::runtime::run(args),
+        Command::Generate(args) => commands::generate::run(args),
     }
 }
