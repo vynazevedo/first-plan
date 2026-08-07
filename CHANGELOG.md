@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-08-07
+
+### Changed
+
+- **Binary renomeado para `fpe`** - o binário canônico agora é `fpe` (3 caracteres) ao invés de `first-plan-engine` (17 caracteres). Muito mais ergonômico no dia-a-dia (`fpe quick`, `fpe multi list`, `fpe contracts diff`). Ambos os binários são shipados no mesmo archive das releases, então scripts e CI que já usam `first-plan-engine` continuam funcionando sem alteração. Recomendação: novos scripts usar `fpe`; `first-plan-engine` será mantido como alias por pelo menos 2 releases (deprecação anunciada em v1.5.0+).
+- **Release workflow** agora empacota os dois binários em cada tar.gz/zip. Nome dos archives (`first-plan-engine-<target>*.tar.gz`) preservado por backward compat de links.
+- **README EN e PT-BR** migrados para `fpe` em todos os exemplos.
+
 ## [1.3.0] - 2026-08-07
 
 ### Added

@@ -63,26 +63,26 @@ jobs:
       - name: build (cross)
         if: matrix.cross
         working-directory: engine
-        run: cross build --release --target ${{ matrix.target }} --bin first-plan-engine ${{ matrix.features }}
+        run: cross build --release --target ${{ matrix.target }} --bin fpe --bin first-plan-engine ${{ matrix.features }}
 
       - name: build (cargo)
         if: ${{ !matrix.cross }}
         working-directory: engine
-        run: cargo build --release --target ${{ matrix.target }} --bin first-plan-engine ${{ matrix.features }}
+        run: cargo build --release --target ${{ matrix.target }} --bin fpe --bin first-plan-engine ${{ matrix.features }}
 
       - name: package (unix)
         if: ${{ !contains(matrix.target, 'windows') }}
         shell: bash
         working-directory: engine/target/${{ matrix.target }}/release
         run: |
-          tar czf "../../../../first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.tar.gz" first-plan-engine
+          tar czf "../../../../first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.tar.gz" fpe first-plan-engine
 
       - name: package (windows)
         if: contains(matrix.target, 'windows')
         shell: pwsh
         working-directory: engine/target/${{ matrix.target }}/release
         run: |
-          Compress-Archive -Path first-plan-engine.exe -DestinationPath ../../../../first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.zip
+          Compress-Archive -Path fpe.exe,first-plan-engine.exe -DestinationPath ../../../../first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.zip
 
       - uses: actions/upload-artifact@v4
         with:
@@ -111,19 +111,26 @@ jobs:
             dist/first-plan-engine-*.zip
           generate_release_notes: true
           body: |
-            ## first-plan-engine ${{ github.ref_name }}
+            ## first-plan ${{ github.ref_name }}
 
-            Native engine binary for the first-plan Claude Code plugin.
+            Native engine binary for the first-plan context layer.
+
+            Each archive now ships **two binaries** with identical behavior:
+
+            - `fpe` - short, canonical name (v1.3.1+)
+            - `first-plan-engine` - long name kept for backward compatibility
+
+            Existing scripts using `first-plan-engine` continue to work. New scripts should prefer `fpe`.
 
             ### Installation
 
-            Download the binary for your platform, extract, and place in
-            `${CLAUDE_PLUGIN_ROOT}/engine/bin/` or anywhere in your `$PATH`.
+            Download the archive for your platform, extract, and place both binaries in your `$PATH` (or `${CLAUDE_PLUGIN_ROOT}/engine/bin/` for Claude Code plugin usage).
 
             ### Verify
 
             ```
+            fpe --version
             first-plan-engine --version
             ```
 
-            See [README](https://github.com/vynazevedo/first-plan) for plugin integration.
+            See [README](https://github.com/vynazevedo/first-plan) for the full command reference.

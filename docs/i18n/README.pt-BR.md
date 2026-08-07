@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-1.3.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.3.1-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -109,26 +109,26 @@ O engine agora inclui um init LLM-agnostic que gera as layers do `.first-plan/` 
 ```bash
 # OpenAI
 export OPENAI_API_KEY=sk-...
-first-plan-engine init --llm openai
+fpe init --llm openai
 
 # Anthropic
 export ANTHROPIC_API_KEY=sk-ant-...
-first-plan-engine init --llm anthropic --model claude-sonnet-5
+fpe init --llm anthropic --model claude-sonnet-5
 
 # Ollama (local, sem API key)
-first-plan-engine init --llm ollama --model qwen2.5-coder:latest
+fpe init --llm ollama --model qwen2.5-coder:latest
 
 # Qualquer servidor OpenAI-compatível (LM Studio, vLLM, self-hosted)
-first-plan-engine init --llm openai --base-url http://localhost:8000/v1
+fpe init --llm openai --base-url http://localhost:8000/v1
 
 # Preview do que seria gerado (sem chamar LLM, sem gravar arquivos)
-first-plan-engine init --dry-run
+fpe init --dry-run
 
 # Gerar apenas layers específicas
-first-plan-engine init --llm openai --layer mission/purpose --layer topology/stacks
+fpe init --llm openai --layer mission/purpose --layer topology/stacks
 
 # Listar todas as layers
-first-plan-engine init --list-layers
+fpe init --list-layers
 ```
 
 Config via env vars: `FIRST_PLAN_LLM_PROVIDER`, `FIRST_PLAN_LLM_MODEL`, `FIRST_PLAN_LLM_BASE_URL`. 8 layers curadas em v1.1.0, com expansão em versões futuras. Cada arquivo gerado recebe frontmatter YAML com provider, model e timestamp para provenance.
@@ -139,21 +139,21 @@ Times que trabalham em múltiplos repos relacionados (backend + frontend + mobil
 
 ```bash
 # Autodetectar sibling repos em um diretório-pai e registrar todos
-first-plan-engine multi scan --parent ../ --register-all
+fpe multi scan --parent ../ --register-all
 
 # Ou registrar manualmente com tags
-first-plan-engine multi register --name backend --path ../backend --tag rust --tag api
-first-plan-engine multi register --name frontend --path ../frontend --tag typescript --tag ui
+fpe multi register --name backend --path ../backend --tag rust --tag api
+fpe multi register --name frontend --path ../frontend --tag typescript --tag ui
 
 # Listar repos registrados com status (path existe? IR presente?)
-first-plan-engine multi list
+fpe multi list
 
 # Gerar overview cross-repo agregando mission e stacks de cada repo
-first-plan-engine multi aggregate
+fpe multi aggregate
 # grava .first-plan/multi/OVERVIEW.md
 
 # Remover um repo do registro
-first-plan-engine multi remove --name frontend
+fpe multi remove --name frontend
 ```
 
 Config persiste em `.first-plan/multi.yaml`. O overview agregado mostra tabela de repos (path, tags, presença de IR) mais excerptos por repo de `mission/purpose.md` e `topology/stacks.md`, dando a qualquer AI tool contexto cross-repo em um único arquivo.
@@ -164,20 +164,20 @@ Detecta regressões de contrato de API antes do deploy. O engine tira snapshot d
 
 ```bash
 # Snapshot do estado atual das OpenAPI specs (grava em .first-plan/12-contracts/snapshot.json)
-first-plan-engine contracts snapshot
+fpe contracts snapshot
 
 # Diff entre dois snapshots
-first-plan-engine contracts diff --before snapshot-v1.json --after snapshot-v2.json
+fpe contracts diff --before snapshot-v1.json --after snapshot-v2.json
 
 # Diff do estado atual contra um baseline (não precisa fazer snapshot do "after")
-first-plan-engine contracts diff --before snapshot.json
+fpe contracts diff --before snapshot.json
 
 # CI-friendly: exit code 1 quando qualquer breaking change é detectado
-first-plan-engine contracts diff --before baseline.json --fail-on-breaking
+fpe contracts diff --before baseline.json --fail-on-breaking
 
 # Cross-repo: pra cada sibling repo registrado, faz diff contra baseline
 # do próprio repo, agrega contagem de breaking changes
-first-plan-engine multi contracts-check --fail-on-breaking
+fpe multi contracts-check --fail-on-breaking
 ```
 
 **Regras breaking (v1.3.0, nível endpoint):** endpoint removido = breaking, mudança de `operation_id` = breaking, endpoint adicionado / mudança de summary / mudança de tags = non-breaking. Diff granular de parameters, request body e response schemas, além de suporte Protobuf e GraphQL, virão em v1.3.1.
@@ -246,7 +246,7 @@ first-plan-engine multi contracts-check --fail-on-breaking
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-NATIVE-darkred?style=for-the-badge" /></td>
-<td><strong>Rust Engine</strong> (v0.3.0) - binario nativo first-plan-engine. Co-change graph 50k commits em &lt;2s vs 5min via shell. Hash 10k arquivos paralelo. Zero token Claude pra heavy lifting.</td>
+<td><strong>Rust Engine</strong> (v0.3.0) - binario nativo fpe. Co-change graph 50k commits em &lt;2s vs 5min via shell. Hash 10k arquivos paralelo. Zero token Claude pra heavy lifting.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-SEMANTIC-purple?style=for-the-badge" /></td>
@@ -270,39 +270,39 @@ first-plan-engine multi contracts-check --fail-on-breaking
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-WATCH-cyan?style=for-the-badge" /></td>
-<td><strong>Watch mode</strong> (v0.5.1) - <code>first-plan-engine watch</code> monitora filesystem com debounce. Emite eventos JSON stream em stdout. Inspirado em OpenKB (continuous compilation).</td>
+<td><strong>Watch mode</strong> (v0.5.1) - <code>fpe watch</code> monitora filesystem com debounce. Emite eventos JSON stream em stdout. Inspirado em OpenKB (continuous compilation).</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-COMPRESS-darkgreen?style=for-the-badge" /></td>
-<td><strong>Compressão Nativa de Output</strong> (v0.5.3) - <code>first-plan-engine compress --tool &lt;git/find/grep/cargo/etc&gt;</code>. Economia de 80-99% em tokens para outputs grandes. Sem dependência externa.</td>
+<td><strong>Compressão Nativa de Output</strong> (v0.5.3) - <code>fpe compress --tool &lt;git/find/grep/cargo/etc&gt;</code>. Economia de 80-99% em tokens para outputs grandes. Sem dependência externa.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-LSP-purple?style=for-the-badge" /></td>
-<td><strong>Integração LSP Polyglot</strong> (v0.6.0) - <code>first-plan-engine lsp &lt;refs|def|symbols|hover|wsymbols&gt;</code>. Resolução semântica de símbolos via 8 language servers (rust-analyzer, gopls, pyright, ts-lsp, intelephense, clangd, ruby-lsp, lua-ls). Auto-detecção de stack via manifests, sugere comandos de instalação para servers faltantes. Fallback gracioso para tree-sitter + grep.</td>
+<td><strong>Integração LSP Polyglot</strong> (v0.6.0) - <code>fpe lsp &lt;refs|def|symbols|hover|wsymbols&gt;</code>. Resolução semântica de símbolos via 8 language servers (rust-analyzer, gopls, pyright, ts-lsp, intelephense, clangd, ruby-lsp, lua-ls). Auto-detecção de stack via manifests, sugere comandos de instalação para servers faltantes. Fallback gracioso para tree-sitter + grep.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-DAEMON-magenta?style=for-the-badge" /></td>
-<td><strong>LSP Daemon Mode</strong> (v0.6.1) - <code>first-plan-engine lsp daemon start</code>. Pool de warm-servers sobre Unix socket elimina cold start de 3-15s. Chamadas subsequentes retornam em &lt;100ms. Auto-routing: todas as ops LSP usam o daemon transparentemente quando ativo, fallback para spawn direto caso contrário.</td>
+<td><strong>LSP Daemon Mode</strong> (v0.6.1) - <code>fpe lsp daemon start</code>. Pool de warm-servers sobre Unix socket elimina cold start de 3-15s. Chamadas subsequentes retornam em &lt;100ms. Auto-routing: todas as ops LSP usam o daemon transparentemente quando ativo, fallback para spawn direto caso contrário.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-QUALITY-red?style=for-the-badge" /></td>
-<td><strong>Camada Quality / Validação</strong> (v0.8.0) - <code>first-plan-engine quality</code>. Parsers nativos de CI workflows (GitHub Actions, GitLab CI, CircleCI, Jenkins), coverage reports (lcov, cobertura, jacoco, jest, go cover) e detecção de flaky tests via mining de git history. Produz <code>.first-plan/11-quality/</code> para que o AI saiba o que roda, o que está testado e o que é instável antes de sugerir mudanças.</td>
+<td><strong>Camada Quality / Validação</strong> (v0.8.0) - <code>fpe quality</code>. Parsers nativos de CI workflows (GitHub Actions, GitLab CI, CircleCI, Jenkins), coverage reports (lcov, cobertura, jacoco, jest, go cover) e detecção de flaky tests via mining de git history. Produz <code>.first-plan/11-quality/</code> para que o AI saiba o que roda, o que está testado e o que é instável antes de sugerir mudanças.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-CONTRACTS-teal?style=for-the-badge" /></td>
-<td><strong>Camada Contracts</strong> (v0.9.0) - <code>first-plan-engine contracts</code>. Parse de OpenAPI 3.x, Protobuf e GraphQL SDL com cross-reference no código. Cada endpoint, RPC ou operation classificada como IMPLEMENTED, CANDIDATE ou PHANTOM. Produz <code>.first-plan/12-contracts/</code> para que o AI nunca sugira código que quebre contrato nem implemente o que já existe.</td>
+<td><strong>Camada Contracts</strong> (v0.9.0) - <code>fpe contracts</code>. Parse de OpenAPI 3.x, Protobuf e GraphQL SDL com cross-reference no código. Cada endpoint, RPC ou operation classificada como IMPLEMENTED, CANDIDATE ou PHANTOM. Produz <code>.first-plan/12-contracts/</code> para que o AI nunca sugira código que quebre contrato nem implemente o que já existe.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-EVOLUTION-darkorange?style=for-the-badge" /></td>
-<td><strong>Camada Evolution</strong> (v0.10.0) - <code>first-plan-engine evolution</code>. Detecção de depreciações em código (@deprecated, TODO(remove-after), #[deprecated]) e CHANGELOG (formato Keep-a-Changelog). Breaking commits via mining de git history (feat!, BREAKING CHANGE, keywords migrate/refactor). Replacement pairs inferidos automaticamente. Produz <code>.first-plan/13-evolution/</code> para que o AI pare de sugerir padrões que o time já depreciou.</td>
+<td><strong>Camada Evolution</strong> (v0.10.0) - <code>fpe evolution</code>. Detecção de depreciações em código (@deprecated, TODO(remove-after), #[deprecated]) e CHANGELOG (formato Keep-a-Changelog). Breaking commits via mining de git history (feat!, BREAKING CHANGE, keywords migrate/refactor). Replacement pairs inferidos automaticamente. Produz <code>.first-plan/13-evolution/</code> para que o AI pare de sugerir padrões que o time já depreciou.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-RUNTIME-firebrick?style=for-the-badge" /></td>
-<td><strong>Camada Runtime</strong> (v0.11.0) - <code>first-plan-engine runtime</code>. Histórico de releases via git tags cross-referenced com CHANGELOG. Commits pendentes após ultima tag com detecção de breaking changes. Mapeamento arquivo-para-release (paralelizado com rayon, 11x speedup). Produz <code>.first-plan/14-runtime/</code> para o AI responder "esse bug está em produção?" e "esse fix requer release nova?".</td>
+<td><strong>Camada Runtime</strong> (v0.11.0) - <code>fpe runtime</code>. Histórico de releases via git tags cross-referenced com CHANGELOG. Commits pendentes após ultima tag com detecção de breaking changes. Mapeamento arquivo-para-release (paralelizado com rayon, 11x speedup). Produz <code>.first-plan/14-runtime/</code> para o AI responder "esse bug está em produção?" e "esse fix requer release nova?".</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-GENERATE-4B0082?style=for-the-badge" /></td>
-<td><strong>Multi-Tool Generate</strong> (v1.0.0) - <code>first-plan-engine generate --tool &lt;nome&gt;</code>. Renderiza o mesmo IR em 5 formatos tool-specific: AGENTS.md (Codex), .cursorrules + .cursor/rules/*.mdc (Cursor), .github/copilot-instructions.md (GitHub Copilot), .clinerules (Cline), CONVENTIONS.md (Aider/generic). Framework pivot: qualquer AI coding tool consome o mesmo contexto compilado.</td>
+<td><strong>Multi-Tool Generate</strong> (v1.0.0) - <code>fpe generate --tool &lt;nome&gt;</code>. Renderiza o mesmo IR em 5 formatos tool-specific: AGENTS.md (Codex), .cursorrules + .cursor/rules/*.mdc (Cursor), .github/copilot-instructions.md (GitHub Copilot), .clinerules (Cline), CONVENTIONS.md (Aider/generic). Framework pivot: qualquer AI coding tool consome o mesmo contexto compilado.</td>
 </tr>
 </table>
 
@@ -310,7 +310,7 @@ first-plan-engine multi contracts-check --fail-on-breaking
 
 ## Native Engine (v0.3.0+)
 
-A partir da v0.3.0, o plugin inclui um **binário nativo Rust** (`first-plan-engine`) que faz heavy lifting fora do Claude. Operações que levavam minutos via shell+tokens agora rodam em segundos.
+A partir da v0.3.0, o plugin inclui um **binário nativo Rust** (`fpe`) que faz heavy lifting fora do Claude. Operações que levavam minutos via shell+tokens agora rodam em segundos.
 
 ### Performance
 
@@ -329,7 +329,7 @@ Engine nativo nao detectado. Baixar? (~5MB, melhora 10-100x)
 A) Sim B) Nao C) Manual
 ```
 
-**Manual:** Download em [Releases](https://github.com/vynazevedo/first-plan/releases) o binário matching seu OS/arch. Extraia e coloque em `${CLAUDE_PLUGIN_ROOT}/engine/bin/first-plan-engine` (ou no `$PATH`).
+**Manual:** Download em [Releases](https://github.com/vynazevedo/first-plan/releases) o binário matching seu OS/arch. Extraia e coloque em `${CLAUDE_PLUGIN_ROOT}/engine/bin/fpe` (ou no `$PATH`).
 
 **Plataformas suportadas (v0.5.1):**
 
@@ -925,7 +925,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v1.3.0-current-brightgreen?style=flat-square" alt="v1.3.0 current">
+<img src="https://img.shields.io/badge/v1.3.1-current-brightgreen?style=flat-square" alt="v1.3.1 current">
 <img src="https://img.shields.io/badge/v1.1.0-next-blue?style=flat-square" alt="v1.1.0 next">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
@@ -948,7 +948,7 @@ Workflow:
 
 #### v0.3.0 - Native Rust Engine
 
-- Binário `first-plan-engine` em Rust workspace
+- Binário `fpe` em Rust workspace
 - Subcommands `cochange` e `hash` (10-100x speedup)
 - Cross-platform pre-built binaries (linux x86_64+arm64, windows)
 - GitHub Actions CI/CD (lint, test, release)
@@ -1008,7 +1008,7 @@ Workflow:
 
 #### v0.5.3 - Compressão nativa de output
 
-- **`first-plan-engine compress --tool <tool>`** - reduz tokens consumidos pelo Claude
+- **`fpe compress --tool <tool>`** - reduz tokens consumidos pelo Claude
   - Tools: git-status, git-log, git-diff, git-branch, find, grep, rg, ls, cargo-check/test/metadata, npm-test, go-build/test
   - Heurísticas por tool (agrupa por dir, summariza por arquivo, apenas failures, etc)
   - Fallback graceful: tool desconhecido passa output direto
@@ -1019,7 +1019,7 @@ Workflow:
 
 #### v0.6.0 - Integração LSP Polyglot
 
-- **`first-plan-engine lsp <op>`** - resolução semântica de símbolos via Language Server Protocol
+- **`fpe lsp <op>`** - resolução semântica de símbolos via Language Server Protocol
   - Operações: refs, def, symbols, hover, wsymbols, status, daemon
   - 8 servers suportados: rust-analyzer, gopls, pyright, typescript-language-server, intelephense, clangd, ruby-lsp, lua-language-server
   - Auto-detecção via manifests (Cargo.toml, go.mod, package.json, etc)
@@ -1035,7 +1035,7 @@ Workflow:
 
 #### v0.6.1 - LSP daemon mode
 
-- **`first-plan-engine lsp daemon start --root <path>`** - pool de warm servers via Unix socket
+- **`fpe lsp daemon start --root <path>`** - pool de warm servers via Unix socket
 - Elimina cold start de 3-15s a partir da segunda chamada
 - Todas as ops LSP roteiam pelo daemon automaticamente quando ativo (transparente para skills/subagents)
 - Lazy spawn: primeira request por server type paga cold start, demais em <100ms
@@ -1057,7 +1057,7 @@ Workflow:
 
 #### v0.8.0 - Camada Quality / Validação
 
-- **`first-plan-engine quality`** - captura estado de validação automática
+- **`fpe quality`** - captura estado de validação automática
 - CI workflows parseados: GitHub Actions, GitLab CI, CircleCI, Jenkins
 - Coverage reports parseados: lcov, cobertura, jacoco, jest, go coverprofile
 - Detecção de flaky tests via mining de git history (3 heurísticas com score)
@@ -1071,7 +1071,7 @@ Workflow:
 
 #### v0.9.0 - Camada Contracts
 
-- **`first-plan-engine contracts`** - reconciliação spec-código
+- **`fpe contracts`** - reconciliação spec-código
 - OpenAPI 3.x parser (YAML + JSON, 6 locais candidatos)
 - Protobuf parser regex-based (sem dependência do protoc)
 - GraphQL SDL parser
@@ -1080,7 +1080,7 @@ Workflow:
 
 #### v0.10.0 - Camada Evolution
 
-- **`first-plan-engine evolution`** - ledger de depreciações e migrações
+- **`fpe evolution`** - ledger de depreciações e migrações
 - Deprecations em código detectadas cross-language (Rust `#[deprecated]`, Java `@Deprecated`, JS/TS `@deprecated`, universal `TODO(remove-after)`)
 - CHANGELOG parser (formato Keep-a-Changelog)
 - Breaking commits detectados via git history (5 kinds: ConventionalBreaking, BreakingChangeFooter, RefactorKeyword, MigrateKeyword, RewriteKeyword)
@@ -1089,7 +1089,7 @@ Workflow:
 
 #### v0.11.0 - Camada Runtime (current)
 
-- **`first-plan-engine runtime`** - link entre IR e estado de produção
+- **`fpe runtime`** - link entre IR e estado de produção
 - Histórico de releases via git tags com commit-count/author-count/CHANGELOG cross-reference
 - Commits pendentes pós latest tag com detecção de breaking changes
 - Mapeamento arquivo-para-release (introduced_in + last_modified_in por arquivo source)
@@ -1107,8 +1107,8 @@ Workflow:
 
 #### v1.0.0 - Framework pivot (multi-tool)
 
-- `first-plan-engine generate --tool <claude|codex|cursor|copilot|generic>` gera arquivos de instrução tool-specific a partir do IR
-- Init LLM-agnostic: `first-plan-engine init --llm <openai|anthropic|ollama|qwen>` para users sem Claude Code
+- `fpe generate --tool <claude|codex|cursor|copilot|generic>` gera arquivos de instrução tool-specific a partir do IR
+- Init LLM-agnostic: `fpe init --llm <openai|anthropic|ollama|qwen>` para users sem Claude Code
 - Plugin Claude Code continua sendo a integração profunda; outras ferramentas consomem arquivos gerados
 - Schema do IR formalizado como documento de especificação
 

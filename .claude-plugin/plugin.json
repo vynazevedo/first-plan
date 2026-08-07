@@ -2,7 +2,7 @@
   "name": "fp",
   "displayName": "first-plan",
   "description": "Camada compilada de contexto para qualquer AI coding tool. Compila projetos em estrutura .first-plan/ com 15 camadas (discovery, conventions, reuse, features, quality, contracts, evolution, runtime) e gera arquivos de instrução tool-specific (AGENTS.md para Codex, .cursorrules para Cursor, .github/copilot-instructions.md para GitHub Copilot, .clinerules para Cline, CONVENTIONS.md universal para Aider e outros). Deep integration com Claude Code via skills e agents. Resolve re-implementação cega, phantom features, drift de specs e cross-session amnesia.",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "author": {
     "name": "Vinicius Azevedo",
     "email": "viniciusdiazevedo@gmail.com"

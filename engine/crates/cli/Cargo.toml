@@ -6,7 +6,11 @@ license.workspace = true
 repository.workspace = true
 authors.workspace = true
 description = "first-plan engine - native binary for performance-critical operations"
-default-run = "first-plan-engine"
+default-run = "fpe"
+
+[[bin]]
+name = "fpe"
+path = "src/main.rs"
 
 [[bin]]
 name = "first-plan-engine"
