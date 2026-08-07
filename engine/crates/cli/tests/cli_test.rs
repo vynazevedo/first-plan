@@ -763,3 +763,225 @@ fn multi_aggregate_produces_overview_markdown() {
     assert!(content.contains("Este repo faz coisas importantes"));
     assert!(content.contains("| svc |"));
 }
+
+fn write_openapi(dir: &Path, body: &str) {
+    fs::write(dir.join("openapi.yaml"), body).unwrap();
+}
+
+const OPENAPI_BEFORE: &str = "openapi: 3.0.0
+info:
+  title: Users API
+  version: 1.0.0
+paths:
+  /users:
+    get:
+      operationId: listUsers
+  /legacy:
+    delete:
+      operationId: dropLegacy
+";
+
+const OPENAPI_AFTER_BREAKING: &str = "openapi: 3.0.0
+info:
+  title: Users API
+  version: 1.1.0
+paths:
+  /users:
+    get:
+      operationId: fetchUsers
+  /users/{id}/roles:
+    post:
+      operationId: assignRole
+";
+
+#[test]
+fn contracts_snapshot_creates_json_file_with_endpoints() {
+    let tmp = TempDir::new().unwrap();
+    write_openapi(tmp.path(), OPENAPI_BEFORE);
+    let out = tmp.path().join("snapshot.json");
+
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "contracts",
+            "snapshot",
+            "--root",
+            tmp.path().to_str().unwrap(),
+            "--out",
+            out.to_str().unwrap(),
+            "--json",
+        ])
+        .assert()
+        .success();
+
+    assert!(out.exists());
+    let parsed: serde_json::Value =
+        serde_json::from_str(&fs::read_to_string(&out).unwrap()).unwrap();
+    let endpoints = parsed["openapi"]["endpoints"].as_array().unwrap();
+    assert_eq!(endpoints.len(), 2);
+}
+
+#[test]
+fn contracts_diff_detects_breaking_and_non_breaking() {
+    let before_dir = TempDir::new().unwrap();
+    let after_dir = TempDir::new().unwrap();
+    write_openapi(before_dir.path(), OPENAPI_BEFORE);
+    write_openapi(after_dir.path(), OPENAPI_AFTER_BREAKING);
+
+    let before_snap = before_dir.path().join("snap.json");
+    let after_snap = after_dir.path().join("snap.json");
+
+    for (dir, snap) in [(&before_dir, &before_snap), (&after_dir, &after_snap)] {
+        Command::cargo_bin("first-plan-engine")
+            .unwrap()
+            .args([
+                "contracts",
+                "snapshot",
+                "--root",
+                dir.path().to_str().unwrap(),
+                "--out",
+                snap.to_str().unwrap(),
+            ])
+            .assert()
+            .success();
+    }
+
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "contracts",
+            "diff",
+            "--before",
+            before_snap.to_str().unwrap(),
+            "--after",
+            after_snap.to_str().unwrap(),
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["summary"]["total_changes"], 3);
+    assert_eq!(parsed["summary"]["breaking"], 2);
+    assert_eq!(parsed["summary"]["non_breaking"], 1);
+    let removed = parsed["openapi"]["removed"].as_array().unwrap();
+    assert_eq!(removed.len(), 1);
+    assert_eq!(removed[0]["path"], "/legacy");
+    assert_eq!(removed[0]["is_breaking"], true);
+    let modified = parsed["openapi"]["modified"].as_array().unwrap();
+    assert_eq!(modified.len(), 1);
+    assert_eq!(modified[0]["path"], "/users");
+    assert_eq!(modified[0]["is_breaking"], true);
+}
+
+#[test]
+fn contracts_diff_fail_on_breaking_returns_nonzero() {
+    let before_dir = TempDir::new().unwrap();
+    let after_dir = TempDir::new().unwrap();
+    write_openapi(before_dir.path(), OPENAPI_BEFORE);
+    write_openapi(after_dir.path(), OPENAPI_AFTER_BREAKING);
+    let before_snap = before_dir.path().join("snap.json");
+    let after_snap = after_dir.path().join("snap.json");
+
+    for (dir, snap) in [(&before_dir, &before_snap), (&after_dir, &after_snap)] {
+        Command::cargo_bin("first-plan-engine")
+            .unwrap()
+            .args([
+                "contracts",
+                "snapshot",
+                "--root",
+                dir.path().to_str().unwrap(),
+                "--out",
+                snap.to_str().unwrap(),
+            ])
+            .assert()
+            .success();
+    }
+
+    Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "contracts",
+            "diff",
+            "--before",
+            before_snap.to_str().unwrap(),
+            "--after",
+            after_snap.to_str().unwrap(),
+            "--fail-on-breaking",
+        ])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("breaking change"));
+}
+
+#[test]
+fn multi_contracts_check_flags_breaking_repos() {
+    let main = TempDir::new().unwrap();
+    let clean_repo = TempDir::new().unwrap();
+    let breaking_repo = TempDir::new().unwrap();
+
+    for repo in [&clean_repo, &breaking_repo] {
+        write_openapi(repo.path(), OPENAPI_BEFORE);
+        let snap = repo.path().join(".first-plan/12-contracts/snapshot.json");
+        Command::cargo_bin("first-plan-engine")
+            .unwrap()
+            .args([
+                "contracts",
+                "snapshot",
+                "--root",
+                repo.path().to_str().unwrap(),
+                "--out",
+                snap.to_str().unwrap(),
+            ])
+            .assert()
+            .success();
+    }
+
+    write_openapi(breaking_repo.path(), OPENAPI_AFTER_BREAKING);
+
+    for (name, repo) in [("clean", &clean_repo), ("api", &breaking_repo)] {
+        Command::cargo_bin("first-plan-engine")
+            .unwrap()
+            .args([
+                "multi",
+                "register",
+                "--name",
+                name,
+                "--path",
+                repo.path().to_str().unwrap(),
+                "--root",
+                main.path().to_str().unwrap(),
+            ])
+            .assert()
+            .success();
+    }
+
+    let out = Command::cargo_bin("first-plan-engine")
+        .unwrap()
+        .args([
+            "multi",
+            "contracts-check",
+            "--root",
+            main.path().to_str().unwrap(),
+            "--json",
+        ])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+
+    let parsed: serde_json::Value = serde_json::from_slice(&out).unwrap();
+    assert_eq!(parsed["$schema"], "first-plan-multi-contracts-check-v1");
+    assert_eq!(parsed["total_repos"], 2);
+    assert_eq!(parsed["checked"], 2);
+    assert_eq!(parsed["total_breaking"], 2);
+    let repos = parsed["repos"].as_array().unwrap();
+    let api = repos.iter().find(|r| r["name"] == "api").unwrap();
+    assert_eq!(api["status"], "breaking");
+    let clean = repos.iter().find(|r| r["name"] == "clean").unwrap();
+    assert_eq!(clean["status"], "clean");
+}

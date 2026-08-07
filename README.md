@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-1.2.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.3.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -162,6 +162,30 @@ first-plan-engine multi remove --name frontend
 ```
 
 Config persists in `.first-plan/multi.yaml`. The aggregated overview shows a repo table (path, tags, IR presence) plus per-repo excerpts of `mission/purpose.md` and `topology/stacks.md`, giving any AI tool cross-repo context in one file.
+
+### Contract diff and breaking-change detection (v1.3.0+): `contracts snapshot` / `contracts diff`
+
+Detect API contract regressions before they ship. The engine snapshots your OpenAPI specs and diffs any two snapshots, classifying each change as breaking or non-breaking:
+
+```bash
+# Snapshot current OpenAPI state (writes .first-plan/12-contracts/snapshot.json by default)
+first-plan-engine contracts snapshot
+
+# Diff between two snapshots
+first-plan-engine contracts diff --before snapshot-v1.json --after snapshot-v2.json
+
+# Diff current state against a baseline (no need to snapshot the "after" side)
+first-plan-engine contracts diff --before snapshot.json
+
+# CI-friendly: exit code 1 when any breaking change is detected
+first-plan-engine contracts diff --before baseline.json --fail-on-breaking
+
+# Cross-repo check: for every registered sibling repo, diff current state
+# against its baseline snapshot, aggregate breaking-change count
+first-plan-engine multi contracts-check --fail-on-breaking
+```
+
+**Breaking rules (v1.3.0, endpoint-level):** removed endpoint = breaking, `operation_id` change = breaking, added endpoint / summary change / tags change = non-breaking. Parameter, request-body and response-schema diff, plus Protobuf and GraphQL support, ship in v1.3.1.
 
 ### See value in 5 seconds (Claude Code): `/fp:quick`
 
@@ -961,7 +985,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v1.2.0-current-brightgreen?style=flat-square" alt="v1.2.0 current">
+<img src="https://img.shields.io/badge/v1.3.0-current-brightgreen?style=flat-square" alt="v1.3.0 current">
 <img src="https://img.shields.io/badge/v1.1.0-next-blue?style=flat-square" alt="v1.1.0 next">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>

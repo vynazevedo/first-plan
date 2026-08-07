@@ -22,6 +22,8 @@ pub enum Op {
     Aggregate(AggregateArgs),
     /// Remove um repo do registro por nome.
     Remove(RemoveArgs),
+    /// Roda contracts diff em cada repo registrado contra seu snapshot baseline.
+    ContractsCheck(ContractsCheckArgs),
 }
 
 #[derive(ClapArgs)]
@@ -85,6 +87,20 @@ pub struct RemoveArgs {
     pub json: bool,
 }
 
+#[derive(ClapArgs)]
+pub struct ContractsCheckArgs {
+    #[arg(long, default_value = ".")]
+    pub root: PathBuf,
+    /// Path relativo ao repo onde o snapshot baseline é procurado
+    #[arg(long, default_value = ".first-plan/12-contracts/snapshot.json")]
+    pub baseline: PathBuf,
+    /// Falha com exit code 1 se qualquer repo tiver breaking changes
+    #[arg(long)]
+    pub fail_on_breaking: bool,
+    #[arg(long)]
+    pub json: bool,
+}
+
 #[derive(Serialize)]
 struct RegisterOutput<'a> {
     #[serde(rename = "$schema")]
@@ -141,6 +157,7 @@ pub fn run(args: Args) -> Result<()> {
         Op::Scan(a) => run_scan(a),
         Op::Aggregate(a) => run_aggregate(a),
         Op::Remove(a) => run_remove(a),
+        Op::ContractsCheck(a) => run_contracts_check(a),
     }
 }
 
@@ -355,6 +372,155 @@ fn run_remove(args: RemoveArgs) -> Result<()> {
             args.name,
             cfg.repos.len()
         );
+    }
+    Ok(())
+}
+
+#[derive(Serialize)]
+struct ContractsCheckOutput<'a> {
+    #[serde(rename = "$schema")]
+    schema: &'a str,
+    engine_version: &'a str,
+    total_repos: usize,
+    checked: usize,
+    skipped: usize,
+    total_breaking: usize,
+    repos: Vec<RepoCheckResult>,
+}
+
+#[derive(Serialize)]
+struct RepoCheckResult {
+    name: String,
+    path: PathBuf,
+    status: String,
+    baseline_path: Option<PathBuf>,
+    total_changes: usize,
+    breaking: usize,
+    non_breaking: usize,
+    reason: Option<String>,
+}
+
+fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
+    use first_plan_core::contracts::{analyze, diff, ContractsReport};
+
+    let cfg = multirepo::load(&args.root)?;
+    let mut results = Vec::new();
+    let mut checked = 0usize;
+    let mut skipped = 0usize;
+    let mut total_breaking = 0usize;
+
+    for entry in &cfg.repos {
+        let repo_path = multirepo::resolved_path(&args.root, entry);
+        let baseline_path = repo_path.join(&args.baseline);
+
+        if !repo_path.exists() {
+            skipped += 1;
+            results.push(RepoCheckResult {
+                name: entry.name.clone(),
+                path: repo_path.clone(),
+                status: "skipped".to_string(),
+                baseline_path: None,
+                total_changes: 0,
+                breaking: 0,
+                non_breaking: 0,
+                reason: Some("repo path não existe".to_string()),
+            });
+            continue;
+        }
+        if !baseline_path.exists() {
+            skipped += 1;
+            results.push(RepoCheckResult {
+                name: entry.name.clone(),
+                path: repo_path.clone(),
+                status: "skipped".to_string(),
+                baseline_path: Some(baseline_path),
+                total_changes: 0,
+                breaking: 0,
+                non_breaking: 0,
+                reason: Some(
+                    "baseline não encontrado (rodar `contracts snapshot` no repo primeiro)"
+                        .to_string(),
+                ),
+            });
+            continue;
+        }
+
+        let baseline_text = std::fs::read_to_string(&baseline_path)?;
+        let before: ContractsReport = serde_json::from_str(&baseline_text)?;
+        let after = analyze(&repo_path);
+        let d = diff::diff(&before, &after);
+        total_breaking += d.summary.breaking;
+        checked += 1;
+
+        results.push(RepoCheckResult {
+            name: entry.name.clone(),
+            path: repo_path.clone(),
+            status: if d.summary.breaking > 0 {
+                "breaking".to_string()
+            } else if d.summary.total_changes > 0 {
+                "changed".to_string()
+            } else {
+                "clean".to_string()
+            },
+            baseline_path: Some(baseline_path),
+            total_changes: d.summary.total_changes,
+            breaking: d.summary.breaking,
+            non_breaking: d.summary.non_breaking,
+            reason: None,
+        });
+    }
+
+    let breaking_repo_count = results.iter().filter(|r| r.breaking > 0).count();
+
+    if args.json {
+        let out = ContractsCheckOutput {
+            schema: "first-plan-multi-contracts-check-v1",
+            engine_version: first_plan_core::ENGINE_VERSION,
+            total_repos: cfg.repos.len(),
+            checked,
+            skipped,
+            total_breaking,
+            repos: results,
+        };
+        serde_json::to_writer_pretty(std::io::stdout().lock(), &out)?;
+        println!();
+    } else {
+        println!(
+            "Contracts check em {} repo(s) registrado(s): {} checked, {} skipped, {} breaking total.",
+            cfg.repos.len(),
+            checked,
+            skipped,
+            total_breaking
+        );
+        for r in &results {
+            let marker = match r.status.as_str() {
+                "breaking" => "!",
+                "changed" => "~",
+                "clean" => ".",
+                _ => "?",
+            };
+            print!("  {} {:<20} status={:<9}", marker, r.name, r.status);
+            if r.status == "skipped" {
+                if let Some(reason) = &r.reason {
+                    println!(" reason={}", reason);
+                } else {
+                    println!();
+                }
+            } else {
+                println!(
+                    " changes={} breaking={} non-breaking={}",
+                    r.total_changes, r.breaking, r.non_breaking
+                );
+            }
+        }
+    }
+
+    if args.fail_on_breaking && total_breaking > 0 {
+        return Err(anyhow!(
+            "{} breaking change(s) detectados em {} repo(s) (--fail-on-breaking)",
+            total_breaking,
+            breaking_repo_count
+        ));
     }
     Ok(())
 }

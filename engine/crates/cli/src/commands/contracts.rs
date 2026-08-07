@@ -2,36 +2,80 @@ use crate::tty::{
     flush, output_mode, print_header, print_kv, print_kv_bold, print_section, print_warning,
     OutputMode,
 };
-use anyhow::Result;
-use clap::Args as ClapArgs;
+use anyhow::{anyhow, Context, Result};
+use clap::{Args as ClapArgs, Subcommand};
 use crossterm::style::{Color, Stylize};
 use first_plan_core::contracts::{
     analyze,
     crossref::{CrossrefStatus, SchemaSource},
-    ContractsReport,
+    diff, ContractsReport,
 };
 use std::path::PathBuf;
 
 #[derive(ClapArgs)]
 pub struct Args {
-    #[arg(long, default_value = ".")]
+    #[command(subcommand)]
+    pub op: Option<Op>,
+
+    #[arg(long, default_value = ".", global = true)]
     pub root: PathBuf,
 
-    #[arg(long)]
-    pub output: Option<PathBuf>,
-
-    #[arg(long)]
+    #[arg(long, global = true)]
     pub json: bool,
 }
 
-pub fn run(args: Args) -> Result<()> {
-    let mode = output_mode(args.json);
-    let report = analyze(&args.root);
+#[derive(Subcommand)]
+pub enum Op {
+    Analyze(AnalyzeArgs),
+    Snapshot(SnapshotArgs),
+    Diff(DiffArgs),
+}
 
-    let out_dir = args
-        .output
-        .clone()
-        .unwrap_or_else(|| args.root.join(".first-plan").join("12-contracts"));
+#[derive(ClapArgs)]
+pub struct AnalyzeArgs {
+    #[arg(long)]
+    pub output: Option<PathBuf>,
+}
+
+#[derive(ClapArgs)]
+pub struct SnapshotArgs {
+    #[arg(long)]
+    pub out: Option<PathBuf>,
+}
+
+#[derive(ClapArgs)]
+pub struct DiffArgs {
+    #[arg(long)]
+    pub before: PathBuf,
+    #[arg(long)]
+    pub after: Option<PathBuf>,
+    #[arg(long)]
+    pub out: Option<PathBuf>,
+    #[arg(long)]
+    pub fail_on_breaking: bool,
+}
+
+pub fn run(args: Args) -> Result<()> {
+    match args.op {
+        None => run_analyze(args.root, args.json, None),
+        Some(Op::Analyze(a)) => run_analyze(args.root, args.json, a.output),
+        Some(Op::Snapshot(a)) => run_snapshot(args.root, args.json, a.out),
+        Some(Op::Diff(a)) => run_diff(
+            args.root,
+            args.json,
+            a.before,
+            a.after,
+            a.out,
+            a.fail_on_breaking,
+        ),
+    }
+}
+
+fn run_analyze(root: PathBuf, json: bool, output: Option<PathBuf>) -> Result<()> {
+    let mode = output_mode(json);
+    let report = analyze(&root);
+
+    let out_dir = output.unwrap_or_else(|| root.join(".first-plan").join("12-contracts"));
 
     std::fs::create_dir_all(&out_dir)?;
     std::fs::write(out_dir.join("00-openapi.md"), render_openapi_md(&report))?;
@@ -50,6 +94,97 @@ pub fn run(args: Args) -> Result<()> {
 
     render_pretty(&report, &out_dir);
     Ok(())
+}
+
+fn run_snapshot(root: PathBuf, json: bool, out: Option<PathBuf>) -> Result<()> {
+    let report = analyze(&root);
+    let default_path = root
+        .join(".first-plan")
+        .join("12-contracts")
+        .join("snapshot.json");
+    let path = out.unwrap_or(default_path);
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    std::fs::write(&path, serde_json::to_string_pretty(&report)?)
+        .with_context(|| format!("gravando snapshot em {}", path.display()))?;
+
+    if json {
+        let out = serde_json::json!({
+            "$schema": "first-plan-contracts-snapshot-v1",
+            "engine_version": first_plan_core::ENGINE_VERSION,
+            "snapshot_path": path,
+            "generated_at": report.generated_at,
+            "openapi_endpoints": report.openapi.total_endpoints,
+            "protobuf_rpcs": report.protobuf.total_rpcs,
+            "graphql_operations": report.graphql.total_operations,
+        });
+        println!("{}", serde_json::to_string_pretty(&out)?);
+    } else {
+        println!(
+            "Snapshot gravado em {} ({} openapi endpoints, {} protobuf RPCs, {} graphql ops).",
+            path.display(),
+            report.openapi.total_endpoints,
+            report.protobuf.total_rpcs,
+            report.graphql.total_operations
+        );
+    }
+    Ok(())
+}
+
+fn run_diff(
+    root: PathBuf,
+    json: bool,
+    before_path: PathBuf,
+    after_path: Option<PathBuf>,
+    out: Option<PathBuf>,
+    fail_on_breaking: bool,
+) -> Result<()> {
+    let before = load_report(&before_path)
+        .with_context(|| format!("carregando snapshot before em {}", before_path.display()))?;
+
+    let after = match after_path {
+        Some(p) => load_report(&p)
+            .with_context(|| format!("carregando snapshot after em {}", p.display()))?,
+        None => analyze(&root),
+    };
+
+    let d = diff::diff(&before, &after);
+    let md = diff::render_markdown(&d);
+
+    if let Some(path) = &out {
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        std::fs::write(path, &md)?;
+    }
+
+    if json {
+        println!("{}", serde_json::to_string_pretty(&d)?);
+    } else if out.is_some() {
+        println!(
+            "Diff gravado em {} ({} changes, {} breaking).",
+            out.as_ref().unwrap().display(),
+            d.summary.total_changes,
+            d.summary.breaking
+        );
+    } else {
+        print!("{}", md);
+    }
+
+    if fail_on_breaking && d.summary.breaking > 0 {
+        return Err(anyhow!(
+            "{} breaking change(s) detectados (--fail-on-breaking)",
+            d.summary.breaking
+        ));
+    }
+    Ok(())
+}
+
+fn load_report(path: &std::path::Path) -> Result<ContractsReport> {
+    let content = std::fs::read_to_string(path)?;
+    let report: ContractsReport = serde_json::from_str(&content)?;
+    Ok(report)
 }
 
 fn render_pretty(report: &ContractsReport, out_dir: &std::path::Path) {

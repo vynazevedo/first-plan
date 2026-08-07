@@ -8,6 +8,7 @@
 //! link que precisa saber quais endpoints estao vivos em prod).
 
 pub mod crossref;
+pub mod diff;
 pub mod graphql;
 pub mod openapi;
 pub mod protobuf;

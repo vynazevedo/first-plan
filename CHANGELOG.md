@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-08-07
+
+### Added
+
+- **Contract diff engine (OpenAPI)** - Novo módulo `core::contracts::diff` compara dois `ContractsReport` e classifica cada mudança como breaking ou non-breaking. Regras endpoint-level: endpoint removido é breaking (consumidor recebe 404), endpoint adicionado é safe, mudança de `operation_id` é breaking (client-gen quebra), mudança de summary ou tags é safe. Serialização JSON completa via `ContractsDiff`, `OpenApiDiff`, `EndpointChange`, `EndpointModification`, `FieldChange`, `DiffSummary`.
+- **Subcommand `contracts snapshot`** - Grava snapshot do estado atual em `.first-plan/12-contracts/snapshot.json` (path customizável via `--out`). Reutiliza o `ContractsReport` já produzido por `contracts analyze`, tornando o snapshot serializável como parte da baseline versionável do repo.
+- **Subcommand `contracts diff`** - Diff entre dois snapshots (`--before` + `--after`) ou entre snapshot e estado atual (só `--before`). Output markdown por default no stdout, JSON estruturado via `--json`, gravação em arquivo via `--out`. Flag `--fail-on-breaking` retorna exit code 1 quando existem breaking changes (útil em CI pra bloquear merge de PRs que quebram contrato).
+- **Subcommand `multi contracts-check`** - Fecha o loop v1.2 + v1.3: itera pelos repos registrados em `.first-plan/multi.yaml`, roda diff em cada contra baseline em `.first-plan/12-contracts/snapshot.json` (path customizável via `--baseline`), agrega breaking count total, marca cada repo como clean/changed/breaking. Flag `--fail-on-breaking` cascateia exit code non-zero. Repos sem baseline são skipped com reason explícita.
+- **Reestruturação `contracts` para subcommand pattern** - `contracts` agora aceita subops `analyze` (default preservado quando sem subop, mantém backward-compat), `snapshot`, `diff`. Flags `--root` e `--json` promovidas para globais.
+- **7 novos testes** - 6 unit tests em `core::contracts::diff` (added non-breaking, removed breaking, operation_id breaking, summary-only non-breaking, identical produces zero changes, method change shows as add+remove) e 4 integration tests em `cli_test.rs` (contracts_snapshot_creates_json_file_with_endpoints, contracts_diff_detects_breaking_and_non_breaking, contracts_diff_fail_on_breaking_returns_nonzero, multi_contracts_check_flags_breaking_repos). Total agora 134 unit e 25 integration.
+
+### Changed
+
+- Workspace bumped para 1.3.0
+- Subcommand `contracts` agora tem subops (backward-compat: chamar sem subop continua rodando `analyze`)
+
+### Roadmap
+
+- v1.3.1: diff granular de parameters, request body e response schemas (requer extensão do parser OpenAPI); suporte Protobuf e GraphQL diff
+
 ## [1.2.0] - 2026-08-01
 
 ### Added

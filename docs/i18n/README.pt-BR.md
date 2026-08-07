@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-1.2.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.3.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -157,6 +157,30 @@ first-plan-engine multi remove --name frontend
 ```
 
 Config persiste em `.first-plan/multi.yaml`. O overview agregado mostra tabela de repos (path, tags, presença de IR) mais excerptos por repo de `mission/purpose.md` e `topology/stacks.md`, dando a qualquer AI tool contexto cross-repo em um único arquivo.
+
+### Contract diff e detecção de breaking changes (v1.3.0+): `contracts snapshot` / `contracts diff`
+
+Detecta regressões de contrato de API antes do deploy. O engine tira snapshot das suas OpenAPI specs e faz diff entre dois snapshots, classificando cada mudança como breaking ou non-breaking:
+
+```bash
+# Snapshot do estado atual das OpenAPI specs (grava em .first-plan/12-contracts/snapshot.json)
+first-plan-engine contracts snapshot
+
+# Diff entre dois snapshots
+first-plan-engine contracts diff --before snapshot-v1.json --after snapshot-v2.json
+
+# Diff do estado atual contra um baseline (não precisa fazer snapshot do "after")
+first-plan-engine contracts diff --before snapshot.json
+
+# CI-friendly: exit code 1 quando qualquer breaking change é detectado
+first-plan-engine contracts diff --before baseline.json --fail-on-breaking
+
+# Cross-repo: pra cada sibling repo registrado, faz diff contra baseline
+# do próprio repo, agrega contagem de breaking changes
+first-plan-engine multi contracts-check --fail-on-breaking
+```
+
+**Regras breaking (v1.3.0, nível endpoint):** endpoint removido = breaking, mudança de `operation_id` = breaking, endpoint adicionado / mudança de summary / mudança de tags = non-breaking. Diff granular de parameters, request body e response schemas, além de suporte Protobuf e GraphQL, virão em v1.3.1.
 
 ### Para desenvolvimento local
 
@@ -901,7 +925,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v1.2.0-current-brightgreen?style=flat-square" alt="v1.2.0 current">
+<img src="https://img.shields.io/badge/v1.3.0-current-brightgreen?style=flat-square" alt="v1.3.0 current">
 <img src="https://img.shields.io/badge/v1.1.0-next-blue?style=flat-square" alt="v1.1.0 next">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
