@@ -123,6 +123,16 @@ fn run_chat(args: ChatArgs) -> Result<()> {
     }
     messages.push(ChatMessage::user(prompt));
 
+    let pb = if !args.json {
+        crate::tty::spinner(&format!(
+            "asking {} ({})",
+            provider.name(),
+            provider.model()
+        ))
+    } else {
+        indicatif::ProgressBar::hidden()
+    };
+
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()?;
@@ -131,6 +141,7 @@ fn run_chat(args: ChatArgs) -> Result<()> {
         .block_on(provider.chat(&messages, args.max_tokens))
         .map_err(|e| anyhow!("chat: {}", e))?;
     let elapsed_ms = start.elapsed().as_millis();
+    pb.finish_and_clear();
 
     if args.json {
         let out = ChatOutput {

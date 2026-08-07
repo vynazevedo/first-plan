@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use clap::Args as ClapArgs;
+use crossterm::style::Stylize;
 use first_plan_core::init::{self, layers, InitOptions};
 use first_plan_core::llm::{self, ProviderKind};
 use serde::Serialize;
@@ -144,16 +145,69 @@ pub fn run(args: Args) -> Result<()> {
         max_tokens: args.max_tokens,
     };
 
+    let pb = if !args.json {
+        crate::tty::spinner(&format!(
+            "generating layers via {} ({})",
+            provider.name(),
+            provider.model()
+        ))
+    } else {
+        indicatif::ProgressBar::hidden()
+    };
+
     let rt = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
         .build()?;
     let report = rt
         .block_on(init::run_init(provider.as_ref(), opts))
         .map_err(|e| anyhow!("init falhou: {}", e))?;
+    pb.finish_and_clear();
 
     if args.json {
         serde_json::to_writer_pretty(std::io::stdout().lock(), &report)?;
         println!();
+    } else if crate::tty::is_tty() {
+        crate::tty::header("Init complete");
+        crate::tty::kv("provider", &report.provider);
+        crate::tty::kv("model", &report.model);
+        crate::tty::kv("elapsed", &crate::tty::humanize_ms(report.elapsed_ms));
+
+        if !report.layers_generated.is_empty() {
+            crate::tty::section(&format!(
+                "Generated layers ({})",
+                report.layers_generated.len()
+            ));
+            let rows: Vec<Vec<String>> = report
+                .layers_generated
+                .iter()
+                .map(|l| {
+                    vec![
+                        crate::tty::badge(crate::tty::Severity::Ok, "OK"),
+                        l.name.clone().bold().to_string(),
+                        l.output_path.display().to_string().dim().to_string(),
+                        crate::tty::humanize_bytes(l.bytes_written as u64),
+                        crate::tty::humanize_ms(l.elapsed_ms),
+                    ]
+                })
+                .collect();
+            crate::tty::table(&["status", "layer", "output", "size", "elapsed"], &rows);
+        }
+
+        if !report.layers_skipped.is_empty() {
+            crate::tty::section(&format!("Skipped ({})", report.layers_skipped.len()));
+            let rows: Vec<Vec<String>> = report
+                .layers_skipped
+                .iter()
+                .map(|l| {
+                    vec![
+                        crate::tty::badge(crate::tty::Severity::Muted, "SKIP"),
+                        l.name.clone().bold().to_string(),
+                        l.reason.clone().dim().to_string(),
+                    ]
+                })
+                .collect();
+            crate::tty::table(&["status", "layer", "reason"], &rows);
+        }
     } else {
         println!(
             "init concluído em {}ms (provider={}, model={})",

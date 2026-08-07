@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use clap::{Args as ClapArgs, Subcommand};
+use crossterm::style::Stylize;
 use first_plan_core::multirepo::{self, MultiRepoConfig, RepoEntry};
 use serde::Serialize;
 use std::path::PathBuf;
@@ -232,6 +233,44 @@ fn run_list(args: ListArgs) -> Result<()> {
         };
         serde_json::to_writer_pretty(std::io::stdout().lock(), &out)?;
         println!();
+    } else if crate::tty::is_tty() {
+        crate::tty::header(&format!("Registered repos ({})", entries.len()));
+        crate::tty::kv("config", &cfg_path.display().to_string());
+        if entries.is_empty() {
+            println!();
+            crate::tty::print_warning(
+                "Nenhum repo registrado. Use `multi register` ou `multi scan --register-all`.",
+            );
+            return Ok(());
+        }
+        println!();
+        let rows: Vec<Vec<String>> = entries
+            .iter()
+            .map(|e| {
+                let (exists_badge, exists_sev) = if e.exists {
+                    ("exists", crate::tty::Severity::Ok)
+                } else {
+                    ("missing", crate::tty::Severity::Bad)
+                };
+                let (ir_badge, ir_sev) = if e.has_first_plan {
+                    ("IR ready", crate::tty::Severity::Ok)
+                } else {
+                    ("no IR", crate::tty::Severity::Muted)
+                };
+                vec![
+                    e.name.clone().bold().to_string(),
+                    e.resolved_path.display().to_string().dim().to_string(),
+                    crate::tty::badge(exists_sev, exists_badge),
+                    crate::tty::badge(ir_sev, ir_badge),
+                    if e.tags.is_empty() {
+                        "-".dim().to_string()
+                    } else {
+                        e.tags.join(", ")
+                    },
+                ]
+            })
+            .collect();
+        crate::tty::table(&["name", "path", "", "", "tags"], &rows);
     } else {
         println!("Config: {}", cfg_path.display());
         if entries.is_empty() {
@@ -409,7 +448,14 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
     let mut skipped = 0usize;
     let mut total_breaking = 0usize;
 
+    let pb = if !args.json {
+        crate::tty::multi_spinner(cfg.repos.len(), "checking contracts")
+    } else {
+        indicatif::ProgressBar::hidden()
+    };
+
     for entry in &cfg.repos {
+        pb.set_message(entry.name.clone());
         let repo_path = multirepo::resolved_path(&args.root, entry);
         let baseline_path = repo_path.join(&args.baseline);
 
@@ -425,6 +471,7 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
                 non_breaking: 0,
                 reason: Some("repo path não existe".to_string()),
             });
+            pb.inc(1);
             continue;
         }
         if !baseline_path.exists() {
@@ -442,6 +489,7 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
                         .to_string(),
                 ),
             });
+            pb.inc(1);
             continue;
         }
 
@@ -468,7 +516,9 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
             non_breaking: d.summary.non_breaking,
             reason: None,
         });
+        pb.inc(1);
     }
+    pb.finish_and_clear();
 
     let breaking_repo_count = results.iter().filter(|r| r.breaking > 0).count();
 
@@ -484,6 +534,51 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
         };
         serde_json::to_writer_pretty(std::io::stdout().lock(), &out)?;
         println!();
+    } else if crate::tty::is_tty() {
+        crate::tty::header(&format!("Contracts check ({} repos)", cfg.repos.len()));
+        let summary_sev = if total_breaking > 0 {
+            crate::tty::Severity::Bad
+        } else {
+            crate::tty::Severity::Ok
+        };
+        crate::tty::kv("checked", &checked.to_string());
+        crate::tty::kv("skipped", &skipped.to_string());
+        crate::tty::kv_colored("breaking", &total_breaking.to_string(), summary_sev);
+
+        crate::tty::section("Results");
+        let rows: Vec<Vec<String>> = results
+            .iter()
+            .map(|r| {
+                let (badge_label, sev) = match r.status.as_str() {
+                    "breaking" => ("BREAKING", crate::tty::Severity::Bad),
+                    "changed" => ("changed", crate::tty::Severity::Warn),
+                    "clean" => ("clean", crate::tty::Severity::Ok),
+                    _ => ("skipped", crate::tty::Severity::Muted),
+                };
+                let detail = if r.status == "skipped" {
+                    r.reason.clone().unwrap_or_default().dim().to_string()
+                } else {
+                    format!("{} changes ({} breaking)", r.total_changes, r.breaking)
+                };
+                vec![
+                    crate::tty::badge(sev, badge_label),
+                    r.name.clone().bold().to_string(),
+                    detail,
+                ]
+            })
+            .collect();
+        crate::tty::table(&["status", "repo", "detail"], &rows);
+        println!();
+        match summary_sev {
+            crate::tty::Severity::Bad => crate::tty::print_error(&format!(
+                "{} breaking change(s) detectadas em {} repo(s)",
+                total_breaking, breaking_repo_count
+            )),
+            _ => crate::tty::print_success(&format!(
+                "OK - nenhum breaking change em {} repo(s) checados",
+                checked
+            )),
+        }
     } else {
         println!(
             "Contracts check em {} repo(s) registrado(s): {} checked, {} skipped, {} breaking total.",

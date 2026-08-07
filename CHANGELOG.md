@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-08-07
+
+### Added
+
+- **Terminal polish (Direção 1)** - Reescrita do módulo `tty` com sistema de design coeso: `Severity` enum (Ok, Info, Warn, Bad, Muted, Neutral) que centraliza cores semânticas, `header` com box rounded (`╭─╮`) em ciano, `section` com barra `▎` bold, `table` com alinhamento por coluna e separadores dim, `badge` para status labels coloridos, `kv`/`kv_colored` para pares label/valor consistentes, `humanize_ms`/`humanize_bytes`/`humanize_age_from_iso` para números legíveis, `spinner`/`multi_spinner` wrappers do `indicatif` com fallback para pipe (`ProgressBar::hidden()` em não-TTY). Zero dependência nova; helpers antigos preservados por backward-compat.
+- **Pretty renderer para `contracts diff`** - Quando rodando em TTY, o comando agora renderiza um layout visual estruturado ao invés de despejar markdown: summary card no topo com breaking em vermelho, seções por tipo (Removed com `-` vermelho, Added com `+` verde, Modified com `~` amarelo/vermelho conforme severidade), tabelas alinhadas com badges `[BREAKING]`/`[safe]`, campos modificados com diff line-by-line no formato `field: before → after` colorido por severidade, footer com sumário final semântico. Comportamento em pipe ou `--out` preservado (markdown puro), `--json` preservado.
+- **Novo layout para `multi list`** - Header rounded com contagem de repos, tabela com nome bold, path dim, badges `[exists]`/`[missing]` e `[IR ready]`/`[no IR]` coloridos por status, tags como coluna dedicada.
+- **Novo layout para `multi contracts-check`** - Spinner com progresso `[N/M]` durante iteração pelos repos mostrando nome do repo atual, header rounded com contagem, kv de checked/skipped/breaking colorido por severidade total, tabela de resultados com badges `[BREAKING]`/`[changed]`/`[clean]`/`[skipped]` e detail column com contagem de changes.
+- **Novo layout para `contracts snapshot`** - Header rounded, kv com output path/counts/elapsed humanizado, spinner durante `analyze`, mensagem de sucesso semântica.
+- **Novo layout para `init` (`--llm`)** - Header rounded no complete, tabela de layers geradas com badges `[OK]`, path dim, tamanho humanizado (KB/MB) e elapsed humanizado (ms/s), tabela separada para layers skipped com badges `[SKIP]` mudos.
+- **Spinners nos comandos lentos** - `contracts snapshot`, `contracts analyze`, `init --llm`, `llm chat`, `multi contracts-check`. Todos com fallback silencioso em pipe/CI.
+
+### Changed
+
+- Workspace bumped para 1.4.0
+- Nova dep no crate `cli`: `chrono` (já era transitiva via workspace, agora explícita para uso em `humanize_age_from_iso`)
+- Todos os subcommands preservam comportamento em pipe (não-TTY) e em `--json`. Detecção via `is_terminal::IsTerminal` em `stdout()`. Design agnóstico de terminal específico (Linux, macOS, Windows Terminal, iTerm2, VS Code).
+
+### Not changed
+
+- Nenhuma quebra de API, nenhuma quebra de output JSON, nenhuma quebra de CI: `fpe contracts diff | jq`, `fpe multi list --json`, `--fail-on-breaking` em pipeline, tudo funciona exatamente como antes.
+- Pattern ratatui/TUI full-screen intencionalmente **não** adotado (quebraria pipe, alt-screen, compose com less/grep). Reserva-se para eventual `fpe explore` interativo em v1.5+ se houver demanda.
+
 ## [1.3.1] - 2026-08-07
 
 ### Changed

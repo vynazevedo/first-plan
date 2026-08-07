@@ -1,6 +1,6 @@
 use crate::tty::{
-    flush, output_mode, print_header, print_kv, print_kv_bold, print_section, print_warning,
-    OutputMode,
+    self, badge, flush, header, humanize_ms, kv, kv_colored, output_mode, print_header, print_kv,
+    print_kv_bold, print_section, print_warning, section, table, OutputMode, Severity,
 };
 use anyhow::{anyhow, Context, Result};
 use clap::{Args as ClapArgs, Subcommand};
@@ -97,7 +97,14 @@ fn run_analyze(root: PathBuf, json: bool, output: Option<PathBuf>) -> Result<()>
 }
 
 fn run_snapshot(root: PathBuf, json: bool, out: Option<PathBuf>) -> Result<()> {
+    let pb = if !json {
+        tty::spinner("analyzing contracts")
+    } else {
+        indicatif::ProgressBar::hidden()
+    };
     let report = analyze(&root);
+    pb.finish_and_clear();
+
     let default_path = root
         .join(".first-plan")
         .join("12-contracts")
@@ -120,6 +127,18 @@ fn run_snapshot(root: PathBuf, json: bool, out: Option<PathBuf>) -> Result<()> {
             "graphql_operations": report.graphql.total_operations,
         });
         println!("{}", serde_json::to_string_pretty(&out)?);
+    } else if tty::is_tty() {
+        header("Contracts snapshot");
+        kv("output", &path.display().to_string());
+        kv(
+            "openapi endpoints",
+            &report.openapi.total_endpoints.to_string(),
+        );
+        kv("protobuf RPCs", &report.protobuf.total_rpcs.to_string());
+        kv("graphql ops", &report.graphql.total_operations.to_string());
+        kv("elapsed", &humanize_ms(report.elapsed_ms as u128));
+        println!();
+        tty::print_success(&format!("Snapshot gravado em {}", path.display()));
     } else {
         println!(
             "Snapshot gravado em {} ({} openapi endpoints, {} protobuf RPCs, {} graphql ops).",
@@ -150,13 +169,12 @@ fn run_diff(
     };
 
     let d = diff::diff(&before, &after);
-    let md = diff::render_markdown(&d);
 
     if let Some(path) = &out {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        std::fs::write(path, &md)?;
+        std::fs::write(path, diff::render_markdown(&d))?;
     }
 
     if json {
@@ -168,8 +186,10 @@ fn run_diff(
             d.summary.total_changes,
             d.summary.breaking
         );
+    } else if crate::tty::is_tty() {
+        render_diff_pretty(&d);
     } else {
-        print!("{}", md);
+        print!("{}", diff::render_markdown(&d));
     }
 
     if fail_on_breaking && d.summary.breaking > 0 {
@@ -568,4 +588,155 @@ fn render_drift_md(report: &ContractsReport) -> String {
     s.push_str("---\n\n");
     s.push_str("**Como usar**: phantoms indicam gap entre spec e implementacao - decidir se remove da spec ou implementa. Candidates precisam olho humano - naming heuristico pode ser confundido por identificadores similares. Implemented sao referencias confirmadas.\n");
     s
+}
+
+fn render_diff_pretty(d: &first_plan_core::contracts::diff::ContractsDiff) {
+    header("Contract diff");
+
+    let summary_sev = if d.summary.breaking > 0 {
+        Severity::Bad
+    } else if d.summary.total_changes > 0 {
+        Severity::Warn
+    } else {
+        Severity::Ok
+    };
+
+    section("Summary");
+    kv("total changes", &d.summary.total_changes.to_string());
+    kv_colored("breaking", &d.summary.breaking.to_string(), summary_sev);
+    kv("non-breaking", &d.summary.non_breaking.to_string());
+    if let Some(age) = tty::humanize_age_from_iso(&d.before_generated_at) {
+        kv("before", &format!("{} ({})", d.before_generated_at, age));
+    } else {
+        kv("before", &d.before_generated_at);
+    }
+    if let Some(age) = tty::humanize_age_from_iso(&d.after_generated_at) {
+        kv("after", &format!("{} ({})", d.after_generated_at, age));
+    } else {
+        kv("after", &d.after_generated_at);
+    }
+
+    if d.summary.total_changes == 0 {
+        println!();
+        crate::tty::print_success("Nenhuma mudança detectada entre os snapshots.");
+        flush();
+        return;
+    }
+
+    if !d.openapi.removed.is_empty() {
+        section(&format!("OpenAPI · Removed ({})", d.openapi.removed.len()));
+        let rows: Vec<Vec<String>> = d
+            .openapi
+            .removed
+            .iter()
+            .map(|r| {
+                let breaking_marker = if r.is_breaking {
+                    badge(Severity::Bad, "BREAKING")
+                } else {
+                    badge(Severity::Muted, "safe")
+                };
+                vec![
+                    "-".with(crate::tty::severity_color(Severity::Bad))
+                        .bold()
+                        .to_string(),
+                    r.method
+                        .clone()
+                        .with(crate::tty::severity_color(Severity::Warn))
+                        .bold()
+                        .to_string(),
+                    r.path.clone(),
+                    r.operation_id.clone().unwrap_or_else(|| "-".to_string()),
+                    breaking_marker,
+                ]
+            })
+            .collect();
+        table(&["", "method", "path", "operation_id", ""], &rows);
+    }
+
+    if !d.openapi.added.is_empty() {
+        section(&format!("OpenAPI · Added ({})", d.openapi.added.len()));
+        let rows: Vec<Vec<String>> = d
+            .openapi
+            .added
+            .iter()
+            .map(|a| {
+                vec![
+                    "+".with(crate::tty::severity_color(Severity::Ok))
+                        .bold()
+                        .to_string(),
+                    a.method
+                        .clone()
+                        .with(crate::tty::severity_color(Severity::Info))
+                        .bold()
+                        .to_string(),
+                    a.path.clone(),
+                    a.operation_id.clone().unwrap_or_else(|| "-".to_string()),
+                    badge(Severity::Ok, "safe"),
+                ]
+            })
+            .collect();
+        table(&["", "method", "path", "operation_id", ""], &rows);
+    }
+
+    if !d.openapi.modified.is_empty() {
+        section(&format!(
+            "OpenAPI · Modified ({})",
+            d.openapi.modified.len()
+        ));
+        for m in &d.openapi.modified {
+            let ep_line = format!(
+                "  {} {} {}",
+                "~".with(crate::tty::severity_color(if m.is_breaking {
+                    Severity::Bad
+                } else {
+                    Severity::Warn
+                }))
+                .bold(),
+                m.method
+                    .clone()
+                    .with(crate::tty::severity_color(Severity::Warn))
+                    .bold(),
+                m.path.clone().white()
+            );
+            let sev_badge = if m.is_breaking {
+                badge(Severity::Bad, "BREAKING")
+            } else {
+                badge(Severity::Muted, "safe")
+            };
+            println!("{}  {}", ep_line, sev_badge);
+            for c in &m.changes {
+                let field_sev = if c.breaking {
+                    Severity::Bad
+                } else {
+                    Severity::Muted
+                };
+                let before = c.before.clone().unwrap_or_else(|| "∅".to_string());
+                let after = c.after.clone().unwrap_or_else(|| "∅".to_string());
+                println!(
+                    "      {}  {}  →  {}",
+                    c.field
+                        .clone()
+                        .with(crate::tty::severity_color(field_sev))
+                        .bold(),
+                    before.dim(),
+                    after.with(crate::tty::severity_color(field_sev))
+                );
+            }
+            println!();
+        }
+    }
+
+    println!();
+    match summary_sev {
+        Severity::Ok => crate::tty::print_success("OK - sem breaking changes"),
+        Severity::Warn => crate::tty::print_info(&format!(
+            "{} change(s) detectadas, nenhuma breaking",
+            d.summary.total_changes
+        )),
+        _ => crate::tty::print_error(&format!(
+            "{} breaking change(s) detectadas em {} total",
+            d.summary.breaking, d.summary.total_changes
+        )),
+    }
+    flush();
 }

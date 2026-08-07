@@ -22,6 +22,7 @@ clap = { version = "4", features = ["derive"] }
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+chrono.workspace = true
 crossterm.workspace = true
 indicatif.workspace = true
 is-terminal.workspace = true
