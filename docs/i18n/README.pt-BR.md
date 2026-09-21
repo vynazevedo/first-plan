@@ -1,4 +1,3 @@
-<!-- v1.5: detalhes atuais em docs/evidence-workflow.md; histórico abaixo preservado. -->
 <h1 align="center">
   <br>
   <a href="https://github.com/vynazevedo/first-plan">
@@ -7,17 +6,17 @@
   <br>
 </h1>
 
-<h4 align="center">Camada compilada de contexto para <a href="https://claude.com/claude-code" target="_blank">Claude Code</a> em projetos complexos.</h4>
+<h4 align="center">Contexto com evidências para mudanças assistidas por IA em projetos complexos.</h4>
 
 <p align="center">
   <a href="../../README.md">English</a>
 </p>
 
 <p align="center">
-  <a href="LICENSE">
+  <a href="../../LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
-  <a href=".claude-plugin/plugin.json">
+  <a href="../../.claude-plugin/plugin.json">
     <img src="https://img.shields.io/badge/version-1.5.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
@@ -59,7 +58,7 @@
 </p>
 
 <p align="center">
-  first-plan compila seu projeto numa camada estruturada de contexto (<code>.first-plan/</code>) com 15 camadas de conhecimento, depois gera arquivos de instrução tool-specific para <b>qualquer AI coding tool</b> (Claude Code, Codex, Cursor, GitHub Copilot, Cline, Aider) saber suas stacks, convenções, idiomas, hot files, contratos, depreciações e estado de runtime <i>antes de escrever uma linha de código</i>.
+  first-plan organiza evidências do projeto em <code>.first-plan/</code> e gera instruções para Claude Code, Codex, Cursor, GitHub Copilot, Cline e Aider. A cobertura depende dos comandos executados e das fontes disponíveis. As instruções orientam a IA, mas não garantem que ela siga todas as convenções.
 </p>
 
 <p align="center">
@@ -68,7 +67,47 @@
 
 ---
 
+## Fluxo com evidências (v1.5.0)
+
+Antes de alterar código, encontre implementações, testes e referências com localização e hashes:
+
+```bash
+fpe context --query "validate email" --budget 8000 --json
+fpe impact                            # consumidores candidatos em repos registrados
+fpe deployment status                 # desconhecido até registrar observações
+fpe mcp --root /caminho/absoluto/projeto # MCP somente leitura via stdio
+```
+
+O orçamento de contexto é em caracteres, não tokens. A busca é lexical; resultados exigem verificação.
+`generate` preserva instruções existentes e atualiza seu bloco gerenciado. `init --llm` registra inferências não verificadas e fontes. Tags não comprovam deploy em produção.
+
+Veja [fluxo e migração](../evidence-workflow.md), [avaliações](../evaluations.md) e [processo de release](../releases.md).
+
 ## Quick Start
+
+### Engine independente: Codex, Cursor, Copilot, Cline e Aider
+
+Baixe o binário em [Releases](https://github.com/vynazevedo/first-plan/releases/tag/v1.5.0) ou compile com Rust 1.96+:
+
+```bash
+cargo install --git https://github.com/vynazevedo/first-plan --tag v1.5.0 --locked first-plan-engine
+```
+
+Gere e revise o IR com `fpe init --llm` (abaixo), ou use um `.first-plan/` existente. Depois gere as instruções:
+
+```bash
+fpe generate --tool codex    # AGENTS.md
+fpe generate --tool cursor   # .cursorrules + .cursor/rules/
+fpe generate --tool copilot  # .github/copilot-instructions.md
+fpe generate --tool cline    # .clinerules
+fpe generate --tool generic  # CONVENTIONS.md
+fpe generate --list          # adaptadores disponíveis
+```
+
+Configure sua ferramenta para carregar as instruções. A descoberta dos arquivos e a adesão às regras dependem da ferramenta e de suas configurações.
+
+### Plugin Claude Code
+
 
 Instale via marketplace plugin do Claude Code:
 
@@ -101,7 +140,7 @@ Essa é a **primeira impressão** - contexto suficiente pro Claude começar a aj
 /fp:init
 ```
 
-Em ~3-8 minutos, gera o IR completo de 10 camadas: análise por stack lens, reuse index, reconciliation spec-código, co-change graph, provenance tracking, living layer. **É isso que faz a diferença** entre Claude inventar um novo padrão de auth vs Claude usar seu `internal/auth/jwt.go` como template.
+Gera o IR base de descoberta: análise de stacks, índice de reuso, reconciliação entre especificação e código, co-change e proveniência. Comandos adicionais do engine enriquecem qualidade, contratos, evolução e runtime. Duração e cobertura dependem do projeto, das ferramentas disponíveis e do modelo.
 
 ### Gerar IR sem Claude Code (v1.1.0+): `init --llm`
 
@@ -112,9 +151,9 @@ O engine agora inclui um init LLM-agnostic que gera as layers do `.first-plan/` 
 export OPENAI_API_KEY=sk-...
 fpe init --llm openai
 
-# Anthropic
+# Anthropic: defina FIRST_PLAN_LLM_MODEL com um modelo disponível na sua conta
 export ANTHROPIC_API_KEY=sk-ant-...
-fpe init --llm anthropic --model claude-sonnet-5
+fpe init --llm anthropic --model "$FIRST_PLAN_LLM_MODEL"
 
 # Ollama (local, sem API key)
 fpe init --llm ollama --model qwen2.5-coder:latest
@@ -132,7 +171,7 @@ fpe init --llm openai --layer mission/purpose --layer topology/stacks
 fpe init --list-layers
 ```
 
-Config via env vars: `FIRST_PLAN_LLM_PROVIDER`, `FIRST_PLAN_LLM_MODEL`, `FIRST_PLAN_LLM_BASE_URL`. 8 layers curadas em v1.1.0, com expansão em versões futuras. Cada arquivo gerado recebe frontmatter YAML com provider, model e timestamp para provenance.
+Config via env vars: `FIRST_PLAN_LLM_PROVIDER`, `FIRST_PLAN_LLM_MODEL`, `FIRST_PLAN_LLM_BASE_URL`. Na v1.5.0, este comando gera oito documentos selecionados. O frontmatter registra provider, modelo, data, revisão e hashes das fontes, com `confidence: null`, `epistemic_status: inferred` e `verification: unverified`. Revise as inferências antes de usá-las.
 
 ### Cross-repo awareness (v1.2.0+): `multi`
 
@@ -173,7 +212,7 @@ fpe contracts diff --before snapshot-v1.json --after snapshot-v2.json
 # Diff do estado atual contra um baseline (não precisa fazer snapshot do "after")
 fpe contracts diff --before snapshot.json
 
-# CI-friendly: exit code 1 quando qualquer breaking change é detectado
+# CI: falha se houver breaking change ou análise incompleta
 fpe contracts diff --before baseline.json --fail-on-breaking
 
 # Cross-repo: pra cada sibling repo registrado, faz diff contra baseline
@@ -181,7 +220,7 @@ fpe contracts diff --before baseline.json --fail-on-breaking
 fpe multi contracts-check --fail-on-breaking
 ```
 
-**Regras breaking (v1.3.0, nível endpoint):** endpoint removido = breaking, mudança de `operation_id` = breaking, endpoint adicionado / mudança de summary / mudança de tags = non-breaking. A v1.5.0 inclui verificações conservadoras de parâmetros, corpos e respostas OpenAPI. Diffs Protobuf/GraphQL continuam planejados.
+**Cobertura v1.5.0:** comparação conservadora de endpoints, parâmetros, corpos, respostas e segurança OpenAPI, com resolução de referências locais. `--fail-on-breaking` também rejeita análise incompleta, snapshots antigos e formatos não suportados. O gate entre repositórios rejeita baselines ausentes e repositórios ignorados. Recrie baselines antigos na revisão original. Diffs Protobuf/GraphQL e compatibilidade semântica completa continuam pendentes.
 
 ### Para desenvolvimento local
 
@@ -291,7 +330,7 @@ fpe multi contracts-check --fail-on-breaking
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-CONTRACTS-teal?style=for-the-badge" /></td>
-<td><strong>Camada Contracts</strong> (v0.9.0) - <code>fpe contracts</code>. Parse de OpenAPI 3.x, Protobuf e GraphQL SDL com cross-reference no código. Cada endpoint, RPC ou operation classificada como IMPLEMENTED, CANDIDATE ou PHANTOM. Produz <code>.first-plan/12-contracts/</code> para que o AI nunca sugira código que quebre contrato nem implemente o que já existe.</td>
+<td><strong>Camada Contracts</strong> (v0.9.0) - <code>fpe contracts</code>. Parse de OpenAPI 3.x, Protobuf e GraphQL SDL com cross-reference no código. Cada endpoint, RPC ou operation classificada como IMPLEMENTED, CANDIDATE ou PHANTOM. Produz <code>.first-plan/12-contracts/</code> para ajudar a revisar riscos de contrato e implementações existentes.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-EVOLUTION-darkorange?style=for-the-badge" /></td>
@@ -299,7 +338,7 @@ fpe multi contracts-check --fail-on-breaking
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-RUNTIME-firebrick?style=for-the-badge" /></td>
-<td><strong>Camada Runtime</strong> (v0.11.0) - <code>fpe runtime</code>. Histórico de releases via git tags cross-referenced com CHANGELOG. Commits pendentes após ultima tag com detecção de breaking changes. Mapeamento arquivo-para-release (paralelizado com rayon, 11x speedup). Produz <code>.first-plan/14-runtime/</code> para distinguir mudanças publicadas e pendentes. Estado de produção requer evidência de deploy separada.</td>
+<td><strong>Camada Runtime</strong> (v0.11.0) - <code>fpe runtime</code>. Histórico de releases via git tags cross-referenced com CHANGELOG. Commits pendentes após ultima tag com detecção de breaking changes. Mapeamento arquivo-para-release (paralelizado com rayon). Produz <code>.first-plan/14-runtime/</code> para distinguir mudanças publicadas e pendentes. Estado de produção requer evidência de deploy separada.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-GENERATE-4B0082?style=for-the-badge" /></td>
@@ -315,11 +354,7 @@ A partir da v0.3.0, o plugin inclui um **binário nativo Rust** (`fpe`) que faz 
 
 ### Performance
 
-| Operação | Shell + Claude | Engine nativo |
-|----------|----------------|---------------|
-| Co-change graph (50k commits) | ~5 min | <2 s |
-| Hash 10k arquivos (xxh3) | ~30 s | <500 ms |
-| Custo em tokens Claude | ~30k | ~0 |
+Operações locais do engine dispensam chamadas LLM; `init --llm` utiliza o provedor configurado. Latência e consumo dependem do projeto e do ambiente. As três regressões sintéticas da v1.5.0 não demonstram ganhos de produtividade com agentes reais; veja [avaliações](../evaluations.md).
 
 ### Instalação do engine
 
@@ -332,32 +367,29 @@ A) Sim B) Nao C) Manual
 
 **Manual:** Download em [Releases](https://github.com/vynazevedo/first-plan/releases) o binário matching seu OS/arch. Extraia e coloque em `${CLAUDE_PLUGIN_ROOT}/engine/bin/fpe` (ou no `$PATH`).
 
-**Plataformas suportadas (v0.5.1):**
+**Plataformas da v1.5.0:**
 
-Build padrão lean (~1MB):
-- Linux x86_64 (musl, fully static)
-- Linux aarch64 (musl, fully static)
+- Linux x86_64 e aarch64 (musl)
+- macOS Intel e Apple Silicon
 - Windows x86_64
+- Linux x86_64 GNU com ML (sufixo `-ml`)
+- Linux x86_64 musl com tree-sitter (sufixo `-ast`)
 
-Builds opt-in:
-- Linux x86_64 GNU **com ML build** (sufixo `-ml`, ~50MB, embeddings via fastembed)
-- Linux x86_64 musl **com tree-sitter** (sufixo `-ast`, ~10MB, extração precisa via AST)
-
-> macOS (x86_64 + aarch64) volta em v0.6.0. Usuários macOS podem buildar from source via `cargo install --path engine/crates/cli` por enquanto.
+São sete arquivos de distribuição, mais `SHA256SUMS` para verificar a integridade dos downloads. Tamanhos variam por build. Compilar exige **Rust 1.96 ou superior**; binários prontos não exigem Rust.
 
 **From source:**
 ```bash
-git clone https://github.com/vynazevedo/first-plan
+git clone --branch v1.5.0 --depth 1 https://github.com/vynazevedo/first-plan
 cd first-plan/engine
-cargo install --path crates/cli                            # build padrão lean
-cargo install --path crates/cli --features=ml              # com ML (embeddings)
-cargo install --path crates/cli --features=tree-sitter     # com AST (precisão)
-cargo install --path crates/cli --features=ml,tree-sitter  # ambos
+cargo install --locked --path crates/cli                            # build padrão lean
+cargo install --locked --path crates/cli --features=ml              # com ML (embeddings)
+cargo install --locked --path crates/cli --features=tree-sitter     # com AST (precisão)
+cargo install --locked --path crates/cli --features=ml,tree-sitter  # ambos
 ```
 
 ### Graceful fallback
 
-Se o engine não estiver disponível (sem rede, ambiente restrito, opt-out), todas as operações **continuam funcionando** via fallback markdown. Engine é optimization, não requirement.
+Algumas skills do plugin oferecem fallback via instruções e shell. Os comandos `fpe`, incluindo contexto, MCP e gates de contratos, exigem o engine; o fallback não oferece paridade completa.
 
 ---
 
@@ -775,7 +807,7 @@ Gerado automaticamente em `.first-plan/07-state/reports/<slug>.md` com:
 <img src="https://img.shields.io/badge/range-0.0--1.0-blue?style=flat-square" alt="Range">
 </p>
 
-Cada finding tem `confidence: 0.0-1.0`. Threshold default: 0.7.
+O protocolo do plugin usa scores heurísticos de `0.0-1.0`, com threshold padrão de 0.7. Não são probabilidades calibradas. O comando independente `fpe init --llm` registra `confidence: null`; a tabela abaixo não se aplica a ele.
 
 | Range | Significado |
 |-------|-------------|
@@ -784,20 +816,21 @@ Cada finding tem `confidence: 0.0-1.0`. Threshold default: 0.7.
 | `0.5-0.7` | confiança média, evidência circunstancial |
 | `< 0.5` | baixa confiança, vira pergunta em `08-meta/questions.md` |
 
-**O plugin não inventa - pergunta.** Quando confidence baixa, você é consultado via `/fp:ask`.
+O protocolo orienta consultar o usuário via `/fp:ask` quando a confiança é baixa. Saídas de IA ainda precisam de revisão.
 
 ---
 
 ## System Requirements
 
 <p>
-<img src="https://img.shields.io/badge/Claude%20Code-required-orange?style=flat-square" alt="Claude Code">
+<img src="https://img.shields.io/badge/Claude%20Code-plugin%20only-orange?style=flat-square" alt="Claude Code">
 <img src="https://img.shields.io/badge/Git-recommended-darkgreen?style=flat-square" alt="Git">
 <img src="https://img.shields.io/badge/bash-required-black?style=flat-square" alt="bash">
 <img src="https://img.shields.io/badge/MCPs-optional-lightgrey?style=flat-square" alt="MCPs">
 </p>
 
-- **Claude Code**: versão recente com plugin support
+- **Engine independente**: binário compatível com seu sistema; Rust 1.96+ apenas para compilar.
+- **Claude Code**: necessário somente para skills, agentes e hooks do plugin; versão com suporte a plugins
 - **Git**: para Git Intelligence (opcional - se ausente, seções correlatas ficam vazias com nota)
 - **bash**: hooks usam bash (Linux/macOS/WSL2)
 - **MCPs opcionais** (melhoram cobertura):
@@ -927,7 +960,7 @@ Workflow:
 
 <p>
 <img src="https://img.shields.io/badge/v1.5.0-current-brightgreen?style=flat-square" alt="v1.5.0 current">
-<img src="https://img.shields.io/badge/v1.6.0-next-blue?style=flat-square" alt="v1.6.0 next">
+<img src="https://img.shields.io/badge/roadmap-planned-blue?style=flat-square" alt="Planned roadmap">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
 
@@ -1077,7 +1110,7 @@ Workflow:
 - Protobuf parser regex-based (sem dependência do protoc)
 - GraphQL SDL parser
 - Cross-referencer multi-language classificando cada entity IMPLEMENTED / CANDIDATE / PHANTOM
-- Output `.first-plan/12-contracts/` para o AI nunca quebrar contratos nem duplicar implementações
+- Output `.first-plan/12-contracts/` para apoiar a revisão de contratos e reuso
 
 #### v0.10.0 - Camada Evolution
 
@@ -1088,13 +1121,13 @@ Workflow:
 - Replacement pairs inferidos quando arquivo removido + adicionado compartilham nomes similares
 - Output `.first-plan/13-evolution/` para o AI parar de sugerir padrões que o time já substituiu
 
-#### v0.11.0 - Camada Runtime (current)
+#### v0.11.0 - Camada Runtime
 
 - **`fpe runtime`** - ligação entre IR e histórico de releases
 - Histórico de releases via git tags com commit-count/author-count/CHANGELOG cross-reference
 - Commits pendentes pós latest tag com detecção de breaking changes
 - Mapeamento arquivo-para-release (introduced_in + last_modified_in por arquivo source)
-- Paralelizado com rayon (11x speedup: 158s → 14s)
+- Paralelizado com rayon
 - Identifica mudanças em tags e pendentes; deploy exige observações separadas
 
 ### v1.5.0 e próximos passos
@@ -1114,7 +1147,7 @@ em tempo real e diffs Protobuf/GraphQL continuam como evolução futura.
 <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License MIT">
 </p>
 
-MIT License - veja [LICENSE](./LICENSE) para detalhes completos.
+MIT License - veja [LICENSE](../../LICENSE) para detalhes completos.
 
 Copyright (c) 2026 Vinicius Azevedo
 

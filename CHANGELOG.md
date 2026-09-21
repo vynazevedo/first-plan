@@ -34,6 +34,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Context retrieval is lexical and bounded; budgets count characters, not model tokens. Deployment observations are supplied by pipelines/operators and are not live verification.
 - Source builds now declare Rust 1.96; `fpe` and `first-plan-engine` remain available.
 
+### Documentation clarification after publication
+
+- The English and Portuguese READMEs on `main` now document installation pinned to `v1.5.0`, all seven distribution variants, and the distinction between the standalone engine and the Claude Code plugin.
+- Standalone `init --llm` generates eight curated documents with unverified inferences, not every discovery layer. Instruction files guide AI tools but do not guarantee adherence; heuristic confidence scores are not calibrated probabilities.
+- Removed unsupported performance comparisons and clarified strict contract gates, lexical context retrieval and deployment observations. Real-agent effectiveness measurements, semantic consumer resolution, live deployment integrations and Protobuf/GraphQL compatibility remain future work.
+- These are documentation corrections only. The published `v1.5.0` tag and binaries are unchanged; source archives retain the documentation from the tagged commit. See the corrected [English README](https://github.com/vynazevedo/first-plan/blob/main/README.md) and [Portuguese README](https://github.com/vynazevedo/first-plan/blob/main/docs/i18n/README.pt-BR.md).
+
 ## [1.4.0] - 2026-08-07
 
 ### Added

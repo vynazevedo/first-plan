@@ -58,7 +58,7 @@
 </p>
 
 <p align="center">
-  first-plan compiles your project into a structured context layer (<code>.first-plan/</code>) with 15 layers of knowledge, then generates tool-specific instruction files so <b>any AI coding tool</b> (Claude Code, Codex, Cursor, GitHub Copilot, Cline, Aider) knows your stacks, conventions, idioms, hot files, contracts, deprecations, and runtime state <i>before it writes a single line of code</i>.
+  first-plan organizes project evidence in <code>.first-plan/</code> and generates instructions for Claude Code, Codex, Cursor, GitHub Copilot, Cline and Aider. Coverage depends on the commands run and available sources. Instructions guide AI tools but do not guarantee adherence to every convention.
 </p>
 
 <p align="center">
@@ -108,10 +108,10 @@ Then in your project:
 Install the engine standalone via cargo or binary download from releases:
 
 ```bash
-cargo install --git https://github.com/vynazevedo/first-plan --path engine/crates/cli
+cargo install --git https://github.com/vynazevedo/first-plan --tag v1.5.0 --locked first-plan-engine
 ```
 
-Then generate instruction files for your tool of choice:
+First generate and review the IR using `fpe init --llm` (next section), or use an existing `.first-plan/`. Then generate instruction files for your tool of choice:
 
 ```bash
 fpe generate --tool codex      # AGENTS.md
@@ -123,7 +123,7 @@ fpe generate --tool all        # all of the above
 fpe generate --list            # see all available adapters
 ```
 
-Once IR is generated (see next section), any AI tool consumes the tool-specific file natively.
+Configure your AI tool to load the generated instructions. File discovery and adherence depend on the tool and its settings.
 
 ### Generate IR without Claude Code (v1.1.0+): `init --llm`
 
@@ -134,9 +134,9 @@ The engine now includes an LLM-agnostic init that generates `.first-plan/` layer
 export OPENAI_API_KEY=sk-...
 fpe init --llm openai
 
-# Anthropic
+# Anthropic: set FIRST_PLAN_LLM_MODEL to a model available in your account
 export ANTHROPIC_API_KEY=sk-ant-...
-fpe init --llm anthropic --model claude-sonnet-5
+fpe init --llm anthropic --model "$FIRST_PLAN_LLM_MODEL"
 
 # Ollama (local, no API key)
 fpe init --llm ollama --model qwen2.5-coder:latest
@@ -154,7 +154,7 @@ fpe init --llm openai --layer mission/purpose --layer topology/stacks
 fpe init --list-layers
 ```
 
-Config via env vars: `FIRST_PLAN_LLM_PROVIDER`, `FIRST_PLAN_LLM_MODEL`, `FIRST_PLAN_LLM_BASE_URL`. 8 layers curated in v1.1.0, expanding in later versions. Each generated file gets YAML frontmatter with provider, model, and timestamp for provenance.
+Config via env vars: `FIRST_PLAN_LLM_PROVIDER`, `FIRST_PLAN_LLM_MODEL`, `FIRST_PLAN_LLM_BASE_URL`. In v1.5.0, this command generates eight curated documents. Frontmatter records provider, model, timestamp, revision and source hashes, with `confidence: null`, `epistemic_status: inferred` and `verification: unverified`. Review inferences before relying on them.
 
 ### Cross-repo awareness (v1.2.0+): `multi`
 
@@ -195,7 +195,7 @@ fpe contracts diff --before snapshot-v1.json --after snapshot-v2.json
 # Diff current state against a baseline (no need to snapshot the "after" side)
 fpe contracts diff --before snapshot.json
 
-# CI-friendly: exit code 1 when any breaking change is detected
+# CI: fail on breaking changes or incomplete analysis
 fpe contracts diff --before baseline.json --fail-on-breaking
 
 # Cross-repo check: for every registered sibling repo, diff current state
@@ -203,7 +203,7 @@ fpe contracts diff --before baseline.json --fail-on-breaking
 fpe multi contracts-check --fail-on-breaking
 ```
 
-**Breaking rules (v1.3.0, endpoint-level):** removed endpoint = breaking, `operation_id` change = breaking, added endpoint / summary change / tags change = non-breaking. v1.5.0 adds conservative OpenAPI parameter, request-body and response-schema checks. Protobuf and GraphQL compatibility diff remain future work.
+**v1.5.0 coverage:** conservative OpenAPI endpoint, parameter, body, response and security comparisons, with local reference resolution. `--fail-on-breaking` also rejects incomplete analysis, legacy snapshots and unsupported formats. The cross-repository gate rejects missing baselines and skipped repositories. Rebuild legacy baselines at their original revision. Protobuf/GraphQL diffs and complete semantic compatibility remain future work.
 
 ### See value in 5 seconds (Claude Code): `/fp:quick`
 
@@ -229,7 +229,7 @@ That's the **first impression** - enough context for Claude to start helping imm
 /fp:init
 ```
 
-In ~3-8 minutes, generates the full 10-layer IR: stack lens analysis, reuse index, spec-code reconciliation, co-change graph, provenance tracking, living layer. **This is what makes the difference** between Claude inventing a new auth pattern vs Claude using your `internal/auth/jwt.go` as the template.
+Generates the base discovery IR: stack analysis, reuse index, spec-code reconciliation, co-change graph and provenance. Additional engine commands enrich quality, contracts, evolution and runtime sections. Duration and coverage depend on repository size, available tools and the model.
 
 ### For local development
 
@@ -339,7 +339,7 @@ In ~3-8 minutes, generates the full 10-layer IR: stack lens analysis, reuse inde
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-CONTRACTS-teal?style=for-the-badge" /></td>
-<td><strong>Contracts Layer</strong> (v0.9.0) - <code>fpe contracts</code>. OpenAPI 3.x, Protobuf, GraphQL SDL parsed and cross-referenced with code. Each endpoint, RPC or operation classified as IMPLEMENTED, CANDIDATE or PHANTOM. Produces <code>.first-plan/12-contracts/</code> so AI never suggests code that breaks a contract nor implements what already exists.</td>
+<td><strong>Contracts Layer</strong> (v0.9.0) - <code>fpe contracts</code>. OpenAPI 3.x, Protobuf, GraphQL SDL parsed and cross-referenced with code. Each endpoint, RPC or operation classified as IMPLEMENTED, CANDIDATE or PHANTOM. Produces <code>.first-plan/12-contracts/</code> to help review contract risks and existing implementations.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-EVOLUTION-darkorange?style=for-the-badge" /></td>
@@ -347,7 +347,7 @@ In ~3-8 minutes, generates the full 10-layer IR: stack lens analysis, reuse inde
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-RUNTIME-firebrick?style=for-the-badge" /></td>
-<td><strong>Runtime Layer</strong> (v0.11.0) - <code>fpe runtime</code>. Release history via git tags cross-referenced with CHANGELOG. Unreleased commits post latest tag with breaking-change detection. File-to-release mapping (paralelized via rayon, 11x speedup). Produces <code>.first-plan/14-runtime/</code> for release awareness. Use explicit deployment observations to investigate production state.</td>
+<td><strong>Runtime Layer</strong> (v0.11.0) - <code>fpe runtime</code>. Release history via git tags cross-referenced with CHANGELOG. Unreleased commits post latest tag with breaking-change detection. File-to-release mapping (paralelized via rayon). Produces <code>.first-plan/14-runtime/</code> for release awareness. Use explicit deployment observations to investigate production state.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-GENERATE-4B0082?style=for-the-badge" /></td>
@@ -363,11 +363,7 @@ Starting with v0.3.0, the plugin ships a **native Rust binary** (`fpe`) that per
 
 ### Performance
 
-| Operation | Shell + Claude | Native engine |
-|-----------|----------------|---------------|
-| Co-change graph (50k commits) | ~5 min | <2 s |
-| Hash 10k files (xxh3) | ~30 s | <500 ms |
-| Claude token cost | ~30k | ~0 |
+Local engine operations need no LLM calls; `init --llm` uses the configured provider. Latency and resource use depend on the project and environment. The three v1.5.0 synthetic regression scenarios do not establish productivity gains with real agents; see [evaluations](docs/evaluations.md).
 
 ### Engine installation
 
@@ -380,32 +376,29 @@ A) Yes B) No C) Manual
 
 **Manual:** Download from [Releases](https://github.com/vynazevedo/first-plan/releases) the binary matching your OS/arch. Extract and place in `${CLAUDE_PLUGIN_ROOT}/engine/bin/fpe` (or anywhere in your `$PATH`).
 
-**Supported platforms (v0.5.0):**
+**v1.5.0 platforms:**
 
-Default lean build (~1MB):
-- Linux x86_64 (musl, fully static)
-- Linux aarch64 (musl, fully static)
+- Linux x86_64 and aarch64 (musl)
+- macOS Intel and Apple Silicon
 - Windows x86_64
+- Linux x86_64 GNU with ML (`-ml` suffix)
+- Linux x86_64 musl with tree-sitter (`-ast` suffix)
 
-Opt-in builds:
-- Linux x86_64 GNU **with ML build** (`-ml` suffix, ~50MB, embeddings via fastembed)
-- Linux x86_64 musl **with tree-sitter** (`-ast` suffix, ~10MB, AST-precise extraction)
-
-> macOS (x86_64 + aarch64) coming back in v0.6.0. macOS users can build from source via `cargo install --path engine/crates/cli` for now.
+Seven distribution archives are published alongside `SHA256SUMS` for download integrity checks. Sizes vary by build. Building requires **Rust 1.96 or newer**; prebuilt binaries do not require Rust.
 
 **From source:**
 ```bash
-git clone https://github.com/vynazevedo/first-plan
+git clone --branch v1.5.0 --depth 1 https://github.com/vynazevedo/first-plan
 cd first-plan/engine
-cargo install --path crates/cli                            # default lean build
-cargo install --path crates/cli --features=ml              # ML-enabled (embeddings)
-cargo install --path crates/cli --features=tree-sitter     # AST-enabled (precision)
-cargo install --path crates/cli --features=ml,tree-sitter  # both
+cargo install --locked --path crates/cli                            # default lean build
+cargo install --locked --path crates/cli --features=ml              # ML-enabled (embeddings)
+cargo install --locked --path crates/cli --features=tree-sitter     # AST-enabled (precision)
+cargo install --locked --path crates/cli --features=ml,tree-sitter  # both
 ```
 
 ### Graceful fallback
 
-If the engine is unavailable (no network, restricted environment, opt-out), all operations **continue working** via markdown fallback. The engine is an optimization, not a requirement.
+Some plugin skills offer instruction and shell fallbacks. The `fpe` commands, including context, MCP and contract gates, require the engine; fallback does not provide full feature parity.
 
 ---
 
@@ -839,7 +832,7 @@ Generated automatically at `.first-plan/07-state/reports/<slug>.md` with:
 <img src="https://img.shields.io/badge/range-0.0--1.0-blue?style=flat-square" alt="Range">
 </p>
 
-Every finding has `confidence: 0.0-1.0`. Default threshold: 0.7.
+The plugin protocol uses heuristic scores of `0.0-1.0`, with a default threshold of 0.7. These are not calibrated probabilities. Standalone `fpe init --llm` records `confidence: null`; the table below does not apply to it.
 
 | Range | Meaning |
 |-------|---------|
@@ -848,20 +841,21 @@ Every finding has `confidence: 0.0-1.0`. Default threshold: 0.7.
 | `0.5-0.7` | medium confidence, circumstantial evidence |
 | `< 0.5` | low confidence, becomes a question in `08-meta/questions.md` |
 
-**The plugin does not invent - it asks.** When confidence is low, you are consulted via `/fp:ask`.
+The protocol directs the plugin to consult you via `/fp:ask` when confidence is low. AI output still requires review.
 
 ---
 
 ## System Requirements
 
 <p>
-<img src="https://img.shields.io/badge/Claude%20Code-required-orange?style=flat-square" alt="Claude Code">
+<img src="https://img.shields.io/badge/Claude%20Code-plugin%20only-orange?style=flat-square" alt="Claude Code">
 <img src="https://img.shields.io/badge/Git-recommended-darkgreen?style=flat-square" alt="Git">
 <img src="https://img.shields.io/badge/bash-required-black?style=flat-square" alt="bash">
 <img src="https://img.shields.io/badge/MCPs-optional-lightgrey?style=flat-square" alt="MCPs">
 </p>
 
-- **Claude Code**: recent version with plugin support
+- **Standalone engine**: a binary compatible with your system; Rust 1.96+ only when building from source.
+- **Claude Code**: required only for plugin skills, agents and hooks; use a version with plugin support
 - **Git**: for Git Intelligence (optional - if absent, related sections stay empty with a note)
 - **bash**: hooks use bash (Linux/macOS/WSL2)
 - **Optional MCPs** (improve coverage):
@@ -1004,7 +998,7 @@ Workflow:
 
 <p>
 <img src="https://img.shields.io/badge/v1.5.0-current-brightgreen?style=flat-square" alt="v1.5.0 current">
-<img src="https://img.shields.io/badge/v1.6.0-next-blue?style=flat-square" alt="v1.6.0 next">
+<img src="https://img.shields.io/badge/roadmap-planned-blue?style=flat-square" alt="Planned roadmap">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
 
@@ -1154,7 +1148,7 @@ Workflow:
 - Protobuf parser regex-based (no protoc dependency)
 - GraphQL SDL parser
 - Cross-referencer multi-language classifying each entity IMPLEMENTED / CANDIDATE / PHANTOM
-- Output `.first-plan/12-contracts/` for AI to never break contracts nor duplicate implementations
+- Output `.first-plan/12-contracts/` to support contract review and reuse
 
 #### v0.10.0 - Evolution Layer
 
@@ -1171,7 +1165,7 @@ Workflow:
 - Release history via git tags with commit-count/author-count/CHANGELOG cross-reference
 - Unreleased commits post latest tag with breaking-change detection
 - File-to-release mapping (introduced_in + last_modified_in per source file)
-- Paralelized with rayon (11x speedup: 158s → 14s)
+- Paralelized with rayon
 - Tracks tagged versus unreleased changes; deployment requires separate evidence
 
 #### v1.0.0 - Framework Pivot
@@ -1209,7 +1203,7 @@ Workflow:
 - Protobuf/GraphQL compatibility engines and broader OpenAPI compatibility semantics
 - Ranking and cache improvements driven by evaluation results
 
-### Long-term Vision (v1.5+)
+### Long-term Vision
 
 Complete Cognitive Infrastructure:
 
@@ -1222,7 +1216,7 @@ Complete Cognitive Infrastructure:
 - **Onboarding Path Generator** (per role)
 - **Team Awareness** (Slack/Linear sync)
 - **Schema-Aware Operations** (OpenAPI/GraphQL/Protobuf breaking change detection)
-- **Multi-Tool AI Sync** (Cursor + Cody + Copilot consume `.first-plan/`)
+- **Multi-Tool AI Sync** — extend adapters and measure adoption of generated instructions
 
 ---
 
