@@ -70,8 +70,8 @@ fn dispatch(root: &Path, request: Value, initialized: &mut bool) -> Option<Value
         "ping" => json!({}),
         _ if !*initialized => return Some(error(id, -32002, "Initialize first")),
         "tools/list" => json!({"tools":[
-            {"name":"context", "description":"Find reusable symbols, tests and references for a task with file/line/hash evidence.",
-                "inputSchema":{"type":"object","properties":{"query":{"type":"string","minLength":1},"budget":{"type":"integer","minimum":256,"maximum":100000}},"required":["query"],"additionalProperties":false},
+            {"name":"context", "description":"Find reusable symbols, tests, references and project rule obligations with evidence.",
+                "inputSchema":{"type":"object","properties":{"query":{"type":"string","minLength":1},"budget":{"type":"integer","minimum":256,"maximum":100000},"paths":{"type":"array","maxItems":100,"items":{"type":"string"}}},"required":["query"],"additionalProperties":false},
                 "annotations":{"readOnlyHint":true,"openWorldHint":false}},
             {"name":"impact", "description":"Find candidate API consumers in explicitly registered repositories; not runtime proof.",
                 "inputSchema":{"type":"object","properties":{},"additionalProperties":false},"annotations":{"readOnlyHint":true,"openWorldHint":false}},
@@ -90,7 +90,7 @@ fn dispatch(root: &Path, request: Value, initialized: &mut bool) -> Option<Value
             }
             if map
                 .keys()
-                .any(|k| name != "context" || !["query", "budget"].contains(&k.as_str()))
+                .any(|k| name != "context" || !["query", "budget", "paths"].contains(&k.as_str()))
             {
                 return Some(error(id, -32602, "Unknown argument"));
             }
@@ -106,7 +106,20 @@ fn dispatch(root: &Path, request: Value, initialized: &mut bool) -> Option<Value
                             _ => return Some(error(id, -32602, "budget must be 256..100000")),
                         },
                     };
-                    first_plan_core::context::build(root, query, budget)
+                    let paths = match args.get("paths") {
+                        None => Vec::new(),
+                        Some(value) => match serde_json::from_value::<Vec<String>>(value.clone()) {
+                            Ok(paths) if paths.len() <= 100 => paths,
+                            _ => {
+                                return Some(error(
+                                    id,
+                                    -32602,
+                                    "paths must contain at most 100 relative path strings",
+                                ))
+                            }
+                        },
+                    };
+                    first_plan_core::context::build_for_paths(root, query, budget, &paths)
                         .and_then(|v| Ok(serde_json::to_value(v)?))
                 }
                 "impact" => first_plan_core::impact::analyze(root)
@@ -129,6 +142,28 @@ fn dispatch(root: &Path, request: Value, initialized: &mut bool) -> Option<Value
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn context_paths_deliver_obligations_without_execution() {
+        let tmp = tempfile::tempdir().unwrap();
+        std::fs::create_dir(tmp.path().join(".first-plan")).unwrap();
+        let rules = json!({"schema_version":1,"rules":[{"id":"tenant","owner":"security","requirement":"Tenant boundary","inputs":["src"],"verification_files":["tests"],"verifier":{"kind":"test","command":["never-execute-this"],"timeout_seconds":1}}]});
+        std::fs::write(tmp.path().join(".first-plan/rules.yaml"), rules.to_string()).unwrap();
+        let mut ready = true;
+        let call = json!({"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"context","arguments":{"query":"unrelated","paths":["src/access.rs"]}}});
+        let result = dispatch(tmp.path(), call, &mut ready).unwrap();
+        assert_eq!(
+            result["result"]["structuredContent"]["applicable_rules"][0]["id"],
+            "tenant"
+        );
+        let invalid = json!({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"context","arguments":{"query":"test","paths":"src"}}});
+        assert_eq!(
+            dispatch(tmp.path(), invalid, &mut ready).unwrap()["error"]["code"],
+            -32602
+        );
+        let execution = json!({"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"verify","arguments":{}}});
+        assert!(dispatch(tmp.path(), execution, &mut ready).unwrap()["error"].is_object());
+    }
+
     #[test]
     fn lifecycle_and_root_restriction() {
         let tmp = tempfile::tempdir().unwrap();

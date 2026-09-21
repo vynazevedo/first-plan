@@ -8,6 +8,9 @@ pub struct Args {
     pub root: PathBuf,
     #[arg(long)]
     pub query: String,
+    /// Changed paths used for explicit project rule associations (repeatable).
+    #[arg(long = "path")]
+    pub paths: Vec<String>,
     /// Selected content budget in characters (not model tokens).
     #[arg(long, default_value_t = 8000)]
     pub budget: usize,
@@ -16,7 +19,12 @@ pub struct Args {
 }
 
 pub fn run(args: Args) -> Result<()> {
-    let pack = first_plan_core::context::build(&args.root, &args.query, args.budget)?;
+    let pack = first_plan_core::context::build_for_paths(
+        &args.root,
+        &args.query,
+        args.budget,
+        &args.paths,
+    )?;
     if args.json {
         println!("{}", serde_json::to_string_pretty(&pack)?);
     } else {
@@ -29,6 +37,16 @@ pub fn run(args: Args) -> Result<()> {
                 item.evidence.line,
                 item.evidence.hash,
                 item.text
+            );
+        }
+        for rule in &pack.applicable_rules {
+            println!(
+                "\nRequired rule {} ({}; owner {}): {}\n  Verification: {}",
+                rule.id,
+                rule.match_reason,
+                rule.owner,
+                rule.requirement,
+                rule.verification_files.join(", ")
             );
         }
         for limitation in &pack.limitations {

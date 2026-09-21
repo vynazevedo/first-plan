@@ -101,9 +101,10 @@ review are an administrative follow-up, not something this pilot claims to enfor
 ## Next decision
 
 Use measured proof runtime, counterexamples and maintenance effort to decide
-whether to expand bounds or try Verus for unbounded string reasoning. A generic
-`fpe verify`, Bend adapters and inferred business rules remain future work.
-The present pilot is reproducible through `tools/verify.py` only.
+whether to expand bounds or try Verus for unbounded string reasoning. The [project rules workflow](project-rules.md) now adds `fpe verify` with external
+policies, a test adapter and a pinned Kani adapter. Bend adapters and inferred
+business rules remain future work. The original three-property pilot remains
+reproducible through `tools/verify.py`.
 
 Primary references: [Bend laws and proofs](https://github.com/bendlang/bend/blob/main/guide/GUIDE.md),
 [Kani installation](https://model-checking.github.io/kani/install-guide.html),

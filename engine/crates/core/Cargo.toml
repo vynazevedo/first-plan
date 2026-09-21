@@ -9,6 +9,7 @@ authors.workspace = true
 description = "Core library for first-plan-engine - git analysis, co-change graph, hashing"
 
 [dependencies]
+sha2 = "0.10"
 serde.workspace = true
 serde_json.workspace = true
 chrono.workspace = true

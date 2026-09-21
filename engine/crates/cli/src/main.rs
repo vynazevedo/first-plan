@@ -17,6 +17,8 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Plan and run project rule verification with externally reviewed policies.
+    Verify(commands::verify::Args),
     /// Serve read-only context tools over MCP stdio.
     Mcp(commands::mcp::Args),
     /// Trace candidate consumers of contracts across registered repositories.
@@ -62,6 +64,7 @@ enum Command {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
+        Command::Verify(args) => commands::verify::run(args),
         Command::Mcp(args) => commands::mcp::run(args),
         Command::Impact(args) => commands::evidence::impact(args),
         Command::Deployment(args) => commands::evidence::deployment(args),
