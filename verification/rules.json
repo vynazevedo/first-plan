@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "owner": "first-plan maintainers",
+  "verifier": {"name": "kani", "version": "0.68.0", "target": "x86_64-unknown-linux-gnu"},
+  "source": "engine/crates/core/src/invariants.rs",
+  "rules": [
+    {
+      "id": "context-budget",
+      "harness": "budget_never_overflows_or_exceeds_limit",
+      "requirement": "Reserve a cost iff the mathematical sum of used and cost fits the budget, without machine overflow.",
+      "scope": "reserve_budget; not candidate scoring, cost computation or JSON serialization",
+      "domain": "All 64-bit usize values for used, cost and budget; no input assumptions or loops.",
+      "callers": ["engine/crates/core/src/context.rs"]
+    },
+    {
+      "id": "strict-contract-gate",
+      "harness": "strict_gate_rejects_missing_evidence",
+      "requirement": "A strict gate accepts iff analysis is complete and there are zero breaking changes; non-strict mode accepts.",
+      "scope": "contract_gate; not correctness or completeness of the OpenAPI analyzer",
+      "domain": "All boolean inputs and 64-bit breaking counts; no input assumptions or loops.",
+      "callers": ["engine/crates/cli/src/commands/contracts.rs", "engine/crates/cli/src/commands/multi.rs"]
+    },
+    {
+      "id": "instruction-preservation",
+      "harness": "replacement_preserves_surrounding_bytes",
+      "requirement": "Replacing a valid range preserves the prefix and suffix byte-for-byte and inserts exactly the replacement; invalid ranges are rejected.",
+      "scope": "replace_range; not marker parsing, template rendering, filesystem writes or symlink races",
+      "domain": "ASCII strings of 0..4 bytes; start/end 0..5; Kani unwind 6 with unwinding assertions enabled. Unicode is tested separately, not formally claimed.",
+      "callers": ["engine/crates/core/src/generate/mod.rs"]
+    }
+  ],
+  "trust": [
+    "Kani, its pinned Rust frontend, CBMC and the solver, plus the execution environment",
+    "The reviewed harness and rule registry capture the intended properties",
+    "Integration tests cover wiring; proofs apply to primitives rather than every caller",
+    "SHA-256 binds report inputs but is not a signature or proof of trusted report authorship"
+  ]
+}

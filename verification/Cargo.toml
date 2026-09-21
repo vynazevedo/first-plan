@@ -1,0 +1,11 @@
+[package]
+name = "first-plan-verification"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# Separate workspace: Kani uses its own Rust toolchain, without core's IO/ML deps.
+[workspace]
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }

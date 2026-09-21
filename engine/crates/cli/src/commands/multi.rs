@@ -624,7 +624,11 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
         }
     }
 
-    if args.fail_on_breaking && (skipped > 0 || incomplete > 0 || checked == 0) {
+    if !first_plan_core::invariants::contract_gate(
+        args.fail_on_breaking,
+        skipped == 0 && incomplete == 0 && checked > 0,
+        0,
+    ) {
         return Err(anyhow!(
             "contract gate incomplete: {} skipped, {} incomplete, {} checked",
             skipped,
@@ -632,7 +636,7 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
             checked
         ));
     }
-    if args.fail_on_breaking && total_breaking > 0 {
+    if !first_plan_core::invariants::contract_gate(args.fail_on_breaking, true, total_breaking) {
         return Err(anyhow!(
             "{} breaking change(s) detectados em {} repo(s) (--fail-on-breaking)",
             total_breaking,

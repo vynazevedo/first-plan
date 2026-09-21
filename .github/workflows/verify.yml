@@ -1,0 +1,48 @@
+name: verification pilot
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  kani:
+    name: Kani proofs and negative controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dtolnay/rust-toolchain@1.96.0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Review verification policy
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          python3 tools/check_verification_policy.py
+          if [[ "$BASE_SHA" =~ ^[0-9a-f]{40}$ && "$BASE_SHA" != "0000000000000000000000000000000000000000" ]]; then
+            python3 tools/check_verification_policy.py --base "$BASE_SHA" > verification-policy-diff.txt
+          fi
+          echo 'Proof policy changes require independent review; a green job does not approve a changed specification.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Collector regression tests
+        run: python3 -m unittest discover -s tools -p test_verify.py
+      - name: Install pinned verifier
+        run: |
+          cargo install --locked kani-verifier --version 0.68.0
+          cargo kani setup
+      - name: Verify actual production primitives and reject mutations
+        run: python3 tools/verify.py --mutations --output verification-report.json
+      - name: Check report freshness
+        run: python3 tools/verify.py --check-report verification-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-pilot
+          path: |
+            verification-report.json
+            verification-report-logs/
+            verification-policy-diff.txt

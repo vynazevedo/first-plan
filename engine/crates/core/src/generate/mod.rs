@@ -141,12 +141,8 @@ fn merge_managed(existing: &str, generated: &str) -> Result<String> {
                     && existing.matches(END).count() == 1,
                 "ambiguous managed markers; existing file preserved"
             );
-            Ok(format!(
-                "{}{}{}",
-                &existing[..start],
-                block,
-                &existing[end + END.len()..]
-            ))
+            crate::invariants::replace_range(existing, start, end + END.len(), &block)
+                .context("invalid managed block boundaries")
         }
         (None, None) if existing.is_empty() => Ok(format!("{}{}\n", frontmatter, block)),
         (None, None) => Ok(format!("{}\n\n{}\n", existing, block)),

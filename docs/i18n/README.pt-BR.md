@@ -83,6 +83,13 @@ O orçamento de contexto é em caracteres, não tokens. A busca é lexical; resu
 
 Veja [fluxo e migração](../evidence-workflow.md), [avaliações](../evaluations.md) e [processo de release](../releases.md).
 
+## Em desenvolvimento: piloto de verificação formal
+
+Após a v1.5.0, estamos validando três propriedades do engine Rust com Kani:
+orçamento de contexto, decisão dos gates e preservação de texto em um domínio
+limitado. O piloto inclui controles com defeitos deliberados e relatórios de
+evidência. Não faz parte dos binários v1.5.0. Veja [escopo e reprodução](../verification-pilot.md).
+
 ## Quick Start
 
 ### Engine independente: Codex, Cursor, Copilot, Cline e Aider

@@ -10,6 +10,9 @@ permissions:
   contents: read
 
 jobs:
+  verification:
+    uses: ./.github/workflows/verify.yml
+
   rust:
     name: cargo test (${{ matrix.os }} ${{ matrix.features }})
     runs-on: ${{ matrix.os }}
