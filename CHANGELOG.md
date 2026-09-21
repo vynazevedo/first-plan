@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Instruction generation preserves existing team rules in managed blocks and rejects malformed markers. All Markdown documents in each IR section contribute excerpts instead of only the first file.
+- Instruction generation preserves existing team rules in managed blocks and rejects malformed markers. macOS root aliases and Windows CRLF templates are covered by regression tests. All Markdown documents in each IR section contribute excerpts instead of only the first file.
 - Init discovers nested manifests, includes bounded source samples and records source hashes/revision. Generated metadata now uses schema version 2, null confidence and inferred/unverified status instead of a fixed confidence score.
 - OpenAPI diff includes inherited parameters, request bodies, responses and local references; endpoint identity includes spec file so separate APIs do not collide.
 - Release publication depends on lint, tests (default/AST/ML), evaluation scenarios and consistent tag/workspace/plugin/marketplace/lockfile/changelog versions. Builds use the lockfile and Rust 1.96.0.

@@ -118,6 +118,8 @@ const START: &str = "<!-- first-plan:begin -->";
 const END: &str = "<!-- first-plan:end -->";
 
 fn merge_managed(existing: &str, generated: &str) -> Result<String> {
+    let normalized = generated.replace("\r\n", "\n");
+    let generated = normalized.as_str();
     anyhow::ensure!(
         !generated.contains(START) && !generated.contains(END),
         "input contains reserved managed markers"
@@ -179,6 +181,16 @@ mod preservation_tests {
         assert!(!second.contains("generated v1"));
         assert_eq!(second, merge_managed(&second, "generated v2").unwrap());
         assert!(merge_managed("<!-- first-plan:begin -->", "new").is_err());
+    }
+    #[test]
+    fn keeps_windows_template_frontmatter_first() {
+        let text = merge_managed("", "---\r\nalwaysApply: true\r\n---\r\nbody\r\n").unwrap();
+        assert!(text.starts_with("---\nalwaysApply: true\n---\n"));
+        assert!(text.contains("\nbody\n"));
+        let existing = "# User rules\r\nKeep this.\r\n";
+        assert!(merge_managed(existing, "generated")
+            .unwrap()
+            .starts_with(existing));
     }
     #[test]
     fn keeps_mdc_frontmatter_first() {

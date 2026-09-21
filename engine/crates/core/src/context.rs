@@ -59,7 +59,8 @@ pub fn build(root: &Path, query: &str, budget: usize) -> Result<ContextPack> {
             continue;
         };
         scanned += 1;
-        if let Some(frontmatter) = text
+        let normalized = text.replace("\r\n", "\n");
+        if let Some(frontmatter) = normalized
             .strip_prefix("---\n")
             .and_then(|s| s.split("\n---").next())
         {
@@ -200,6 +201,15 @@ mod tests {
         let pack = build(tmp.path(), "validator", 2000).unwrap();
         assert!(pack.items.is_empty());
         assert!(pack.limitations.iter().any(|s| s.contains("Stale")));
+        let path = dir.join("naming.md");
+        let crlf = std::fs::read_to_string(&path)
+            .unwrap()
+            .replace("\n", "\r\n");
+        std::fs::write(path, crlf).unwrap();
+        assert!(build(tmp.path(), "validator", 2000)
+            .unwrap()
+            .items
+            .is_empty());
     }
     #[test]
     fn retrieves_reuse_and_tests_with_current_hashes() {
