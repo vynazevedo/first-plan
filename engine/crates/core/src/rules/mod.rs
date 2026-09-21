@@ -73,6 +73,10 @@ pub fn relative(path: &str) -> Result<()> {
         "invalid relative path: {path}"
     );
     ensure!(
+        !path.split('/').any(|part| matches!(part, "." | "..")),
+        "dot/parent path components are not allowed"
+    );
+    ensure!(
         Path::new(path)
             .components()
             .all(|c| matches!(c, Component::Normal(_))),
@@ -442,7 +446,7 @@ pub fn applicable(root: &Path, query: &str, paths: &[String]) -> Result<Vec<Obli
                 r.inputs
                     .iter()
                     .chain(&r.verification_files)
-                    .any(|input| p == input || p.starts_with(&format!("{input}/")))
+                    .any(|input| Path::new(p).starts_with(Path::new(input)))
             });
             let text = format!(
                 "{} {} {} {}",

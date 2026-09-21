@@ -27,6 +27,10 @@ rules:
 Paths are relative files or directories, not globs. Directories are recursively
 fingerprinted, including new/deleted files. Symlinks, escapes, missing inputs,
 empty directories, duplicate IDs and unknown schema fields fail validation.
+Keep generated build/coverage output outside declared input directories. For Kani,
+protect `verification/src`, `verification/Cargo.toml` and `verification/Cargo.lock`
+rather than the whole directory containing its generated `target/`.
+
 The registry is limited to 256KB/100 rules; snapshots to 10,000 files and a depth
 of 64. List test helpers, schemas, dependency lockfiles, build scripts and other
 transitive verification dependencies under `verification_files`. List mutable

@@ -108,6 +108,19 @@ fn context_includes_explicit_obligations_even_with_small_budget() {
             .unwrap();
     assert_eq!(pack.applicable_rules.len(), 1);
     assert_eq!(pack.applicable_rules[0].match_reason, "declared_path");
+    let mut registry = load(root.path()).unwrap();
+    registry.rules[0].inputs = vec!["src/".into()];
+    fs::write(
+        root.path().join(REGISTRY),
+        serde_yaml::to_string(&registry).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        applicable(root.path(), "unrelated", &["src//auth.txt".into()])
+            .unwrap()
+            .len(),
+        1
+    );
     let lexical = applicable(root.path(), "authorization", &[]).unwrap();
     assert_eq!(lexical[0].match_reason, "lexical_candidate");
     assert!(applicable(root.path(), "unrelated", &[])
@@ -149,6 +162,7 @@ fn invalid_registry_missing_inputs_and_tools_never_pass() {
         "../escape",
         "/absolute",
         "src/../secret",
+        "src/./auth.txt",
         ".git/config",
         "C:\\secret",
     ] {

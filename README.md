@@ -877,7 +877,7 @@ The protocol directs the plugin to consult you via `/fp:ask` when confidence is 
   - `jira-mm` - reconciliation against JIRA issues
   - `github-work` - reconciliation against GitHub issues/PRs
 
-Stack-agnostic - **does not require** specific runtimes for the analyzed stacks. The plugin reads code, it does not execute it.
+Discovery reads source without requiring the analyzed stacks' runtimes. Explicit `fpe verify run` executes reviewed project checks and requires their configured runtimes.
 
 ---
 

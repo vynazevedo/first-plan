@@ -852,7 +852,7 @@ O protocolo orienta consultar o usuário via `/fp:ask` quando a confiança é ba
   - `jira-mm` - reconciliation contra issues do JIRA
   - `github-work` - reconciliation contra issues/PRs do GitHub
 
-Stack-agnostic - **não requer** runtimes específicos das stacks analisadas. O plugin lê código mas não executa.
+A descoberta lê o código sem exigir os runtimes das stacks analisadas. O comando explícito `fpe verify run` executa verificações revisadas do projeto e exige os runtimes configurados.
 
 ---
 
