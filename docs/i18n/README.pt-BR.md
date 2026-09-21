@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h4 align="center">Contexto com evidências para mudanças assistidas por IA em projetos complexos.</h4>
+<h4 align="center">Código melhor com IA começa por entender o seu projeto.</h4>
 
 <p align="center">
   <a href="../../README.md">English</a>
@@ -55,7 +55,7 @@
 </p>
 
 <p align="center">
-  <b>Pare sua ferramenta de AI coding de inventar padrões novos.</b> Faça ela seguir as convenções existentes do seu codebase, mesmo em sessão fria, com evidências explícitas e verificação.
+  O first-plan fornece <b>contexto, padrões existentes e requisitos explícitos</b> às ferramentas de IA — e ajuda você a verificar mudanças com testes e verificações formais de escopo definido.
 </p>
 
 <p align="center">

@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h4 align="center">Evidence-backed context for AI-assisted changes across complex projects.</h4>
+<h4 align="center">Better AI code starts with understanding your project.</h4>
 
 <p align="center">
   <a href="docs/i18n/README.pt-BR.md">Português (BR)</a>
@@ -55,7 +55,7 @@
 </p>
 
 <p align="center">
-  <b>Stop your AI coding tool from inventing new patterns.</b> Make it follow your codebase's existing conventions, on cold session start, with explicit evidence and verification.
+  first-plan gives AI coding tools <b>project context, existing patterns, and explicit requirements</b>—then helps you verify changes with tests and scoped formal checks.
 </p>
 
 <p align="center">
