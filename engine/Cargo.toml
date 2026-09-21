@@ -3,12 +3,12 @@ resolver = "2"
 members = ["crates/core", "crates/cli"]
 
 [workspace.package]
-version = "1.4.0"
+version = "1.5.0"
 edition = "2021"
 license = "MIT"
 repository = "https://github.com/vynazevedo/first-plan"
 authors = ["Vinicius Azevedo <viniciusdiazevedo@gmail.com>"]
-rust-version = "1.75"
+rust-version = "1.96"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }

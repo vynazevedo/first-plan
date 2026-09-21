@@ -43,7 +43,25 @@ pub fn generate(root: &Path, tool: &str, output_dir: Option<&Path>) -> Result<Ge
         .map(|p| p.to_path_buf())
         .unwrap_or_else(|| root.to_path_buf());
 
-    let files = adapter.render(&ir, &output_base)?;
+    let rendered = adapter.render(&ir, &output_base)?;
+    let mut files = Vec::new();
+    for (path, content) in rendered {
+        for ancestor in path.ancestors() {
+            if let Ok(meta) = std::fs::symlink_metadata(ancestor) {
+                anyhow::ensure!(
+                    !meta.file_type().is_symlink(),
+                    "refusing symlink output: {}",
+                    ancestor.display()
+                );
+            }
+        }
+        let existing = match std::fs::read_to_string(&path) {
+            Ok(text) => text,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => String::new(),
+            Err(e) => return Err(e.into()),
+        };
+        files.push((path, merge_managed(&existing, &content)?));
+    }
 
     let mut bytes_written = 0;
     for (path, content) in &files {
@@ -90,4 +108,63 @@ pub(crate) fn render_template(template_str: &str, ctx: &tera::Context) -> Result
     tera.add_raw_template("t", template_str)
         .context("failed to load template")?;
     tera.render("t", ctx).context("failed to render template")
+}
+
+const START: &str = "<!-- first-plan:begin -->";
+const END: &str = "<!-- first-plan:end -->";
+
+fn merge_managed(existing: &str, generated: &str) -> Result<String> {
+    anyhow::ensure!(
+        !generated.contains(START) && !generated.contains(END),
+        "input contains reserved managed markers"
+    );
+    let (frontmatter, body) = if let Some(rest) = generated.strip_prefix("---\n") {
+        match rest.find("\n---\n") {
+            Some(end) => generated.split_at(end + 9),
+            None => ("", generated),
+        }
+    } else {
+        ("", generated)
+    };
+    let block = format!("{}\n{}\n{}", START, body.trim(), END);
+    match (existing.find(START), existing.find(END)) {
+        (Some(start), Some(end)) => {
+            anyhow::ensure!(
+                start < end
+                    && existing.matches(START).count() == 1
+                    && existing.matches(END).count() == 1,
+                "ambiguous managed markers; existing file preserved"
+            );
+            Ok(format!(
+                "{}{}{}",
+                &existing[..start],
+                block,
+                &existing[end + END.len()..]
+            ))
+        }
+        (None, None) if existing.is_empty() => Ok(format!("{}{}\n", frontmatter, block)),
+        (None, None) => Ok(format!("{}\n\n{}\n", existing, block)),
+        _ => anyhow::bail!("incomplete managed markers; existing file preserved"),
+    }
+}
+
+#[cfg(test)]
+mod preservation_tests {
+    use super::*;
+    #[test]
+    fn preserves_user_content_and_refreshes_idempotently() {
+        let initial = "# Team rules\nDo not delete this.\n";
+        let first = merge_managed(initial, "generated v1").unwrap();
+        let second = merge_managed(&first, "generated v2").unwrap();
+        assert!(second.starts_with(initial.trim_end()));
+        assert!(!second.contains("generated v1"));
+        assert_eq!(second, merge_managed(&second, "generated v2").unwrap());
+        assert!(merge_managed("<!-- first-plan:begin -->", "new").is_err());
+    }
+    #[test]
+    fn keeps_mdc_frontmatter_first() {
+        let text = merge_managed("", "---\nalwaysApply: true\n---\nbody").unwrap();
+        assert!(text.starts_with("---\nalwaysApply: true\n---\n"));
+        assert!(text.contains("\nbody\n"));
+    }
 }

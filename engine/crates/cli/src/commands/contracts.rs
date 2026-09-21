@@ -192,6 +192,14 @@ fn run_diff(
         print!("{}", diff::render_markdown(&d));
     }
 
+    for warning in &d.warnings {
+        eprintln!("Incomplete contract analysis: {}", warning);
+    }
+    if fail_on_breaking && !d.warnings.is_empty() {
+        return Err(anyhow!(
+            "contract analysis incomplete; strict gate cannot establish compatibility"
+        ));
+    }
     if fail_on_breaking && d.summary.breaking > 0 {
         return Err(anyhow!(
             "{} breaking change(s) detectados (--fail-on-breaking)",

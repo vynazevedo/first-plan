@@ -87,61 +87,57 @@ pub fn load_ir(root: &Path) -> Result<IrContext> {
 }
 
 fn is_ir_section(name: &str) -> bool {
-    if name.len() < 3 {
-        return false;
-    }
-    let prefix = &name[..2];
-    prefix.chars().all(|c| c.is_ascii_digit()) && name.chars().nth(2) == Some('-')
+    let bytes = name.as_bytes();
+    bytes.len() >= 3 && bytes[0].is_ascii_digit() && bytes[1].is_ascii_digit() && bytes[2] == b'-'
 }
 
 fn load_section(path: &Path, dir_name: &str) -> Option<IrSection> {
     let number = dir_name[..2].to_string();
     let name = dir_name[3..].to_string();
-
-    // Look for main file - prefer INDEX.md or first .md
-    let main_file = if path.is_dir() {
-        let index = path.join("INDEX.md");
-        if index.exists() {
-            index
-        } else if let Ok(rd) = std::fs::read_dir(path) {
-            rd.flatten()
-                .filter(|e| e.file_name().to_string_lossy().ends_with(".md"))
-                .min_by_key(|e| e.file_name())
-                .map(|e| e.path())?
-        } else {
-            return None;
-        }
-    } else if dir_name.ends_with(".md") {
-        path.to_path_buf()
-    } else {
+    let mut files: Vec<_> = walkdir::WalkDir::new(path)
+        .follow_links(false)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_type().is_file() && e.path().extension().is_some_and(|ext| ext == "md"))
+        .map(|e| e.into_path())
+        .collect();
+    files.sort();
+    let mut content = String::new();
+    let mut excerpt = String::new();
+    for file in files {
+        let text = std::fs::read_to_string(&file).ok()?;
+        let relative = file.strip_prefix(path).ok()?.to_string_lossy();
+        let header = format!("\n### .first-plan/{}/{}\n", dir_name, relative);
+        content.push_str(&header);
+        content.push_str(&text);
+        excerpt.push_str(&header);
+        excerpt.push_str(&extract_excerpt(&text, 800));
+    }
+    if content.is_empty() {
         return None;
-    };
-
-    let content = std::fs::read_to_string(&main_file).ok()?;
-    let excerpt = extract_excerpt(&content, 1500);
-    let file_rel = main_file.to_string_lossy().into_owned();
-
+    }
     Some(IrSection {
         number,
         name,
-        file: file_rel,
+        file: format!(".first-plan/{}", dir_name),
         content,
         excerpt,
     })
 }
 
 fn extract_excerpt(content: &str, max_chars: usize) -> String {
-    let mut excerpt = String::new();
-    for line in content.lines() {
-        if excerpt.len() >= max_chars {
-            excerpt.push_str("\n...");
-            break;
-        }
-        if line.trim_start().starts_with("<!--") {
-            continue;
-        }
-        excerpt.push_str(line);
-        excerpt.push('\n');
+    let body = content
+        .strip_prefix("---\n")
+        .and_then(|s| s.split_once("\n---\n").map(|(_, body)| body))
+        .unwrap_or(content);
+    let cleaned = body
+        .lines()
+        .filter(|line| !line.trim_start().starts_with("<!--"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let mut excerpt: String = cleaned.chars().take(max_chars).collect();
+    if cleaned.chars().count() > max_chars {
+        excerpt.push_str("\n...");
     }
     excerpt
 }
@@ -186,6 +182,18 @@ mod tests {
         assert_eq!(ctx.sections[0].name, "conventions");
     }
 
+    #[test]
+    fn includes_every_convention_file() {
+        let tmp = tempfile::tempdir().unwrap();
+        let dir = tmp.path().join(".first-plan/02-conventions");
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("naming.md"), "naming rule").unwrap();
+        std::fs::write(dir.join("testing.md"), "testing rule").unwrap();
+        let context = load_ir(tmp.path()).unwrap();
+        assert!(context.key_conventions[0].contains("testing rule"));
+        assert!(context.key_conventions[0].contains("naming rule"));
+        assert!(!is_ir_section("é-example"));
+    }
     #[test]
     fn extract_excerpt_respects_max() {
         let long = "line\n".repeat(1000);

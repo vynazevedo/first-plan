@@ -4,31 +4,57 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   rust:
-    name: cargo test (${{ matrix.os }})
+    name: cargo test (${{ matrix.os }} ${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        features: [""]
+        include:
+          - os: ubuntu-latest
+            features: "--features tree-sitter"
+          - os: ubuntu-latest
+            features: "--features ml"
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.96.0
       - uses: Swatinem/rust-cache@v2
         with:
           workspaces: engine -> target
       - name: cargo test
-        run: cargo test --workspace --release
+        run: cargo test --workspace --release --locked ${{ matrix.features }}
         working-directory: engine
+
+  evaluations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.96.0
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: engine -> target
+      - run: cargo build --release --locked --bin fpe
+        working-directory: engine
+      - run: python3 tools/evaluate.py --binary engine/target/release/fpe --output evaluation.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-results
+          path: evaluation.json
 
   lsp-integration:
     name: LSP integration (rust-analyzer, gopls, ts-lsp)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.96.0
         with:
           components: rust-analyzer
       - uses: actions/setup-go@v5

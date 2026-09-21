@@ -985,3 +985,168 @@ fn multi_contracts_check_flags_breaking_repos() {
     let clean = repos.iter().find(|r| r["name"] == "clean").unwrap();
     assert_eq!(clean["status"], "clean");
 }
+
+#[test]
+fn mcp_stdio_exposes_read_only_context() {
+    let tmp = TempDir::new().unwrap();
+    fs::write(
+        tmp.path().join("email.py"),
+        "def validate_email(value): pass\n",
+    )
+    .unwrap();
+    let messages = [
+        serde_json::json!({"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"test","version":"1"}}}),
+        serde_json::json!({"jsonrpc":"2.0","method":"notifications/initialized"}),
+        serde_json::json!({"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"context","arguments":{"query":"validate email"}}}),
+    ].iter().map(|v| format!("{}\n", v)).collect::<String>();
+    let output = Command::cargo_bin("fpe")
+        .unwrap()
+        .args(["mcp", "--root", tmp.path().to_str().unwrap()])
+        .write_stdin(messages)
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let lines: Vec<serde_json::Value> = String::from_utf8(output)
+        .unwrap()
+        .lines()
+        .map(|s| serde_json::from_str(s).unwrap())
+        .collect();
+    assert_eq!(lines.len(), 2);
+    assert_eq!(lines[1]["result"]["isError"], false);
+    assert!(!lines[1]["result"]["structuredContent"]["items"]
+        .as_array()
+        .unwrap()
+        .is_empty());
+    assert!(!tmp.path().join(".first-plan").exists());
+}
+
+#[test]
+fn deployment_requires_evidence_and_never_infers_from_tags() {
+    let tmp = TempDir::new().unwrap();
+    init_test_repo(tmp.path());
+    let root = tmp.path().to_str().unwrap();
+    let output = Command::cargo_bin("fpe")
+        .unwrap()
+        .args(["deployment", "--root", root, "status"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&output).unwrap()["status"],
+        "unknown"
+    );
+    let sha = StdCommand::new("git")
+        .args(["rev-parse", "HEAD"])
+        .current_dir(tmp.path())
+        .output()
+        .unwrap();
+    let sha = String::from_utf8(sha.stdout).unwrap();
+    Command::cargo_bin("fpe")
+        .unwrap()
+        .args([
+            "deployment",
+            "--root",
+            root,
+            "record",
+            "--environment",
+            "production",
+            "--commit",
+            sha.trim(),
+            "--source",
+            "https://ci.example/run/123",
+        ])
+        .assert()
+        .success();
+    let output = Command::cargo_bin("fpe")
+        .unwrap()
+        .args(["deployment", "--root", root, "status"])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let value: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(value["observations"][0]["commit"], sha.trim());
+    assert_eq!(value["status"], "observed_not_live_verified");
+}
+
+#[test]
+fn impact_links_contract_to_candidate_consumer_evidence() {
+    let tmp = TempDir::new().unwrap();
+    let producer = tmp.path().join("producer");
+    let consumer = tmp.path().join("consumer");
+    fs::create_dir_all(producer.join(".first-plan")).unwrap();
+    fs::create_dir_all(&consumer).unwrap();
+    fs::write(producer.join("openapi.json"), r#"{"openapi":"3.0.3","info":{"title":"test","version":"1"},"paths":{"/users":{"get":{"operationId":"listUsers"}}}}"#).unwrap();
+    fs::write(
+        consumer.join("client.ts"),
+        "export const users = fetch('/users');\n",
+    )
+    .unwrap();
+    fs::write(
+        producer.join(".first-plan/multi.yaml"),
+        "version: 1\nrepos:\n  - name: web\n    path: ../consumer\n",
+    )
+    .unwrap();
+    let output = Command::cargo_bin("fpe")
+        .unwrap()
+        .args(["impact", "--root", producer.to_str().unwrap()])
+        .assert()
+        .success()
+        .get_output()
+        .stdout
+        .clone();
+    let result: serde_json::Value = serde_json::from_slice(&output).unwrap();
+    assert_eq!(result["references"][0]["consumer"], "web");
+    assert_eq!(result["references"][0]["status"], "candidate");
+    assert_eq!(result["references"][0]["evidence"]["path"], "client.ts");
+}
+
+#[test]
+fn strict_contract_gate_rejects_unresolved_references_and_missing_baselines() {
+    let tmp = TempDir::new().unwrap();
+    fs::write(tmp.path().join("openapi.json"), r##"{"openapi":"3.0.3","info":{"title":"T","version":"1"},"paths":{"/x":{"get":{"parameters":[{"$ref":"#/components/parameters/Missing"}]}}}}"##).unwrap();
+    let root = tmp.path().to_str().unwrap();
+    let baseline = tmp.path().join("baseline.json");
+    Command::cargo_bin("fpe")
+        .unwrap()
+        .args([
+            "contracts",
+            "--root",
+            root,
+            "snapshot",
+            "--out",
+            baseline.to_str().unwrap(),
+        ])
+        .assert()
+        .success();
+    Command::cargo_bin("fpe")
+        .unwrap()
+        .args([
+            "contracts",
+            "--root",
+            root,
+            "diff",
+            "--before",
+            baseline.to_str().unwrap(),
+            "--fail-on-breaking",
+        ])
+        .assert()
+        .failure()
+        .stderr(predicate::str::contains("incomplete"));
+    Command::cargo_bin("fpe")
+        .unwrap()
+        .args([
+            "multi",
+            "contracts-check",
+            "--root",
+            root,
+            "--fail-on-breaking",
+        ])
+        .assert()
+        .failure();
+}

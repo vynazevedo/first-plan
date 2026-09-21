@@ -8,6 +8,8 @@ pub struct ContractsDiff {
     pub after_generated_at: String,
     pub openapi: OpenApiDiff,
     pub summary: DiffSummary,
+    #[serde(default)]
+    pub warnings: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -54,22 +56,44 @@ pub struct FieldChange {
 pub fn diff(before: &ContractsReport, after: &ContractsReport) -> ContractsDiff {
     let openapi = diff_openapi(&before.openapi.endpoints, &after.openapi.endpoints);
     let summary = compute_summary(&openapi);
+    let mut warnings = before.openapi.warnings.clone();
+    warnings.extend(after.openapi.warnings.clone());
+    if before
+        .openapi
+        .endpoints
+        .iter()
+        .chain(&after.openapi.endpoints)
+        .any(|e| e.details.is_none())
+    {
+        warnings.push("Legacy snapshot lacks parameter/body/response schemas; regenerate baseline before relying on schema checks".into());
+    }
+    if !before.protobuf.files_found.is_empty()
+        || !after.protobuf.files_found.is_empty()
+        || !before.graphql.schemas_found.is_empty()
+        || !after.graphql.schemas_found.is_empty()
+    {
+        warnings
+            .push("GraphQL and Protobuf compatibility is not covered by this OpenAPI diff".into());
+    }
+    warnings.sort();
+    warnings.dedup();
     ContractsDiff {
         before_generated_at: before.generated_at.clone(),
         after_generated_at: after.generated_at.clone(),
         openapi,
         summary,
+        warnings,
     }
 }
 
-fn endpoint_key(e: &Endpoint) -> (String, String) {
-    (e.method.to_uppercase(), e.path.clone())
+fn endpoint_key(e: &Endpoint) -> (String, String, String) {
+    (e.spec_file.clone(), e.method.to_uppercase(), e.path.clone())
 }
 
 fn diff_openapi(before: &[Endpoint], after: &[Endpoint]) -> OpenApiDiff {
-    let before_map: HashMap<(String, String), &Endpoint> =
+    let before_map: HashMap<(String, String, String), &Endpoint> =
         before.iter().map(|e| (endpoint_key(e), e)).collect();
-    let after_map: HashMap<(String, String), &Endpoint> =
+    let after_map: HashMap<(String, String, String), &Endpoint> =
         after.iter().map(|e| (endpoint_key(e), e)).collect();
 
     let mut added = Vec::new();
@@ -122,6 +146,9 @@ fn diff_openapi(before: &[Endpoint], after: &[Endpoint]) -> OpenApiDiff {
 
 fn diff_endpoint(before: &Endpoint, after: &Endpoint) -> Option<EndpointModification> {
     let mut changes = Vec::new();
+    if let (Some(old), Some(new)) = (&before.details, &after.details) {
+        super::schema_diff::compare(old, new, "contract", &mut changes);
+    }
 
     if before.operation_id != after.operation_id {
         changes.push(FieldChange {
@@ -231,7 +258,10 @@ pub fn render_markdown(diff: &ContractsDiff) -> String {
         diff.summary.non_breaking
     ));
 
-    s.push_str("## OpenAPI\n\n");
+    for warning in &diff.warnings {
+        s.push_str(&format!("- INCOMPLETE: {}\n", warning));
+    }
+    s.push_str("\n## OpenAPI\n\n");
 
     if !diff.openapi.removed.is_empty() {
         s.push_str(&format!("### Removed ({})\n\n", diff.openapi.removed.len()));
@@ -325,6 +355,7 @@ mod tests {
             operation_id: op_id.map(String::from),
             summary: None,
             tags: vec![],
+            details: None,
         }
     }
 

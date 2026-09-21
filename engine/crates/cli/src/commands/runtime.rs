@@ -212,7 +212,7 @@ fn render_releases_md(report: &RuntimeReport) -> String {
     s.push('\n');
 
     s.push_str("---\n\n");
-    s.push_str("**Como usar**: cada release define snapshot do codebase em ponto no tempo. AI ao propor mudanca em codigo pode conferir em qual release o codigo alvo mora - codigo em releases antigas eh production-stable, codigo introduzido recentemente eh mais risco.\n");
+    s.push_str("**Como usar**: cada release define snapshot do codebase em ponto no tempo. AI ao propor mudanca em codigo pode conferir em qual release o codigo alvo mora - codigo em releases antigas eh release-tagged, codigo introduzido recentemente eh mais risco.\n");
     s
 }
 
@@ -326,7 +326,7 @@ fn render_file_releases_md(report: &RuntimeReport) -> String {
 
     if !unreleased_files.is_empty() {
         s.push_str(&format!(
-            "## Unreleased files ({}) - editable/removable com maior liberdade\n\n",
+            "## Unreleased files ({})\n\n",
             unreleased_files.len()
         ));
         s.push_str(
@@ -352,7 +352,7 @@ fn render_file_releases_md(report: &RuntimeReport) -> String {
     }
 
     s.push_str("---\n\n");
-    s.push_str("**Como usar**: arquivos released ha muito tempo sao production-stable - mudancas requerem cuidado extra (backwards compat). Arquivos unreleased sao work-in-progress, editaveis com menos risco.\n");
+    s.push_str("**Como usar**: arquivos released aparecem em tags; isso nao comprova estabilidade nem deploy. Release status alone does not determine change risk.\n");
     s
 }
 
@@ -364,7 +364,24 @@ fn render_summary_md(report: &RuntimeReport) -> String {
         report.generated_at
     ));
 
-    s.push_str("## Release state\n\n");
+    s.push_str("## Deployment evidence\n\n");
+    s.push_str(&format!(
+        "Status: `{}`. Release tags do not prove deployment.\n\n",
+        report.deployments.status
+    ));
+    for observation in &report.deployments.observations {
+        s.push_str(&format!(
+            "- {}: `{}` observed {} (source: {})\n",
+            observation.environment,
+            observation.commit,
+            observation.observed_at,
+            observation.source
+        ));
+    }
+    for warning in &report.deployments.warnings {
+        s.push_str(&format!("- Warning: {}\n", warning));
+    }
+    s.push_str("\n## Release state\n\n");
     if report.releases.total_releases == 0 {
         s.push_str("- Nenhuma release tag detectada\n");
         s.push_str("- Recomendado adotar tags semver antes de continuar\n\n");
@@ -411,6 +428,6 @@ fn render_summary_md(report: &RuntimeReport) -> String {
     }
 
     s.push_str("---\n\n");
-    s.push_str("**Como usar em Plan-First**: antes de propor mudanca, ler este summary para saber se codigo alvo esta released (production-stable) ou unreleased (edge). Fix em bug de producao deve ir em area released ou aguardar release. Mudanca breaking pendente influencia timing da proxima release.\n");
+    s.push_str("**Como usar em Plan-First**: antes de propor mudanca, ler este summary para saber se codigo alvo esta released (release-tagged) ou unreleased (edge). Para investigar producao, conferir a observacao de deploy do ambiente e seu commit. Mudanca breaking pendente influencia timing da proxima release.\n");
     s
 }

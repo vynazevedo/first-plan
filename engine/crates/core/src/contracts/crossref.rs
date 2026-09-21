@@ -283,6 +283,7 @@ mod tests {
             operation_id: Some(op_id.to_string()),
             summary: None,
             tags: vec![],
+            details: None,
         }
     }
 

@@ -42,3 +42,5 @@ pub fn analyze(root: &std::path::Path) -> ContractsReport {
         crossref,
     }
 }
+
+pub mod schema_diff;

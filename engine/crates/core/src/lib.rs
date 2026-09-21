@@ -10,8 +10,10 @@
 pub mod ast;
 pub mod cochange;
 pub mod compress;
+pub mod context;
 pub mod contracts;
 pub mod embeddings;
+pub mod evidence;
 pub mod evolution;
 pub mod generate;
 pub mod git;
@@ -37,3 +39,6 @@ pub const ML_ENABLED: bool = cfg!(feature = "ml");
 pub const AST_ENABLED: bool = cfg!(feature = "tree-sitter");
 
 pub const ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+pub mod deployment;
+pub mod impact;

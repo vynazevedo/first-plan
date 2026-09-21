@@ -1,3 +1,4 @@
+<!-- v1.5: detalhes atuais em docs/evidence-workflow.md; histórico abaixo preservado. -->
 <h1 align="center">
   <br>
   <a href="https://github.com/vynazevedo/first-plan">
@@ -17,7 +18,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-1.4.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.5.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -54,7 +55,7 @@
 </p>
 
 <p align="center">
-  <b>Pare sua ferramenta de AI coding de inventar padrões novos.</b> Faça ela seguir as convenções existentes do seu codebase, mesmo em sessão fria, com aderência absoluta.
+  <b>Pare sua ferramenta de AI coding de inventar padrões novos.</b> Faça ela seguir as convenções existentes do seu codebase, mesmo em sessão fria, com evidências explícitas e verificação.
 </p>
 
 <p align="center">
@@ -180,7 +181,7 @@ fpe contracts diff --before baseline.json --fail-on-breaking
 fpe multi contracts-check --fail-on-breaking
 ```
 
-**Regras breaking (v1.3.0, nível endpoint):** endpoint removido = breaking, mudança de `operation_id` = breaking, endpoint adicionado / mudança de summary / mudança de tags = non-breaking. Diff granular de parameters, request body e response schemas, além de suporte Protobuf e GraphQL, virão em v1.3.1.
+**Regras breaking (v1.3.0, nível endpoint):** endpoint removido = breaking, mudança de `operation_id` = breaking, endpoint adicionado / mudança de summary / mudança de tags = non-breaking. A v1.5.0 inclui verificações conservadoras de parâmetros, corpos e respostas OpenAPI. Diffs Protobuf/GraphQL continuam planejados.
 
 ### Para desenvolvimento local
 
@@ -298,7 +299,7 @@ fpe multi contracts-check --fail-on-breaking
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-RUNTIME-firebrick?style=for-the-badge" /></td>
-<td><strong>Camada Runtime</strong> (v0.11.0) - <code>fpe runtime</code>. Histórico de releases via git tags cross-referenced com CHANGELOG. Commits pendentes após ultima tag com detecção de breaking changes. Mapeamento arquivo-para-release (paralelizado com rayon, 11x speedup). Produz <code>.first-plan/14-runtime/</code> para o AI responder "esse bug está em produção?" e "esse fix requer release nova?".</td>
+<td><strong>Camada Runtime</strong> (v0.11.0) - <code>fpe runtime</code>. Histórico de releases via git tags cross-referenced com CHANGELOG. Commits pendentes após ultima tag com detecção de breaking changes. Mapeamento arquivo-para-release (paralelizado com rayon, 11x speedup). Produz <code>.first-plan/14-runtime/</code> para distinguir mudanças publicadas e pendentes. Estado de produção requer evidência de deploy separada.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-GENERATE-4B0082?style=for-the-badge" /></td>
@@ -925,8 +926,8 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v1.4.0-current-brightgreen?style=flat-square" alt="v1.4.0 current">
-<img src="https://img.shields.io/badge/v1.1.0-next-blue?style=flat-square" alt="v1.1.0 next">
+<img src="https://img.shields.io/badge/v1.5.0-current-brightgreen?style=flat-square" alt="v1.5.0 current">
+<img src="https://img.shields.io/badge/v1.6.0-next-blue?style=flat-square" alt="v1.6.0 next">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
 
@@ -1089,45 +1090,23 @@ Workflow:
 
 #### v0.11.0 - Camada Runtime (current)
 
-- **`fpe runtime`** - link entre IR e estado de produção
+- **`fpe runtime`** - ligação entre IR e histórico de releases
 - Histórico de releases via git tags com commit-count/author-count/CHANGELOG cross-reference
 - Commits pendentes pós latest tag com detecção de breaking changes
 - Mapeamento arquivo-para-release (introduced_in + last_modified_in por arquivo source)
 - Paralelizado com rayon (11x speedup: 158s → 14s)
-- Responde "esse bug está em produção?" e "esse fix requer release nova?"
+- Identifica mudanças em tags e pendentes; deploy exige observações separadas
 
-### Planejado
+### v1.5.0 e próximos passos
 
-#### v0.12.0 - Cross-Repo Awareness
+A v1.5.0 entrega contexto por tarefa com evidências, preservação de instruções,
+verificação mais detalhada de contratos OpenAPI, referências candidatas entre
+repositórios, observações de deploy, MCP e publicação condicionada às validações.
 
-- Config `~/.first-plan/repos.yaml` registry de sister repos
-- Detecção de calls cross-service (OpenAPI/Protobuf/gRPC entre repos)
-- Comando `/fp:blast-radius <símbolo>` para análise de impacto em microservices
-- Combinado com Quality + Contracts + Runtime = visão downstream completa
-
-#### v1.0.0 - Framework pivot (multi-tool)
-
-- `fpe generate --tool <claude|codex|cursor|copilot|generic>` gera arquivos de instrução tool-specific a partir do IR
-- Init LLM-agnostic: `fpe init --llm <openai|anthropic|ollama|qwen>` para users sem Claude Code
-- Plugin Claude Code continua sendo a integração profunda; outras ferramentas consomem arquivos gerados
-- Schema do IR formalizado como documento de especificação
-
-### Long-term Vision (v1.5+)
-
-Cognitive Infrastructure completa:
-
-- **Bug Recurrence DB** - "este bug apareceu antes em #234, fixed em abc123"
-- **Decision Archeology** - extrai why/because de commits/PRs/comments
-- **Migration Tracker** - "47% migrado de logrus → slog"
-- **Doc-Code Sync auditor**
-- **Test-Code Drift detector**
-- **Investigation Mode** - bug-hunt subagent
-- **Onboarding Path Generator** (por papel)
-- **Team Awareness** (Slack/Linear sync)
-- **Schema-Aware Operations** (OpenAPI/GraphQL/Protobuf breaking change detection)
-- **Multi-Tool AI Sync** (Cursor + Cody + Copilot consomem `.first-plan/`)
-
----
+As versões 1.1 a 1.4 já foram entregues. Consulte o [roadmap atualizado](../../README.md#roadmap),
+o [fluxo da v1.5](../evidence-workflow.md) e o [changelog](../../CHANGELOG.md).
+Medições com agentes reais, resolução semântica de consumidores, integrações de deploy
+em tempo real e diffs Protobuf/GraphQL continuam como evolução futura.
 
 ## License
 

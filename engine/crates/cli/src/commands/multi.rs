@@ -447,6 +447,7 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
     let mut checked = 0usize;
     let mut skipped = 0usize;
     let mut total_breaking = 0usize;
+    let mut incomplete = 0usize;
 
     let pb = if !args.json {
         crate::tty::multi_spinner(cfg.repos.len(), "checking contracts")
@@ -499,11 +500,16 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
         let d = diff::diff(&before, &after);
         total_breaking += d.summary.breaking;
         checked += 1;
+        if !d.warnings.is_empty() {
+            incomplete += 1;
+        }
 
         results.push(RepoCheckResult {
             name: entry.name.clone(),
             path: repo_path.clone(),
-            status: if d.summary.breaking > 0 {
+            status: if !d.warnings.is_empty() {
+                "incomplete".to_string()
+            } else if d.summary.breaking > 0 {
                 "breaking".to_string()
             } else if d.summary.total_changes > 0 {
                 "changed".to_string()
@@ -514,7 +520,11 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
             total_changes: d.summary.total_changes,
             breaking: d.summary.breaking,
             non_breaking: d.summary.non_breaking,
-            reason: None,
+            reason: if d.warnings.is_empty() {
+                None
+            } else {
+                Some(d.warnings.join("; "))
+            },
         });
         pb.inc(1);
     }
@@ -610,6 +620,14 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
         }
     }
 
+    if args.fail_on_breaking && (skipped > 0 || incomplete > 0 || checked == 0) {
+        return Err(anyhow!(
+            "contract gate incomplete: {} skipped, {} incomplete, {} checked",
+            skipped,
+            incomplete,
+            checked
+        ));
+    }
     if args.fail_on_breaking && total_breaking > 0 {
         return Err(anyhow!(
             "{} breaking change(s) detectados em {} repo(s) (--fail-on-breaking)",

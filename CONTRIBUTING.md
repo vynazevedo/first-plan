@@ -117,7 +117,7 @@ Bugs about cross-tool compatibility are particularly valuable and get priority. 
 
 ## Discussing architecture changes
 
-Before starting work on a new capability layer or a big refactor, open an issue with the design sketch. The current architecture is documented in the README's roadmap section. Feature layers planned: Quality (v0.8, shipped), Contracts (v0.9), Evolution (v0.10), Runtime (v0.11), Cross-repo (v0.12), Framework pivot (v1.0).
+Before starting work on a new capability layer or a big refactor, open an issue with the design sketch. The current architecture is documented in the README's roadmap section. The shipped layers and outstanding work are tracked in the README roadmap. Release requirements are in [docs/releases.md](docs/releases.md).
 
 ## Code of conduct
 

@@ -16,6 +16,8 @@ pub struct OpenApiReport {
     pub specs_found: Vec<SpecFile>,
     pub endpoints: Vec<Endpoint>,
     pub total_endpoints: usize,
+    #[serde(default)]
+    pub warnings: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,6 +37,8 @@ pub struct Endpoint {
     pub operation_id: Option<String>,
     pub summary: Option<String>,
     pub tags: Vec<String>,
+    #[serde(default)]
+    pub details: Option<serde_json::Value>,
 }
 
 const CANDIDATE_FILENAMES: &[&str] = &[
@@ -86,7 +90,12 @@ pub fn detect(root: &Path) -> OpenApiReport {
 fn parse_spec(path: &Path, root: &Path, report: &mut OpenApiReport) {
     let content = match std::fs::read_to_string(path) {
         Ok(c) => c,
-        Err(_) => return,
+        Err(_) => {
+            report
+                .warnings
+                .push(format!("Cannot read or parse {}", path.display()));
+            return;
+        }
     };
 
     let is_json = path
@@ -98,15 +107,30 @@ fn parse_spec(path: &Path, root: &Path, report: &mut OpenApiReport) {
     let raw: serde_json::Value = if is_json {
         match serde_json::from_str(&content) {
             Ok(v) => v,
-            Err(_) => return,
+            Err(_) => {
+                report
+                    .warnings
+                    .push(format!("Cannot read or parse {}", path.display()));
+                return;
+            }
         }
     } else {
         match serde_yaml::from_str::<serde_yaml::Value>(&content) {
             Ok(v) => match serde_json::to_value(v) {
                 Ok(j) => j,
-                Err(_) => return,
+                Err(_) => {
+                    report
+                        .warnings
+                        .push(format!("Cannot read or parse {}", path.display()));
+                    return;
+                }
             },
-            Err(_) => return,
+            Err(_) => {
+                report
+                    .warnings
+                    .push(format!("Cannot read or parse {}", path.display()));
+                return;
+            }
         }
     };
 
@@ -120,6 +144,15 @@ fn parse_spec(path: &Path, root: &Path, report: &mut OpenApiReport) {
                 .map(String::from)
         });
 
+    if !openapi_version
+        .as_deref()
+        .is_some_and(|v| v.starts_with("3."))
+    {
+        report
+            .warnings
+            .push(format!("Unsupported OpenAPI version: {}", path.display()));
+        return;
+    }
     let title = raw
         .get("info")
         .and_then(|i| i.get("title"))
@@ -141,7 +174,9 @@ fn parse_spec(path: &Path, root: &Path, report: &mut OpenApiReport) {
 
     if let Some(paths) = raw.get("paths").and_then(|p| p.as_object()) {
         for (path_str, path_item) in paths {
-            let Some(item_obj) = path_item.as_object() else {
+            let resolved_item =
+                resolve_refs(path_item, &raw, &mut Vec::new(), &mut report.warnings);
+            let Some(item_obj) = resolved_item.as_object() else {
                 continue;
             };
             for method in [
@@ -172,6 +207,16 @@ fn parse_spec(path: &Path, root: &Path, report: &mut OpenApiReport) {
                     operation_id,
                     summary,
                     tags,
+                    details: Some({
+                        let mut parameters = std::collections::BTreeMap::new();
+                        for p in item_obj.get("parameters").and_then(|v| v.as_array()).into_iter().flatten()
+                            .chain(op.get("parameters").and_then(|v| v.as_array()).into_iter().flatten()) {
+                            let key = format!("{}:{}", p["in"].as_str().unwrap_or("?"), p["name"].as_str().unwrap_or("?"));
+                            parameters.insert(key, p.clone());
+                        }
+                        serde_json::json!({ "parameters": parameters, "requestBody": op.get("requestBody"),
+                            "responses": op.get("responses"), "security": op.get("security").or_else(|| raw.get("security")) })
+                    }),
                 });
                 file_endpoint_count += 1;
             }
@@ -185,6 +230,54 @@ fn parse_spec(path: &Path, root: &Path, report: &mut OpenApiReport) {
         openapi_version,
         endpoint_count: file_endpoint_count,
     });
+}
+
+fn resolve_refs(
+    value: &serde_json::Value,
+    root: &serde_json::Value,
+    seen: &mut Vec<String>,
+    warnings: &mut Vec<String>,
+) -> serde_json::Value {
+    use serde_json::Value;
+    if seen.len() >= 32 {
+        warnings.push("Reference depth limit reached".into());
+        return value.clone();
+    }
+    match value {
+        Value::Object(map) => {
+            if let Some(reference) = map.get("$ref").and_then(Value::as_str) {
+                if !reference.starts_with("#/") || seen.iter().any(|r| r == reference) {
+                    warnings.push(format!("Unresolved or recursive reference: {}", reference));
+                    return value.clone();
+                }
+                if let Some(target) = root.pointer(&reference[1..]) {
+                    seen.push(reference.into());
+                    let mut resolved = resolve_refs(target, root, seen, warnings);
+                    seen.pop();
+                    if let Some(obj) = resolved.as_object_mut() {
+                        for (k, v) in map {
+                            if k != "$ref" {
+                                obj.insert(k.clone(), resolve_refs(v, root, seen, warnings));
+                            }
+                        }
+                    }
+                    return resolved;
+                }
+                warnings.push(format!("Missing reference: {}", reference));
+            }
+            Value::Object(
+                map.iter()
+                    .map(|(k, v)| (k.clone(), resolve_refs(v, root, seen, warnings)))
+                    .collect(),
+            )
+        }
+        Value::Array(arr) => Value::Array(
+            arr.iter()
+                .map(|v| resolve_refs(v, root, seen, warnings))
+                .collect(),
+        ),
+        _ => value.clone(),
+    }
 }
 
 #[cfg(test)]

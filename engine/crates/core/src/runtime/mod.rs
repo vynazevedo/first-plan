@@ -25,6 +25,8 @@ pub struct RuntimeReport {
     pub releases: releases::ReleasesReport,
     pub unreleased: unreleased::UnreleasedReport,
     pub file_releases: file_releases::FileReleasesReport,
+    #[serde(default)]
+    pub deployments: crate::deployment::DeploymentReport,
 }
 
 pub fn analyze(root: &std::path::Path) -> RuntimeReport {
@@ -39,5 +41,6 @@ pub fn analyze(root: &std::path::Path) -> RuntimeReport {
         releases,
         unreleased,
         file_releases,
+        deployments: crate::deployment::inspect(root),
     }
 }

@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h4 align="center">Compiled context layer for <a href="https://claude.com/claude-code" target="_blank">Claude Code</a> on complex projects.</h4>
+<h4 align="center">Evidence-backed context for AI-assisted changes across complex projects.</h4>
 
 <p align="center">
   <a href="docs/i18n/README.pt-BR.md">Portugues (BR)</a>
@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-1.4.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.5.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -54,7 +54,7 @@
 </p>
 
 <p align="center">
-  <b>Stop your AI coding tool from inventing new patterns.</b> Make it follow your codebase's existing conventions, on cold session start, with absolute adherence.
+  <b>Stop your AI coding tool from inventing new patterns.</b> Make it follow your codebase's existing conventions, on cold session start, with explicit evidence and verification.
 </p>
 
 <p align="center">
@@ -66,6 +66,24 @@
 </p>
 
 ---
+
+## Evidence-first workflow (v1.5.0)
+
+Before changing code, find existing implementations, tests and references with locations and hashes:
+
+```bash
+fpe context --query "validate email" --budget 8000 --json
+fpe impact                            # candidate API consumers in registered repos
+fpe deployment status                 # unknown until observations are recorded
+fpe mcp --root /absolute/project/path  # read-only MCP over stdio
+```
+
+`generate` now preserves existing instructions and updates only its managed block. `init --llm`
+marks generated claims as inferred/unverified, records prompt sources, and discovers nested manifests.
+A release tag is not deployment evidence. Context and impact matches are candidates requiring verification.
+
+See [the v1.5 workflow, migration notes and limitations](docs/evidence-workflow.md),
+[evaluation methodology](docs/evaluations.md), and [release procedure](docs/releases.md).
 
 ## Quick Start
 
@@ -185,7 +203,7 @@ fpe contracts diff --before baseline.json --fail-on-breaking
 fpe multi contracts-check --fail-on-breaking
 ```
 
-**Breaking rules (v1.3.0, endpoint-level):** removed endpoint = breaking, `operation_id` change = breaking, added endpoint / summary change / tags change = non-breaking. Parameter, request-body and response-schema diff, plus Protobuf and GraphQL support, ship in v1.3.1.
+**Breaking rules (v1.3.0, endpoint-level):** removed endpoint = breaking, `operation_id` change = breaking, added endpoint / summary change / tags change = non-breaking. v1.5.0 adds conservative OpenAPI parameter, request-body and response-schema checks. Protobuf and GraphQL compatibility diff remain future work.
 
 ### See value in 5 seconds (Claude Code): `/fp:quick`
 
@@ -329,7 +347,7 @@ In ~3-8 minutes, generates the full 10-layer IR: stack lens analysis, reuse inde
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-RUNTIME-firebrick?style=for-the-badge" /></td>
-<td><strong>Runtime Layer</strong> (v0.11.0) - <code>fpe runtime</code>. Release history via git tags cross-referenced with CHANGELOG. Unreleased commits post latest tag with breaking-change detection. File-to-release mapping (paralelized via rayon, 11x speedup). Produces <code>.first-plan/14-runtime/</code> so AI answers "is this bug in production?" and "does this fix need a new release?".</td>
+<td><strong>Runtime Layer</strong> (v0.11.0) - <code>fpe runtime</code>. Release history via git tags cross-referenced with CHANGELOG. Unreleased commits post latest tag with breaking-change detection. File-to-release mapping (paralelized via rayon, 11x speedup). Produces <code>.first-plan/14-runtime/</code> for release awareness. Use explicit deployment observations to investigate production state.</td>
 </tr>
 <tr>
 <td width="220"><img src="https://img.shields.io/badge/-GENERATE-4B0082?style=for-the-badge" /></td>
@@ -985,8 +1003,8 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v1.4.0-current-brightgreen?style=flat-square" alt="v1.4.0 current">
-<img src="https://img.shields.io/badge/v1.1.0-next-blue?style=flat-square" alt="v1.1.0 next">
+<img src="https://img.shields.io/badge/v1.5.0-current-brightgreen?style=flat-square" alt="v1.5.0 current">
+<img src="https://img.shields.io/badge/v1.6.0-next-blue?style=flat-square" alt="v1.6.0 next">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
 
@@ -1149,14 +1167,14 @@ Workflow:
 
 #### v0.11.0 - Runtime Layer
 
-- **`fpe runtime`** - link between IR and production state
+- **`fpe runtime`** - link between IR and release history
 - Release history via git tags with commit-count/author-count/CHANGELOG cross-reference
 - Unreleased commits post latest tag with breaking-change detection
 - File-to-release mapping (introduced_in + last_modified_in per source file)
 - Paralelized with rayon (11x speedup: 158s → 14s)
-- Answers "is this bug in production?" and "does this fix need a new release?"
+- Tracks tagged versus unreleased changes; deployment requires separate evidence
 
-#### v1.0.0 - Framework Pivot (current)
+#### v1.0.0 - Framework Pivot
 
 - **`fpe generate --tool <name>`** - renders IR into tool-specific format
 - 5 adapters: codex (AGENTS.md), cursor (.cursorrules + .cursor/rules/), copilot (.github/copilot-instructions.md), cline (.clinerules), generic (CONVENTIONS.md)
@@ -1165,29 +1183,31 @@ Workflow:
 - Removes "I don't use Claude Code" objection - any AI coding tool consumes the same IR
 - **Positioning change**: "The context layer for Claude Code" → "The context layer for any AI coding tool"
 
-### Planned
+#### v1.1.0 through v1.4.0 - Shipped
 
-#### v1.1.0 - LLM-agnostic init (Phase 2 of framework pivot)
+- v1.1.0: provider-independent init (eight curated layers)
+- v1.2.0: repository registry and aggregated overview
+- v1.3.0: endpoint-level OpenAPI diff and cross-repository baseline checks
+- v1.3.1: `fpe` binary name with legacy alias
+- v1.4.0: terminal rendering and progress indicators
 
-- **`fpe init --llm <provider>`** - discovery + patterns + reconciliation using any LLM
-- Providers: OpenAI, Anthropic, Ollama, Qwen (via OpenAI-compatible API)
-- Prompts embedded in binary, no dependency on Claude Code skills
-- Enables full first-plan usage without any AI coding tool - just the engine + API key
-- Enterprise scenarios: air-gapped with local Ollama, CI/CD pipelines, batch processing
+#### v1.5.0 - Evidence and reliable change preparation (current)
 
-#### v1.2.0 - Cross-Repo Awareness
+- Managed instruction blocks preserve team rules; all section documents contribute context
+- Nested manifests, source samples, hashes and explicitly unverified LLM inferences
+- Task context with source/line/hash, character budget and stale-source checks
+- Conservative OpenAPI parameter/body/response checks, local reference resolution and strict incomplete-analysis gates
+- Candidate consumer references across registered repos and dated deployment observations
+- Read-only MCP stdio tools and reproducible evaluation scenarios
+- Release publication gated on tests, lint, versions and binary smoke checks; macOS binaries and SHA256SUMS
 
-- `~/.first-plan/repos.yaml` config registry of sister repos
-- Cross-service call detection (OpenAPI/Protobuf/gRPC across repos)
-- `/fp:blast-radius <symbol>` command for microservices impact analysis
-- Combined with Quality + Contracts + Runtime = full downstream impact view
+### Planned - evidence-driven follow-up
 
-#### v1.0.0 - Framework pivot (multi-tool)
-
-- `fpe generate --tool <claude|codex|cursor|copilot|generic>` outputs tool-specific instruction files from IR
-- LLM-agnostic init: `fpe init --llm <openai|anthropic|ollama|qwen>` for users without Claude Code
-- Claude Code plugin remains the deep integration; other tools consume generated files
-- IR schema formalized as specification document
+- Measured paired agent trials on real maintenance tasks; no effectiveness gain claimed yet
+- Semantic dependency resolution beyond lexical candidate consumers
+- Live deployment provider integrations beyond pipeline-supplied observations
+- Protobuf/GraphQL compatibility engines and broader OpenAPI compatibility semantics
+- Ranking and cache improvements driven by evaluation results
 
 ### Long-term Vision (v1.5+)
 

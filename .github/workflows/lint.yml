@@ -4,6 +4,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
+
+permissions:
+  contents: read
 
 jobs:
   rust:
@@ -11,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.96.0
         with:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
@@ -21,7 +25,7 @@ jobs:
         run: cargo fmt --all -- --check
         working-directory: engine
       - name: cargo clippy
-        run: cargo clippy --all-targets --workspace -- -D warnings
+        run: cargo clippy --all-targets --workspace --locked -- -D warnings
         working-directory: engine
 
   json:
@@ -59,3 +63,12 @@ jobs:
         run: pip install pyyaml
       - name: validate frontmatter
         run: python3 tools/validate_frontmatter.py
+
+  release-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 tools/check_release.py

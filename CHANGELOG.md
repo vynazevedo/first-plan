@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-09-21
+
+### Added
+
+- Task-specific `fpe context --query ... --budget ... --json` with reusable symbols, tests, documented conventions, file/line/hash evidence and explicit retrieval limits. Changed provenance sources invalidate generated convention context.
+- `fpe impact` identifies candidate consumers of OpenAPI paths and operation identifiers across registered repositories. Matches are explicitly not runtime dependency proof.
+- `fpe deployment record/status` records environment, full commit ID, observation time and source. Missing observations remain unknown; observations older than 24 hours are flagged. Runtime reports include this evidence separately from Git tags.
+- Read-only `fpe mcp --root ...` stdio server exposing context, impact and deployment status with a fixed project root (protocol 2025-11-25).
+- Reproducible evaluation scenarios and paired-agent outcome aggregation. No measured improvement in agent success is claimed by the synthetic scenarios.
+- macOS ARM64 and x86_64 release archives, SHA256SUMS and native binary smoke checks.
+
+### Fixed
+
+- Instruction generation preserves existing team rules in managed blocks and rejects malformed markers. All Markdown documents in each IR section contribute excerpts instead of only the first file.
+- Init discovers nested manifests, includes bounded source samples and records source hashes/revision. Generated metadata now uses schema version 2, null confidence and inferred/unverified status instead of a fixed confidence score.
+- OpenAPI diff includes inherited parameters, request bodies, responses and local references; endpoint identity includes spec file so separate APIs do not collide.
+- Release publication depends on lint, tests (default/AST/ML), evaluation scenarios and consistent tag/workspace/plugin/marketplace/lockfile/changelog versions. Builds use the lockfile and Rust 1.96.0.
+- Documentation distinguishes delivered features, remaining work, release tags and deployment observations.
+
+### Compatibility and limitations
+
+- `--fail-on-breaking` now also fails when analysis is incomplete (legacy snapshots, unresolved references, unsupported contract families, skipped repositories or missing baselines). Regenerate legacy baselines from the actual baseline revision before adopting the stricter gate.
+- Schema changes are classified conservatively: unsupported semantic transformations require review and may be false positives. Protobuf/GraphQL compatibility diff and external/recursive reference resolution are not implemented.
+- Existing unmarked generated instructions are preserved. Remove the old generated section manually after reviewing the first managed update if duplicate text is undesirable.
+- Context retrieval is lexical and bounded; budgets count characters, not model tokens. Deployment observations are supplied by pipelines/operators and are not live verification.
+- Source builds now declare Rust 1.96; `fpe` and `first-plan-engine` remain available.
+
 ## [1.4.0] - 2026-08-07
 
 ### Added

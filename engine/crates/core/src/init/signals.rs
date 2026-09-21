@@ -20,6 +20,9 @@ pub struct ProjectSignals {
     pub tree: String,
     pub git_activity: Option<GitActivity>,
     pub detected_stacks: Vec<String>,
+    pub evidence: Vec<crate::evidence::Evidence>,
+    pub revision: Option<String>,
+    pub source_samples: Vec<Manifest>,
 }
 
 #[derive(Debug, Serialize)]
@@ -81,6 +84,25 @@ pub fn collect(root: &Path) -> Result<ProjectSignals> {
     let git_activity = collect_git_activity(root).ok();
     let detected_stacks = detect_stacks(root);
 
+    let mut evidence = Vec::new();
+    let mut source_samples = Vec::new();
+    for path in crate::evidence::files(root)? {
+        let is_source = crate::symbols::language_from_path(&path).is_some();
+        let is_manifest =
+            MANIFEST_FILES.contains(&path.file_name().and_then(|n| n.to_str()).unwrap_or(""));
+        let is_readme = path == Path::new("README.md");
+        if is_manifest || is_readme || (is_source && source_samples.len() < 30) {
+            if let Some(text) = crate::evidence::read(root, &path) {
+                evidence.push(crate::evidence::source(&path, &text, 1, "observed"));
+                if is_source && !is_manifest {
+                    source_samples.push(Manifest {
+                        path: path.to_string_lossy().into_owned(),
+                        excerpt: truncate(&text, 2_000),
+                    });
+                }
+            }
+        }
+    }
     Ok(ProjectSignals {
         root: root.to_path_buf(),
         readme,
@@ -88,6 +110,9 @@ pub fn collect(root: &Path) -> Result<ProjectSignals> {
         tree,
         git_activity,
         detected_stacks,
+        evidence,
+        revision: crate::evidence::revision(root),
+        source_samples,
     })
 }
 
@@ -103,13 +128,18 @@ fn find_readme(root: &Path) -> Option<String> {
 
 fn collect_manifests(root: &Path) -> Result<Vec<Manifest>> {
     let mut out = Vec::new();
-    for name in MANIFEST_FILES {
-        let path = root.join(name);
-        if let Ok(content) = fs::read_to_string(&path) {
+    for relative in crate::evidence::files(root)? {
+        if !MANIFEST_FILES.contains(&relative.file_name().and_then(|n| n.to_str()).unwrap_or("")) {
+            continue;
+        }
+        if let Some(content) = crate::evidence::read(root, &relative) {
             out.push(Manifest {
-                path: name.to_string(),
+                path: relative.to_string_lossy().into_owned(),
                 excerpt: truncate(&content, MAX_MANIFEST_BYTES),
             });
+            if out.len() >= 100 {
+                break;
+            }
         }
     }
     Ok(out)
@@ -231,9 +261,13 @@ fn collect_git_activity(root: &Path) -> Result<GitActivity> {
 
 fn detect_stacks(root: &Path) -> Vec<String> {
     let mut out = Vec::new();
-    for (file, stack) in STACK_INDICATORS {
-        if root.join(file).exists() && !out.contains(&stack.to_string()) {
-            out.push(stack.to_string());
+    for path in crate::evidence::files(root).unwrap_or_default() {
+        for (file, stack) in STACK_INDICATORS {
+            if path.file_name().and_then(|n| n.to_str()) == Some(file)
+                && !out.contains(&stack.to_string())
+            {
+                out.push(stack.to_string());
+            }
         }
     }
     out
@@ -248,4 +282,29 @@ fn truncate(s: &str, max_bytes: usize) -> String {
         cut -= 1;
     }
     format!("{}\n... (truncated at {} bytes)", &s[..cut], max_bytes)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn collects_nested_manifest_and_provenance() {
+        let tmp = tempfile::tempdir().unwrap();
+        std::fs::create_dir_all(tmp.path().join("engine")).unwrap();
+        std::fs::write(
+            tmp.path().join("engine/Cargo.toml"),
+            "[package]\nname='example'\n",
+        )
+        .unwrap();
+        let signals = collect(tmp.path()).unwrap();
+        assert!(signals.detected_stacks.contains(&"rust".into()));
+        assert!(signals
+            .manifests
+            .iter()
+            .any(|m| m.path.ends_with("Cargo.toml")));
+        assert!(signals
+            .evidence
+            .iter()
+            .any(|e| e.path == "engine/Cargo.toml" && e.hash.starts_with("xxh3:")));
+    }
 }

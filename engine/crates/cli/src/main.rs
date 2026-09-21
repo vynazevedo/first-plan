@@ -17,6 +17,14 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    /// Serve read-only context tools over MCP stdio.
+    Mcp(commands::mcp::Args),
+    /// Trace candidate consumers of contracts across registered repositories.
+    Impact(commands::evidence::ImpactArgs),
+    /// Record and inspect deployment observations independently of release tags.
+    Deployment(commands::evidence::DeploymentArgs),
+    /// Retrieve task context with source locations and content hashes.
+    Context(commands::context::Args),
     /// Build the co-change graph from git history.
     Cochange(commands::cochange::Args),
     /// Hash files in parallel using xxh3.
@@ -54,6 +62,10 @@ enum Command {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     match cli.command {
+        Command::Mcp(args) => commands::mcp::run(args),
+        Command::Impact(args) => commands::evidence::impact(args),
+        Command::Deployment(args) => commands::evidence::deployment(args),
+        Command::Context(args) => commands::context::run(args),
         Command::Cochange(args) => commands::cochange::run(args),
         Command::Hash(args) => commands::hash::run(args),
         Command::Index(args) => commands::index::run(args),

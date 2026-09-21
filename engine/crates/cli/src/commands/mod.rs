@@ -1,5 +1,6 @@
 pub mod cochange;
 pub mod compress;
+pub mod context;
 pub mod contracts;
 pub mod evolution;
 pub mod generate;
@@ -14,3 +15,7 @@ pub mod quick;
 pub mod runtime;
 pub mod search;
 pub mod watch;
+
+pub mod evidence;
+
+pub mod mcp;

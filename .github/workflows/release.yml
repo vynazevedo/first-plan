@@ -5,11 +5,24 @@ on:
     tags: ["v*"]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+  lint:
+    uses: ./.github/workflows/lint.yml
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python3 tools/check_release.py --tag "$GITHUB_REF_NAME"
   build:
-    name: build ${{ matrix.target }}
+    name: build ${{ matrix.target }}${{ matrix.suffix }}
+    needs: [test, lint, version]
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -31,6 +44,16 @@ jobs:
             cross: false
             features: ""
             suffix: ""
+          - target: aarch64-apple-darwin
+            runner: macos-latest
+            cross: false
+            features: ""
+            suffix: ""
+          - target: x86_64-apple-darwin
+            runner: macos-15-intel
+            cross: false
+            features: ""
+            suffix: ""
           # ML build (with embeddings, ~50MB, opt-in)
           # Linux x86_64 GNU only - musl + ONNX is fragile, postpone to v0.4.2.
           - target: x86_64-unknown-linux-gnu
@@ -47,7 +70,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.96.0
         with:
           targets: ${{ matrix.target }}
 
@@ -63,12 +86,20 @@ jobs:
       - name: build (cross)
         if: matrix.cross
         working-directory: engine
-        run: cross build --release --target ${{ matrix.target }} --bin fpe --bin first-plan-engine ${{ matrix.features }}
+        run: cross build --release --locked --target ${{ matrix.target }} --bin fpe --bin first-plan-engine ${{ matrix.features }}
 
       - name: build (cargo)
         if: ${{ !matrix.cross }}
         working-directory: engine
-        run: cargo build --release --target ${{ matrix.target }} --bin fpe --bin first-plan-engine ${{ matrix.features }}
+        run: cargo build --release --locked --target ${{ matrix.target }} --bin fpe --bin first-plan-engine ${{ matrix.features }}
+
+      - name: smoke test native binary
+        if: ${{ matrix.target != 'aarch64-unknown-linux-musl' }}
+        shell: bash
+        run: |
+          engine/target/${{ matrix.target }}/release/fpe --version
+          engine/target/${{ matrix.target }}/release/first-plan-engine --version
+          engine/target/${{ matrix.target }}/release/fpe context --help
 
       - name: package (unix)
         if: ${{ !contains(matrix.target, 'windows') }}
@@ -90,10 +121,12 @@ jobs:
           path: |
             first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.tar.gz
             first-plan-engine-${{ matrix.target }}${{ matrix.suffix }}.zip
-          if-no-files-found: ignore
+          if-no-files-found: error
 
   release:
     name: publish release
+    permissions:
+      contents: write
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -102,35 +135,18 @@ jobs:
         with:
           merge-multiple: true
           path: dist
-      - name: list artifacts
-        run: ls -la dist/
+      - name: checksums and release notes
+        shell: bash
+        run: |
+          python3 tools/check_release.py --tag "$GITHUB_REF_NAME" --notes dist/RELEASE_NOTES.md
+          cd dist
+          sha256sum first-plan-engine-*.tar.gz first-plan-engine-*.zip > SHA256SUMS
+          sha256sum --check SHA256SUMS
       - uses: softprops/action-gh-release@v2
         with:
           files: |
             dist/first-plan-engine-*.tar.gz
             dist/first-plan-engine-*.zip
-          generate_release_notes: true
-          body: |
-            ## first-plan ${{ github.ref_name }}
-
-            Native engine binary for the first-plan context layer.
-
-            Each archive now ships **two binaries** with identical behavior:
-
-            - `fpe` - short, canonical name (v1.3.1+)
-            - `first-plan-engine` - long name kept for backward compatibility
-
-            Existing scripts using `first-plan-engine` continue to work. New scripts should prefer `fpe`.
-
-            ### Installation
-
-            Download the archive for your platform, extract, and place both binaries in your `$PATH` (or `${CLAUDE_PLUGIN_ROOT}/engine/bin/` for Claude Code plugin usage).
-
-            ### Verify
-
-            ```
-            fpe --version
-            first-plan-engine --version
-            ```
-
-            See [README](https://github.com/vynazevedo/first-plan) for the full command reference.
+            dist/SHA256SUMS
+          fail_on_unmatched_files: true
+          body_path: dist/RELEASE_NOTES.md
