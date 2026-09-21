@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href="../../.claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-1.5.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.6.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -83,29 +83,29 @@ O orçamento de contexto é em caracteres, não tokens. A busca é lexical; resu
 
 Veja [fluxo e migração](../evidence-workflow.md), [avaliações](../evaluations.md) e [processo de release](../releases.md).
 
-## Em desenvolvimento: piloto de verificação formal
+## Piloto de verificação formal (v1.6.0)
 
-Após a v1.5.0, estamos validando três propriedades do engine Rust com Kani:
+Na v1.6.0, o piloto verifica três propriedades do engine Rust com Kani:
 orçamento de contexto, decisão dos gates e preservação de texto em um domínio
 limitado. O piloto inclui controles com defeitos deliberados e relatórios de
-evidência. Não faz parte dos binários v1.5.0. Veja [escopo e reprodução](../verification-pilot.md).
+evidência. Veja [escopo e reprodução](../verification-pilot.md).
 
-## Em desenvolvimento: regras verificáveis por projeto
+## Regras verificáveis por projeto (v1.6.0)
 
 Registre requisitos em `.first-plan/rules.yaml`, receba obrigações no contexto com
 `fpe context --path` e execute verificações com `fpe verify run` usando uma política
 revisada fora do projeto. Alterações nas regras ou nos testes exigem revisão da
 política. Testes aprovados e propriedades formais têm resultados distintos.
-Veja [fluxo, limites e exemplo multi-tenant](../project-rules.md). Ainda não incluído na v1.5.0.
+Veja [fluxo, limites e exemplo multi-tenant](../project-rules.md). Disponível na v1.6.0.
 
 ## Quick Start
 
 ### Engine independente: Codex, Cursor, Copilot, Cline e Aider
 
-Baixe o binário em [Releases](https://github.com/vynazevedo/first-plan/releases/tag/v1.5.0) ou compile com Rust 1.96+:
+Baixe o binário em [Releases](https://github.com/vynazevedo/first-plan/releases/tag/v1.6.0) ou compile com Rust 1.96+:
 
 ```bash
-cargo install --git https://github.com/vynazevedo/first-plan --tag v1.5.0 --locked first-plan-engine
+cargo install --git https://github.com/vynazevedo/first-plan --tag v1.6.0 --locked first-plan-engine
 ```
 
 Gere e revise o IR com `fpe init --llm` (abaixo), ou use um `.first-plan/` existente. Depois gere as instruções:
@@ -382,7 +382,7 @@ A) Sim B) Nao C) Manual
 
 **Manual:** Download em [Releases](https://github.com/vynazevedo/first-plan/releases) o binário matching seu OS/arch. Extraia e coloque em `${CLAUDE_PLUGIN_ROOT}/engine/bin/fpe` (ou no `$PATH`).
 
-**Plataformas da v1.5.0:**
+**Plataformas da v1.6.0:**
 
 - Linux x86_64 e aarch64 (musl)
 - macOS Intel e Apple Silicon
@@ -394,7 +394,7 @@ São sete arquivos de distribuição, mais `SHA256SUMS` para verificar a integri
 
 **From source:**
 ```bash
-git clone --branch v1.5.0 --depth 1 https://github.com/vynazevedo/first-plan
+git clone --branch v1.6.0 --depth 1 https://github.com/vynazevedo/first-plan
 cd first-plan/engine
 cargo install --locked --path crates/cli                            # build padrão lean
 cargo install --locked --path crates/cli --features=ml              # com ML (embeddings)
@@ -974,7 +974,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v1.5.0-current-brightgreen?style=flat-square" alt="v1.5.0 current">
+<img src="https://img.shields.io/badge/v1.6.0-current-brightgreen?style=flat-square" alt="v1.6.0 current">
 <img src="https://img.shields.io/badge/roadmap-planned-blue?style=flat-square" alt="Planned roadmap">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
@@ -1145,7 +1145,11 @@ Workflow:
 - Paralelizado com rayon
 - Identifica mudanças em tags e pendentes; deploy exige observações separadas
 
-### v1.5.0 e próximos passos
+### v1.6.0 e próximos passos
+
+A v1.6.0 acrescenta regras por projeto, obrigações no contexto, `fpe verify`,
+revisão de alterações nas especificações e evidências distintas para testes e
+propriedades formais. Inclui o piloto Kani e um exemplo de isolamento entre tenants.
 
 A v1.5.0 entrega contexto por tarefa com evidências, preservação de instruções,
 verificação mais detalhada de contratos OpenAPI, referências candidatas entre

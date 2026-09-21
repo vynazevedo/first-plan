@@ -1,6 +1,6 @@
 # Project rules: context, execution and specification review
 
-This is unreleased work after v1.5.0. It extends the engine verification pilot to
+Available in v1.6.0. This extends the engine verification pilot to
 projects that use first-plan. The four pieces are a strict registry, task-specific
 obligations, an explicit verifier runner, and comparison with an independently
 reviewed policy. Existing v1.5.0 binaries do not contain `fpe verify`.

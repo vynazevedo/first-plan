@@ -17,7 +17,7 @@
     <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
   </a>
   <a href=".claude-plugin/plugin.json">
-    <img src="https://img.shields.io/badge/version-1.5.0-green.svg" alt="Version">
+    <img src="https://img.shields.io/badge/version-1.6.0-green.svg" alt="Version">
   </a>
   <a href="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml">
     <img src="https://github.com/vynazevedo/first-plan/actions/workflows/lint.yml/badge.svg" alt="Lint">
@@ -85,20 +85,19 @@ A release tag is not deployment evidence. Context and impact matches are candida
 See [the v1.5 workflow, migration notes and limitations](docs/evidence-workflow.md),
 [evaluation methodology](docs/evaluations.md), and [release procedure](docs/releases.md).
 
-## In development: formal verification pilot
+## Formal verification pilot (v1.6.0)
 
-Work after v1.5.0 checks three Rust engine properties with Kani: context budgets,
+The v1.6.0 verification pilot checks three Rust engine properties with Kani: context budgets,
 contract gate decisions and text preservation within an explicit bounded domain.
-The pilot includes deliberate mutation controls and evidence reports. It is not
-part of the v1.5.0 binaries. See [scope and reproduction](docs/verification-pilot.md).
+The pilot includes deliberate mutation controls and evidence reports. See [scope and reproduction](docs/verification-pilot.md).
 
-## In development: verifiable project rules
+## Verifiable project rules (v1.6.0)
 
 Register requirements in `.first-plan/rules.yaml`, retrieve obligations through
 `fpe context --path`, and run checks with `fpe verify run` using an externally
 reviewed policy. Rule/test changes require policy review. Passing tests and formal
 verification have distinct results. See [workflow, limits and tenant example](docs/project-rules.md).
-This is not included in v1.5.0.
+Available in v1.6.0.
 
 ## Quick Start
 
@@ -123,7 +122,7 @@ Then in your project:
 Install the engine standalone via cargo or binary download from releases:
 
 ```bash
-cargo install --git https://github.com/vynazevedo/first-plan --tag v1.5.0 --locked first-plan-engine
+cargo install --git https://github.com/vynazevedo/first-plan --tag v1.6.0 --locked first-plan-engine
 ```
 
 First generate and review the IR using `fpe init --llm` (next section), or use an existing `.first-plan/`. Then generate instruction files for your tool of choice:
@@ -391,7 +390,7 @@ A) Yes B) No C) Manual
 
 **Manual:** Download from [Releases](https://github.com/vynazevedo/first-plan/releases) the binary matching your OS/arch. Extract and place in `${CLAUDE_PLUGIN_ROOT}/engine/bin/fpe` (or anywhere in your `$PATH`).
 
-**v1.5.0 platforms:**
+**v1.6.0 platforms:**
 
 - Linux x86_64 and aarch64 (musl)
 - macOS Intel and Apple Silicon
@@ -403,7 +402,7 @@ Seven distribution archives are published alongside `SHA256SUMS` for download in
 
 **From source:**
 ```bash
-git clone --branch v1.5.0 --depth 1 https://github.com/vynazevedo/first-plan
+git clone --branch v1.6.0 --depth 1 https://github.com/vynazevedo/first-plan
 cd first-plan/engine
 cargo install --locked --path crates/cli                            # default lean build
 cargo install --locked --path crates/cli --features=ml              # ML-enabled (embeddings)
@@ -1012,7 +1011,7 @@ Workflow:
 ## Roadmap
 
 <p>
-<img src="https://img.shields.io/badge/v1.5.0-current-brightgreen?style=flat-square" alt="v1.5.0 current">
+<img src="https://img.shields.io/badge/v1.6.0-current-brightgreen?style=flat-square" alt="v1.6.0 current">
 <img src="https://img.shields.io/badge/roadmap-planned-blue?style=flat-square" alt="Planned roadmap">
 <img src="https://img.shields.io/badge/v2.0-vision-lightgrey?style=flat-square" alt="v2.0 vision">
 </p>
@@ -1200,7 +1199,13 @@ Workflow:
 - v1.3.1: `fpe` binary name with legacy alias
 - v1.4.0: terminal rendering and progress indicators
 
-#### v1.5.0 - Evidence and reliable change preparation (current)
+#### v1.6.0 - Verifiable project rules (current)
+
+- Explicit requirements, task-context obligations and externally reviewed verification policies
+- Distinct test/formal outcomes, evidence freshness checks and specification drift review
+- Kani pilot on production primitives and tenant-isolation regression example
+
+#### v1.5.0 - Evidence and reliable change preparation
 
 - Managed instruction blocks preserve team rules; all section documents contribute context
 - Nested manifests, source samples, hashes and explicitly unverified LLM inferences

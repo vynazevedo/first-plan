@@ -5,7 +5,7 @@ Update the workspace, the two local packages in Cargo.lock, plugin and marketpla
 versions, README badges and the dated CHANGELOG entry together.
 
 ```bash
-python3 tools/check_release.py --tag v1.5.0
+python3 tools/check_release.py --tag v1.6.0
 python3 tools/validate_frontmatter.py
 cd engine
 cargo fmt --all -- --check

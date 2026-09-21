@@ -1,6 +1,6 @@
 # Verification pilot: rules checked against production Rust
 
-This is development work after v1.5.0, not a feature shipped in that release.
+The experimental verification pilot is included in the v1.6.0 source and CI.
 The pilot adopts the separation of requirements and independently checked
 implementation evidence illustrated by Bend's LAWS/PROOF workflow. It keeps the
 engine in Rust and uses Kani 0.68.0 on Linux x86_64. No LLM is invoked.
