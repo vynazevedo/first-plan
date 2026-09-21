@@ -209,15 +209,19 @@ fn lsp_daemon_status_when_not_running() {
     use std::thread::sleep;
     use std::time::Duration;
 
+    // Each test owns its daemon socket and PID file on Linux.
+    let runtime = TempDir::new().unwrap();
     let _ = Command::cargo_bin("first-plan-engine")
         .unwrap()
+        .env("XDG_RUNTIME_DIR", runtime.path())
         .args(["lsp", "daemon", "stop"])
         .assert();
 
-    // Aguarda daemon de outros testes encerrar completamente (CI compartilha runtime dir).
+    // Wait for the daemon in this test runtime to stop.
     for _ in 0..30 {
         let out = Command::cargo_bin("first-plan-engine")
             .unwrap()
+            .env("XDG_RUNTIME_DIR", runtime.path())
             .args(["lsp", "daemon", "status", "--json"])
             .assert()
             .success()
@@ -246,8 +250,11 @@ fn lsp_daemon_start_then_status_then_stop() {
     use std::thread::sleep;
     use std::time::Duration;
 
+    // Each test owns its daemon socket and PID file on Linux.
+    let runtime = TempDir::new().unwrap();
     let _ = Command::cargo_bin("first-plan-engine")
         .unwrap()
+        .env("XDG_RUNTIME_DIR", runtime.path())
         .args(["lsp", "daemon", "stop"])
         .assert();
 
@@ -256,6 +263,7 @@ fn lsp_daemon_start_then_status_then_stop() {
     fs::write(tmp.path().join("Cargo.toml"), "[package]\nname='x'\n").unwrap();
 
     let mut child = StdCommand::new(&bin)
+        .env("XDG_RUNTIME_DIR", runtime.path())
         .args([
             "lsp",
             "daemon",
@@ -276,6 +284,7 @@ fn lsp_daemon_start_then_status_then_stop() {
         sleep(Duration::from_millis(100));
         let out = Command::cargo_bin("first-plan-engine")
             .unwrap()
+            .env("XDG_RUNTIME_DIR", runtime.path())
             .args(["lsp", "daemon", "status", "--json"])
             .assert()
             .success()
@@ -306,6 +315,7 @@ fn lsp_daemon_start_then_status_then_stop() {
 
     Command::cargo_bin("first-plan-engine")
         .unwrap()
+        .env("XDG_RUNTIME_DIR", runtime.path())
         .args(["lsp", "daemon", "stop"])
         .assert()
         .success();
@@ -315,6 +325,7 @@ fn lsp_daemon_start_then_status_then_stop() {
         sleep(Duration::from_millis(100));
         let out = Command::cargo_bin("first-plan-engine")
             .unwrap()
+            .env("XDG_RUNTIME_DIR", runtime.path())
             .args(["lsp", "daemon", "status", "--json"])
             .assert()
             .success()

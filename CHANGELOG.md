@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Linux CLI daemon tests use isolated runtime directories so concurrent stop/status checks cannot terminate another test's daemon.
 - Context budget reservation rejects arithmetic overflow; contract decisions and instruction replacement now use the same primitives checked by the pilot, with additional Unicode and integration regressions.
 
 ## [1.5.0] - 2026-09-21
