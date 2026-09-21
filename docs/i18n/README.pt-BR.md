@@ -44,6 +44,7 @@
 
 <p align="center">
   <a href="#quick-start">Quick Start</a> -
+  <a href="#capacidades-principais">Capacidades</a> -
   <a href="#how-it-works">How It Works</a> -
   <a href="#commands">Commands</a> -
   <a href="#stack-lenses">Stack Lenses</a> -
@@ -244,122 +245,45 @@ fpe multi contracts-check --fail-on-breaking
 /plugin install fp@first-plan
 ```
 
-### Capacidades principais
+## Capacidades principais
 
-<table>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-CORE-blue?style=for-the-badge" /></td>
-<td><strong>Context Compilation</strong> - camada IR multi-layer estruturada para IA</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-ENGINE-orange?style=for-the-badge" /></td>
-<td><strong>Stack Lens Engine</strong> - detecção e análise plugavel por stack (Go, TS, PHP, Python, Rust, Terraform, Mobile)</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-INDEX-green?style=for-the-badge" /></td>
-<td><strong>Reuse Index invertido</strong> - "preciso de X, use Y em Z"</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-MATRIX-purple?style=for-the-badge" /></td>
-<td><strong>Spec-Code Reconciliation</strong> - matriz feature x status x evidência</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-GIT-black?style=for-the-badge" /></td>
-<td><strong>Git Intelligence</strong> - heatmap, ownership, in-flight branches/PRs</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-LIVING-brightgreen?style=for-the-badge" /></td>
-<td><strong>Living Layer</strong> - hook PostToolUse marca seções stale automaticamente</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-PROTOCOL-red?style=for-the-badge" /></td>
-<td><strong>Plan-First Protocol</strong> - gate humano explícito antes de executar</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-SCORING-yellow?style=for-the-badge" /></td>
-<td><strong>Confidence-Graded Knowledge</strong> - threshold 0.7, dúvidas viram perguntas</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-STATE-cyan?style=for-the-badge" /></td>
-<td><strong>Cross-Session State</strong> - sessão de hoje sabe o que sessão de ontem fez</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-UNIVERSAL-lightgrey?style=for-the-badge" /></td>
-<td><strong>Stack-Agnostic</strong> - fallback genérico para qualquer linguagem</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-PROVENANCE-darkgreen?style=for-the-badge" /></td>
-<td><strong>Provenance Tracking</strong> (v0.2.0) - cada finding tem source/SHA/TTL/decay - audita de onde veio</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-COCHANGE-darkblue?style=for-the-badge" /></td>
-<td><strong>Co-change Graph</strong> (v0.2.0) - "quando X muda, Y também" - previne PRs incompletos</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-VERIFY-magenta?style=for-the-badge" /></td>
-<td><strong>Verification Loop</strong> (v0.2.0) - lint/typecheck/tests automaticos pos-execute + rollback safety net</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-NATIVE-darkred?style=for-the-badge" /></td>
-<td><strong>Rust Engine</strong> (v0.3.0) - binario nativo fpe. Co-change graph 50k commits em &lt;2s vs 5min via shell. Hash 10k arquivos paralelo. Zero token Claude pra heavy lifting.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-SEMANTIC-purple?style=for-the-badge" /></td>
-<td><strong>Semantic Search BM25</strong> (v0.4.0) - "preciso de validação de email" encontra <code>validateEmailRFC</code> mesmo sem nome exato. Índice SQLite local, &lt;10ms por query, 6 linguagens suportadas.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-EMBEDDINGS-teal?style=for-the-badge" /></td>
-<td><strong>Embeddings ML (Hybrid)</strong> (v0.4.1) - build opt-in com BGE-small (ONNX). Hybrid search combina BM25 + cosine similarity para matches semânticos reais.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-AST-darkblue?style=for-the-badge" /></td>
-<td><strong>Tree-sitter AST</strong> (v0.5.0) - build opt-in com parsing exato. +43% de precisão na extração vs regex. Auto-detecta methods dentro de class/impl/struct. 5 linguagens: Rust, Go, Python, TypeScript, Bash.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-BASH-yellow?style=for-the-badge" /></td>
-<td><strong>Bash extractor</strong> (v0.5.0) - dotfiles e shell scripts agora indexáveis. Formas POSIX <code>name()</code> e <code>function name</code>. Detecta <code>.bashrc</code>, <code>.zshrc</code>, etc.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-WIKILINKS-purple?style=for-the-badge" /></td>
-<td><strong>Wikilinks Obsidian</strong> (v0.5.0) - sintaxe <code>[[seção/arquivo]]</code> em todo <code>.first-plan/</code>. Abra como vault Obsidian/Logseq para navegação em graph.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-WATCH-cyan?style=for-the-badge" /></td>
-<td><strong>Watch mode</strong> (v0.5.1) - <code>fpe watch</code> monitora filesystem com debounce. Emite eventos JSON stream em stdout. Inspirado em OpenKB (continuous compilation).</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-COMPRESS-darkgreen?style=for-the-badge" /></td>
-<td><strong>Compressão Nativa de Output</strong> (v0.5.3) - <code>fpe compress --tool &lt;git/find/grep/cargo/etc&gt;</code>. Economia de 80-99% em tokens para outputs grandes. Sem dependência externa.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-LSP-purple?style=for-the-badge" /></td>
-<td><strong>Integração LSP Polyglot</strong> (v0.6.0) - <code>fpe lsp &lt;refs|def|symbols|hover|wsymbols&gt;</code>. Resolução semântica de símbolos via 8 language servers (rust-analyzer, gopls, pyright, ts-lsp, intelephense, clangd, ruby-lsp, lua-ls). Auto-detecção de stack via manifests, sugere comandos de instalação para servers faltantes. Fallback gracioso para tree-sitter + grep.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-DAEMON-magenta?style=for-the-badge" /></td>
-<td><strong>LSP Daemon Mode</strong> (v0.6.1) - <code>fpe lsp daemon start</code>. Pool de warm-servers sobre Unix socket elimina cold start de 3-15s. Chamadas subsequentes retornam em &lt;100ms. Auto-routing: todas as ops LSP usam o daemon transparentemente quando ativo, fallback para spawn direto caso contrário.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-QUALITY-red?style=for-the-badge" /></td>
-<td><strong>Camada Quality / Validação</strong> (v0.8.0) - <code>fpe quality</code>. Parsers nativos de CI workflows (GitHub Actions, GitLab CI, CircleCI, Jenkins), coverage reports (lcov, cobertura, jacoco, jest, go cover) e detecção de flaky tests via mining de git history. Produz <code>.first-plan/11-quality/</code> para que o AI saiba o que roda, o que está testado e o que é instável antes de sugerir mudanças.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-CONTRACTS-teal?style=for-the-badge" /></td>
-<td><strong>Camada Contracts</strong> (v0.9.0) - <code>fpe contracts</code>. Parse de OpenAPI 3.x, Protobuf e GraphQL SDL com cross-reference no código. Cada endpoint, RPC ou operation classificada como IMPLEMENTED, CANDIDATE ou PHANTOM. Produz <code>.first-plan/12-contracts/</code> para ajudar a revisar riscos de contrato e implementações existentes.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-EVOLUTION-darkorange?style=for-the-badge" /></td>
-<td><strong>Camada Evolution</strong> (v0.10.0) - <code>fpe evolution</code>. Detecção de depreciações em código (@deprecated, TODO(remove-after), #[deprecated]) e CHANGELOG (formato Keep-a-Changelog). Breaking commits via mining de git history (feat!, BREAKING CHANGE, keywords migrate/refactor). Replacement pairs inferidos automaticamente. Produz <code>.first-plan/13-evolution/</code> para que o AI pare de sugerir padrões que o time já depreciou.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-RUNTIME-firebrick?style=for-the-badge" /></td>
-<td><strong>Camada Runtime</strong> (v0.11.0) - <code>fpe runtime</code>. Histórico de releases via git tags cross-referenced com CHANGELOG. Commits pendentes após ultima tag com detecção de breaking changes. Mapeamento arquivo-para-release (paralelizado com rayon). Produz <code>.first-plan/14-runtime/</code> para distinguir mudanças publicadas e pendentes. Estado de produção requer evidência de deploy separada.</td>
-</tr>
-<tr>
-<td width="220"><img src="https://img.shields.io/badge/-GENERATE-4B0082?style=for-the-badge" /></td>
-<td><strong>Multi-Tool Generate</strong> (v1.0.0) - <code>fpe generate --tool &lt;nome&gt;</code>. Renderiza o mesmo IR em 5 formatos tool-specific: AGENTS.md (Codex), .cursorrules + .cursor/rules/*.mdc (Cursor), .github/copilot-instructions.md (GitHub Copilot), .clinerules (Cline), CONVENTIONS.md (Aider/generic). Framework pivot: qualquer AI coding tool consome o mesmo contexto compilado.</td>
-</tr>
-</table>
+Da compreensão do código à verificação de uma mudança: escolha o recurso de acordo com sua tarefa.
+
+### Entenda o projeto
+
+| Recurso | Como ajuda no trabalho | Por onde começar |
+| :--- | :--- | :--- |
+| **Descoberta do projeto** | Mapeia stacks, convenções e código reutilizável em `.first-plan/`. | `/fp:init` · `fpe init --llm` |
+| **Contexto por tarefa** | Encontra implementações candidatas, testes e regras aplicáveis, com localização e hashes das fontes. | `fpe context` |
+| **Busca no código** | Recupera símbolos indexados com BM25; builds opcionais adicionam embeddings ou extração por AST. | `fpe search` · [Stacks suportadas](#stack-lenses) |
+| **Navegação por símbolos** | Resolve definições e referências com language servers instalados; o daemon Unix mantém os servidores ativos. | `fpe lsp` |
+| **Histórico de mudanças** | Identifica arquivos que costumam mudar juntos, depreciações e histórico de releases. | `fpe cochange` · `fpe evolution` · `fpe runtime` |
+| **Especificações e qualidade** | Ajuda a revisar diferenças entre especificação e código, configuração de CI e relatórios de cobertura disponíveis. | [Reconciliação](#spec-code-reconciliation) · `fpe quality` |
+
+### Revise e verifique mudanças
+
+| Recurso | Como ajuda no trabalho | Por onde começar |
+| :--- | :--- | :--- |
+| **Regras do projeto** | Declara requisitos, responsáveis e arquivos de código/teste associados; apresenta as obrigações no contexto. | [Guia de regras](../project-rules.md) |
+| **Verificação e revisão de políticas** | Compara alterações em regras/testes com uma política externa e coleta resultados distintos de testes e verificação formal. | `fpe verify` |
+| **Piloto de verificação formal** | Verifica três propriedades do engine com Kani, limites explícitos e controles com defeitos deliberados. | [Escopo e evidências](../verification-pilot.md) |
+| **Compatibilidade de APIs** | Compara baselines OpenAPI e sinaliza mudanças incompatíveis ou análises incompletas. | `fpe contracts diff` |
+| **Impacto entre repositórios** | Encontra consumidores candidatos de APIs e verifica contratos entre repositórios cadastrados. | `fpe impact` · `fpe multi` |
+| **Evidências de deploy** | Registra observações dos ambientes e distingue o estado implantado das tags de release. | `fpe deployment` |
+
+### Integre ao seu fluxo
+
+| Recurso | Como ajuda no trabalho | Por onde começar |
+| :--- | :--- | :--- |
+| **Instruções para ferramentas de IA** | Gera instruções gerenciadas para Codex, Cursor, Copilot, Cline e Aider, preservando o conteúdo escrito pelo time. | `fpe generate` |
+| **MCP somente leitura** | Disponibiliza contexto por tarefa, impacto candidato e observações de deploy para clientes MCP. | `fpe mcp` |
+| **Fluxo no Claude Code** | Oferece skills de descoberta, planejamento, aprovação e execução, com estado persistente do projeto. | [Fluxo plan-first](#plan-first-workflow) |
+| **Controle de atualização** | Marca contexto afetado como desatualizado pelos hooks do Claude Code; o watcher emite eventos do sistema de arquivos. | [Living layer](#living-layer) · `fpe watch` |
+| **Utilitários locais** | Calcula hashes de arquivos e comprime saídas de ferramentas suportadas com o engine Rust. | `fpe hash` · `fpe compress` |
+
+**Opções de build:** o binário padrão inclui busca BM25. Use `-ast` para extração com tree-sitter ou `-ml` para busca híbrida com embeddings. Veja a [instalação do engine](#instalação-do-engine).
+
+**Toda evidência tem um escopo:** resultados de busca e impacto são candidatos; testes aprovados não são provas formais. Resultados formais se aplicam às propriedades e premissas declaradas. Veja os [limites da verificação](../project-rules.md) e a [metodologia de avaliação](../evaluations.md).
 
 ---
 
