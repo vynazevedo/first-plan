@@ -562,10 +562,11 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
                 let (badge_label, sev) = match r.status.as_str() {
                     "breaking" => ("BREAKING", crate::tty::Severity::Bad),
                     "changed" => ("changed", crate::tty::Severity::Warn),
+                    "incomplete" => ("incomplete", crate::tty::Severity::Warn),
                     "clean" => ("clean", crate::tty::Severity::Ok),
                     _ => ("skipped", crate::tty::Severity::Muted),
                 };
-                let detail = if r.status == "skipped" {
+                let detail = if r.reason.is_some() {
                     r.reason.clone().unwrap_or_default().dim().to_string()
                 } else {
                     format!("{} changes ({} breaking)", r.total_changes, r.breaking)
@@ -584,6 +585,9 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
                 "{} breaking change(s) detectadas em {} repo(s)",
                 total_breaking, breaking_repo_count
             )),
+            _ if skipped > 0 || incomplete > 0 || checked == 0 => crate::tty::print_warning(
+                "Analysis incomplete; compatibility has not been established",
+            ),
             _ => crate::tty::print_success(&format!(
                 "OK - nenhum breaking change em {} repo(s) checados",
                 checked
@@ -605,7 +609,7 @@ fn run_contracts_check(args: ContractsCheckArgs) -> Result<()> {
                 _ => "?",
             };
             print!("  {} {:<20} status={:<9}", marker, r.name, r.status);
-            if r.status == "skipped" {
+            if r.reason.is_some() {
                 if let Some(reason) = &r.reason {
                     println!(" reason={}", reason);
                 } else {

@@ -43,10 +43,14 @@ pub fn generate(root: &Path, tool: &str, output_dir: Option<&Path>) -> Result<Ge
         .map(|p| p.to_path_buf())
         .unwrap_or_else(|| root.to_path_buf());
 
+    std::fs::create_dir_all(&output_base).context("failed to create output root")?;
+    let output_base = output_base
+        .canonicalize()
+        .context("failed to resolve output root")?;
     let rendered = adapter.render(&ir, &output_base)?;
     let mut files = Vec::new();
     for (path, content) in rendered {
-        for ancestor in path.ancestors() {
+        for ancestor in path.ancestors().take_while(|p| *p != output_base.as_path()) {
             if let Ok(meta) = std::fs::symlink_metadata(ancestor) {
                 anyhow::ensure!(
                     !meta.file_type().is_symlink(),
@@ -151,6 +155,21 @@ fn merge_managed(existing: &str, generated: &str) -> Result<String> {
 #[cfg(test)]
 mod preservation_tests {
     use super::*;
+    #[cfg(unix)]
+    #[test]
+    fn accepts_root_alias_but_rejects_symlinked_instruction_file() {
+        let tmp = tempfile::tempdir().unwrap();
+        let root = tmp.path().join("actual");
+        std::fs::create_dir(&root).unwrap();
+        let alias = tmp.path().join("alias");
+        std::os::unix::fs::symlink(&root, &alias).unwrap();
+        generate(&alias, "generic", None).unwrap();
+        let target = tmp.path().join("user-rules.md");
+        std::fs::write(&target, "user rules").unwrap();
+        std::os::unix::fs::symlink(&target, root.join("AGENTS.md")).unwrap();
+        assert!(generate(&alias, "codex", None).is_err());
+        assert_eq!(std::fs::read_to_string(target).unwrap(), "user rules");
+    }
     #[test]
     fn preserves_user_content_and_refreshes_idempotently() {
         let initial = "# Team rules\nDo not delete this.\n";
