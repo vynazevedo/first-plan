@@ -1,0 +1,12 @@
+schema_version: 1
+rules:
+  - id: tenant-isolation
+    requirement: Users can read a document only when their tenant matches the document tenant. Missing tenant identity must be rejected.
+    owner: application-security
+    keywords: [tenant, authorization, access, organization]
+    inputs: [app]
+    verification_files: [tests]
+    verifier:
+      kind: test
+      command: [python3, -m, unittest, discover, -s, tests, -v]
+      timeout_seconds: 15

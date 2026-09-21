@@ -47,6 +47,11 @@ jobs:
       - run: cargo build --release --locked --bin fpe
         working-directory: engine
       - run: python3 tools/evaluate.py --binary engine/target/release/fpe --output evaluation.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Project rules end-to-end
+        run: python3 tools/test_project_rules.py --binary engine/target/release/fpe
       - uses: actions/upload-artifact@v4
         with:
           name: evaluation-results

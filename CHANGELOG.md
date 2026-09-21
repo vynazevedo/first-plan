@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Project `.first-plan/rules.yaml` registry with requirement owners, explicit source/test associations and strict validation. Task context and read-only MCP context expose applicable obligations with registry hashes; `--path` / `paths` supplies explicit associations.
+- `fpe verify` plans checks; `policy` exports a review candidate, `review` detects policy drift, `run` requires an externally supplied reviewed policy, and `check` validates report freshness. Changes to requirements, tests or verifier executables invalidate approval. Test and Kani 0.68.0 results remain distinct, with bounded command execution and hashed evidence.
+- Multi-tenant access example and end-to-end controls for cross-tenant defects, weakened tests/rules, missing evidence and a real Kani adapter. Independent policy review and read-only policy storage remain operator responsibilities.
+
 - Experimental Kani 0.68.0 verification pilot imports production Rust primitives for context budgeting, strict contract gates and managed-range text replacement. Rule registry records exact domains and trust assumptions; text proof is bounded to small ASCII inputs, not whole-file or whole-program correctness.
 - `tools/verify.py` collects structured verifier evidence with SHA-256 input/log hashes, freshness checks, timeouts and three deliberate mutation controls. A reusable CI job runs proofs and controls and exposes proof-policy diffs for independent review. No generic `fpe verify` or MCP execution is introduced.
 

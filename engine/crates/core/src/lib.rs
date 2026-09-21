@@ -27,6 +27,7 @@ pub mod multirepo;
 pub mod output;
 pub mod quality;
 pub mod quick;
+pub mod rules;
 pub mod runtime;
 pub mod search;
 pub mod symbols;

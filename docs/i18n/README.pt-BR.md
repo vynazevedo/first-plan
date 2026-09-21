@@ -90,6 +90,14 @@ orçamento de contexto, decisão dos gates e preservação de texto em um domín
 limitado. O piloto inclui controles com defeitos deliberados e relatórios de
 evidência. Não faz parte dos binários v1.5.0. Veja [escopo e reprodução](../verification-pilot.md).
 
+## Em desenvolvimento: regras verificáveis por projeto
+
+Registre requisitos em `.first-plan/rules.yaml`, receba obrigações no contexto com
+`fpe context --path` e execute verificações com `fpe verify run` usando uma política
+revisada fora do projeto. Alterações nas regras ou nos testes exigem revisão da
+política. Testes aprovados e propriedades formais têm resultados distintos.
+Veja [fluxo, limites e exemplo multi-tenant](../project-rules.md). Ainda não incluído na v1.5.0.
+
 ## Quick Start
 
 ### Engine independente: Codex, Cursor, Copilot, Cline e Aider

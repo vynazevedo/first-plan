@@ -92,6 +92,14 @@ contract gate decisions and text preservation within an explicit bounded domain.
 The pilot includes deliberate mutation controls and evidence reports. It is not
 part of the v1.5.0 binaries. See [scope and reproduction](docs/verification-pilot.md).
 
+## In development: verifiable project rules
+
+Register requirements in `.first-plan/rules.yaml`, retrieve obligations through
+`fpe context --path`, and run checks with `fpe verify run` using an externally
+reviewed policy. Rule/test changes require policy review. Passing tests and formal
+verification have distinct results. See [workflow, limits and tenant example](docs/project-rules.md).
+This is not included in v1.5.0.
+
 ## Quick Start
 
 ### For Claude Code users (deep integration)

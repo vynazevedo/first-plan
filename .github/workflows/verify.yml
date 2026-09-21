@@ -36,6 +36,13 @@ jobs:
           cargo kani setup
       - name: Verify actual production primitives and reject mutations
         run: python3 tools/verify.py --mutations --output verification-report.json
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: engine -> target
+      - name: Build CLI for project verifier integration
+        run: cargo build --manifest-path engine/Cargo.toml --release --locked --bin fpe
+      - name: Project rules with real Kani adapter
+        run: python3 tools/test_project_rules.py --binary engine/target/release/fpe --kani cargo-kani
       - name: Check report freshness
         run: python3 tools/verify.py --check-report verification-report.json
       - uses: actions/upload-artifact@v4
