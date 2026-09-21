@@ -161,12 +161,13 @@ pub fn build(root: &Path, query: &str, budget: usize) -> Result<ContextPack> {
             + item.evidence.path.chars().count()
             + item.category.len()
             + 80;
-        if used + cost <= budget
-            && items.len() < 100
-            && locations.insert((item.evidence.path.clone(), item.evidence.line))
-        {
-            used += cost;
-            items.push(item);
+        if let Some(next) = crate::invariants::reserve_budget(used, cost, budget) {
+            if items.len() < 100
+                && locations.insert((item.evidence.path.clone(), item.evidence.line))
+            {
+                used = next;
+                items.push(item);
+            }
         }
     }
     let mut pack = ContextPack { schema_version: 1, query: query.into(), revision: evidence::revision(root),
@@ -187,6 +188,28 @@ fn relevance(tokens: &[String], text: &str) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn selected_items_obey_budget_in_the_real_builder() {
+        let tmp = tempfile::tempdir().unwrap();
+        std::fs::write(tmp.path().join("unicode.md"), "validator é🦀\n".repeat(200)).unwrap();
+        for budget in [256, 257, 512, 8000, 100_000] {
+            let pack = build(tmp.path(), "validator", budget).unwrap();
+            let actual: usize = pack
+                .items
+                .iter()
+                .map(|item| {
+                    item.text.chars().count()
+                        + item.evidence.path.chars().count()
+                        + item.category.len()
+                        + 80
+                })
+                .sum();
+            assert_eq!(actual, pack.content_chars);
+            assert!(actual <= budget);
+            assert!(pack.items.len() <= 100);
+        }
+    }
+
     #[test]
     fn excludes_stale_generated_conventions() {
         let tmp = tempfile::tempdir().unwrap();

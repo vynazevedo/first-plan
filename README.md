@@ -85,6 +85,13 @@ A release tag is not deployment evidence. Context and impact matches are candida
 See [the v1.5 workflow, migration notes and limitations](docs/evidence-workflow.md),
 [evaluation methodology](docs/evaluations.md), and [release procedure](docs/releases.md).
 
+## In development: formal verification pilot
+
+Work after v1.5.0 checks three Rust engine properties with Kani: context budgets,
+contract gate decisions and text preservation within an explicit bounded domain.
+The pilot includes deliberate mutation controls and evidence reports. It is not
+part of the v1.5.0 binaries. See [scope and reproduction](docs/verification-pilot.md).
+
 ## Quick Start
 
 ### For Claude Code users (deep integration)

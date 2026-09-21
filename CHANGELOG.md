@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Experimental Kani 0.68.0 verification pilot imports production Rust primitives for context budgeting, strict contract gates and managed-range text replacement. Rule registry records exact domains and trust assumptions; text proof is bounded to small ASCII inputs, not whole-file or whole-program correctness.
+- `tools/verify.py` collects structured verifier evidence with SHA-256 input/log hashes, freshness checks, timeouts and three deliberate mutation controls. A reusable CI job runs proofs and controls and exposes proof-policy diffs for independent review. No generic `fpe verify` or MCP execution is introduced.
+
+### Fixed
+
+- Context budget reservation rejects arithmetic overflow; contract decisions and instruction replacement now use the same primitives checked by the pilot, with additional Unicode and integration regressions.
+
 ## [1.5.0] - 2026-09-21
 
 ### Added

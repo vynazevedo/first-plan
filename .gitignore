@@ -12,3 +12,9 @@ node_modules/
 # Rust engine build artifacts (commit Cargo.lock for binaries - reproducibility)
 engine/target/
 
+
+# Formal verification pilot artifacts
+verification/target/
+verification-report.json
+verification-report-logs/
+__pycache__/

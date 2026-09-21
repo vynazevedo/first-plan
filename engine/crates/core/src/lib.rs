@@ -20,6 +20,7 @@ pub mod git;
 pub mod hash;
 pub mod index;
 pub mod init;
+pub mod invariants;
 pub mod llm;
 pub mod lsp;
 pub mod multirepo;

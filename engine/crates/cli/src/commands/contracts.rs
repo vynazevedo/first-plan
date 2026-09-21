@@ -195,12 +195,12 @@ fn run_diff(
     for warning in &d.warnings {
         eprintln!("Incomplete contract analysis: {}", warning);
     }
-    if fail_on_breaking && !d.warnings.is_empty() {
+    if !first_plan_core::invariants::contract_gate(fail_on_breaking, d.warnings.is_empty(), 0) {
         return Err(anyhow!(
             "contract analysis incomplete; strict gate cannot establish compatibility"
         ));
     }
-    if fail_on_breaking && d.summary.breaking > 0 {
+    if !first_plan_core::invariants::contract_gate(fail_on_breaking, true, d.summary.breaking) {
         return Err(anyhow!(
             "{} breaking change(s) detectados (--fail-on-breaking)",
             d.summary.breaking
